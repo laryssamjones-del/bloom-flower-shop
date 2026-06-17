@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { InventoryDrawer } from '../components/InventoryDrawer';
@@ -7,6 +7,7 @@ import { CoinCounter } from '../components/CoinCounter';
 const CUSTOMER_SPAWN_INTERVAL = 20000; // 20 seconds
 
 export function ShopScreen() {
+  const [menuOpen, setMenuOpen] = useState(false);
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
   const shelfCapacity = useGameStore((s) => s.shelfCapacity);
   const coins = useGameStore((s) => s.coins);
@@ -179,86 +180,143 @@ export function ShopScreen() {
           </div>
         </div>
 
-        {/* Bottom action area - counter with buttons */}
+        {/* Menu button with dropdown */}
         <div
           style={{
+            position: 'relative',
             background: 'rgba(255, 255, 255, 0.8)',
             backdropFilter: 'blur(4px)',
             padding: '12px',
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '8px',
             borderTop: '2px solid rgba(0,0,0,0.1)',
           }}
         >
           <button
-            onClick={handleArrangeBouquet}
+            onClick={() => setMenuOpen(!menuOpen)}
             style={{
+              width: '100%',
               padding: '12px',
               background: '#D4A574',
               color: '#FFFFFF',
               border: 'none',
               borderRadius: '6px',
-              fontSize: '13px',
+              fontSize: '14px',
               fontWeight: 'bold',
               cursor: 'pointer',
               boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            }}
-          >
-            💐 Arrange
-          </button>
-
-          <button
-            onClick={handleOpenWholesale}
-            style={{
-              padding: '12px',
-              background: '#B8A890',
-              color: '#FFFFFF',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '13px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            }}
-          >
-            🌾 Market
-          </button>
-
-          <button
-            onClick={handleExpandShelf}
-            style={{
-              padding: '12px',
-              background: '#C8B8A0',
-              color: '#FFFFFF',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '13px',
-              fontWeight: 'bold',
-              cursor: coins >= 150 ? 'pointer' : 'not-allowed',
-              opacity: coins >= 150 ? 1 : 0.5,
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            }}
-            disabled={coins < 150}
-          >
-            📦 Expand
-          </button>
-
-          <div
-            style={{
-              padding: '12px',
-              background: 'rgba(0,0,0,0.05)',
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              color: '#666',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              gap: '8px',
             }}
           >
-            Inventory
-          </div>
+            ⚙️ Menu {menuOpen ? '▲' : '▼'}
+          </button>
+
+          {/* Dropdown menu */}
+          {menuOpen && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '100%',
+                left: '12px',
+                right: '12px',
+                marginTop: '8px',
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(4px)',
+                borderRadius: '6px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                zIndex: 100,
+                overflow: 'hidden',
+              }}
+            >
+              <button
+                onClick={() => {
+                  handleArrangeBouquet();
+                  setMenuOpen(false);
+                }}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  background: 'transparent',
+                  border: 'none',
+                  borderBottom: '1px solid rgba(0,0,0,0.1)',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  color: '#333',
+                  textAlign: 'left',
+                  transition: 'background 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(200, 150, 100, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = 'transparent';
+                }}
+              >
+                💐 Arrange Bouquet
+              </button>
+
+              <button
+                onClick={() => {
+                  handleOpenWholesale();
+                  setMenuOpen(false);
+                }}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  background: 'transparent',
+                  border: 'none',
+                  borderBottom: '1px solid rgba(0,0,0,0.1)',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  color: '#333',
+                  textAlign: 'left',
+                  transition: 'background 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(200, 150, 100, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = 'transparent';
+                }}
+              >
+                🌾 Wholesale Market
+              </button>
+
+              <button
+                onClick={() => {
+                  handleExpandShelf();
+                  setMenuOpen(false);
+                }}
+                disabled={coins < 150}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: coins >= 150 ? 'pointer' : 'not-allowed',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  color: coins >= 150 ? '#333' : '#999',
+                  textAlign: 'left',
+                  opacity: coins >= 150 ? 1 : 0.6,
+                  transition: 'background 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  if (coins >= 150) {
+                    (e.currentTarget as HTMLElement).style.background = 'rgba(200, 150, 100, 0.1)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = 'transparent';
+                }}
+              >
+                📦 Expand Shelf (150 coins)
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
