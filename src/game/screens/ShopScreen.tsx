@@ -9,7 +9,6 @@ const CUSTOMER_SPAWN_INTERVAL = 20000; // 20 seconds
 export function ShopScreen() {
   const [menuOpen, setMenuOpen] = useState(false);
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
-  const shelfCapacity = useGameStore((s) => s.shelfCapacity);
   const coins = useGameStore((s) => s.coins);
   const displayedBouquets = useGameStore((s) => s.displayedBouquets);
 
@@ -214,100 +213,78 @@ export function ShopScreen() {
           WebkitOverflowScrolling: 'touch',
         }}
       >
-        {/* Shop shelves and display area */}
+        {/* Shop shelves and display area - integrated into background */}
         <div
           style={{
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
+            justifyContent: 'flex-start',
             alignItems: 'center',
-            padding: '20px',
+            padding: '80px 20px 20px 20px',
             minHeight: 0,
+            position: 'relative',
           }}
         >
-          {/* Display shelf - showing arranged bouquets on counter */}
-          <div
-            style={{
-              width: '100%',
-              maxWidth: '400px',
-              padding: '16px',
-              background: 'rgba(255, 255, 255, 0.6)',
-              borderRadius: '8px',
-              backdropFilter: 'blur(4px)',
-              textAlign: 'center',
-            }}
-          >
-            <h2 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: 'bold' }}>
-              💐 Display Shelf
-            </h2>
-
-            {displayedBouquets.length === 0 || displayedBouquets.every((b) => b === null) ? (
-              <div
-                style={{
-                  padding: '20px',
-                  color: '#999',
-                  fontSize: '14px',
-                }}
-              >
-                No bouquets on display. Arrange one to sell!
-              </div>
-            ) : (
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(60px, 1fr))',
-                  gap: '8px',
-                  marginBottom: '12px',
-                }}
-              >
-                {displayedBouquets.map((bouquet, idx) =>
-                  bouquet ? (
-                    <div
-                      key={idx}
-                      onClick={() => {
-                        useGameStore.getState().sellBouquet(bouquet.id);
-                        RundotGameAPI.analytics.recordCustomEvent('bouquet_sold', {
-                          price: bouquet.sellPrice,
-                        });
-                      }}
-                      style={{
-                        padding: '8px',
-                        background: 'rgba(200, 150, 100, 0.2)',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '32px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        minHeight: '60px',
-                        transition: 'transform 0.2s',
-                      }}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLElement).style.transform = 'scale(1.1)';
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
-                      }}
-                      title={`Sell for ${bouquet.sellPrice} coins`}
-                    >
-                      💐
-                    </div>
-                  ) : null
-                )}
-              </div>
-            )}
-
+          {/* Display shelf - bouquets placed on background shelves */}
+          {displayedBouquets.length === 0 || displayedBouquets.every((b) => b === null) ? (
             <div
               style={{
-                fontSize: '12px',
-                color: '#666',
-                marginBottom: '12px',
+                padding: '20px',
+                color: '#ccc',
+                fontSize: '13px',
+                textAlign: 'center',
               }}
             >
-              Capacity: {displayedBouquets.length}/{shelfCapacity}
+              Arrange bouquets to display
             </div>
-          </div>
+          ) : (
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(70px, 1fr))',
+                gap: '12px',
+                width: '100%',
+                maxWidth: '320px',
+              }}
+            >
+              {displayedBouquets.map((bouquet, idx) =>
+                bouquet ? (
+                  <div
+                    key={idx}
+                    onClick={() => {
+                      useGameStore.getState().sellBouquet(bouquet.id);
+                      RundotGameAPI.analytics.recordCustomEvent('bouquet_sold', {
+                        price: bouquet.sellPrice,
+                      });
+                    }}
+                    style={{
+                      padding: '10px',
+                      cursor: 'pointer',
+                      fontSize: '48px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minHeight: '70px',
+                      transition: 'transform 0.2s, filter 0.2s',
+                      filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.15))',
+                    }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLElement).style.transform = 'scale(1.15)';
+                      (e.currentTarget as HTMLElement).style.filter = 'drop-shadow(3px 3px 6px rgba(0,0,0,0.25))';
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
+                      (e.currentTarget as HTMLElement).style.filter = 'drop-shadow(2px 2px 4px rgba(0,0,0,0.15))';
+                    }}
+                    title={`Sell for ${bouquet.sellPrice} coins`}
+                  >
+                    💐
+                  </div>
+                ) : null
+              )}
+            </div>
+          )}
         </div>
 
       </div>
