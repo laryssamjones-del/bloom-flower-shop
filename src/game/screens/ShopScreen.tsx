@@ -3,6 +3,7 @@ import { useGameStore } from '../../stores/gameStore';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { InventoryDrawer } from '../components/InventoryDrawer';
 import { CoinCounter } from '../components/CoinCounter';
+import { BouquetPreview } from '../components/BouquetPreview';
 
 const CUSTOMER_SPAWN_INTERVAL = 20000; // 20 seconds
 
@@ -242,44 +243,44 @@ export function ShopScreen() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(70px, 1fr))',
-                gap: '12px',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
+                gap: '16px',
                 width: '100%',
-                maxWidth: '320px',
+                maxWidth: '360px',
               }}
             >
               {displayedBouquets.map((bouquet, idx) =>
                 bouquet ? (
                   <div
                     key={idx}
-                    onClick={() => {
-                      useGameStore.getState().sellBouquet(bouquet.id);
-                      RundotGameAPI.analytics.recordCustomEvent('bouquet_sold', {
-                        price: bouquet.sellPrice,
-                      });
-                    }}
                     style={{
-                      padding: '10px',
-                      cursor: 'pointer',
-                      fontSize: '48px',
                       display: 'flex',
+                      flexDirection: 'column',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      minHeight: '70px',
-                      transition: 'transform 0.2s, filter 0.2s',
-                      filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.15))',
+                      gap: '6px',
                     }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.transform = 'scale(1.15)';
-                      (e.currentTarget as HTMLElement).style.filter = 'drop-shadow(3px 3px 6px rgba(0,0,0,0.25))';
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
-                      (e.currentTarget as HTMLElement).style.filter = 'drop-shadow(2px 2px 4px rgba(0,0,0,0.15))';
-                    }}
-                    title={`Sell for ${bouquet.sellPrice} coins`}
                   >
-                    💐
+                    <BouquetPreview
+                      bouquet={bouquet}
+                      size="medium"
+                      clickable={true}
+                      onClickHandler={() => {
+                        useGameStore.getState().sellBouquet(bouquet.id);
+                        RundotGameAPI.analytics.recordCustomEvent('bouquet_sold', {
+                          price: bouquet.sellPrice,
+                        });
+                      }}
+                    />
+                    <div
+                      style={{
+                        fontSize: '11px',
+                        color: '#d4a574',
+                        fontWeight: '500',
+                        textShadow: '0 1px 2px rgba(0,0,0,0.2)',
+                      }}
+                    >
+                      {bouquet.sellPrice}💰
+                    </div>
                   </div>
                 ) : null
               )}
