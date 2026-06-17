@@ -9,7 +9,7 @@ import {
 } from '../types';
 import { FLOWERS, INITIAL_UNLOCKED_FLOWERS } from '../constants/flowers';
 
-const STARTING_COINS = 50;
+const STARTING_COINS = 500;
 const MAX_INVENTORY_STEMS = 200;
 const STARTING_SHELF_CAPACITY = 20;
 
