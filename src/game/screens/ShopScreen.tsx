@@ -55,9 +55,10 @@ export function ShopScreen() {
         minHeight: 0,
         overflow: 'hidden',
         backgroundImage: 'url(/bloomy_shop_background.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        backgroundSize: '100% 100%',
+        backgroundPosition: 'center top',
         backgroundRepeat: 'no-repeat',
+        position: 'relative',
       }}
     >
       {/* Top bar with menu and coin counter */}

@@ -44,7 +44,6 @@ export function BloommyGame() {
   // Save game when leaving
   useEffect(() => {
     const handleBeforeUnload = () => {
-      // Try to save synchronously via localStorage if SDK storage is not available
       const state = useGameStore.getState();
       const stateToPersist = {
         coins: state.coins,
@@ -65,44 +64,41 @@ export function BloommyGame() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
 
+  // Safe-area padding applied inline (values come from SDK at runtime)
+  const safeAreaPadding = {
+    paddingTop: safeArea.top,
+    paddingBottom: safeArea.bottom,
+    paddingLeft: safeArea.left,
+    paddingRight: safeArea.right,
+  };
+
   if (isLoading) {
     return (
-      <div
-        style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: '#F5E6D3',
-          color: '#2A1408',
-          fontSize: '18px',
-          paddingTop: safeArea.top,
-          paddingBottom: safeArea.bottom,
-        }}
-      >
-        🌸 Bloomy is loading...
+      <div className="bloomy-phone-outer">
+        <div
+          className="bloomy-phone-inner"
+          style={{
+            ...safeAreaPadding,
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#F5E6D3',
+            fontSize: '18px',
+          }}
+        >
+          🌸 Bloomy is loading...
+        </div>
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        background: '#F5E6D3',
-        color: '#2A1408',
-        paddingTop: safeArea.top,
-        paddingBottom: safeArea.bottom,
-        paddingLeft: safeArea.left,
-        paddingRight: safeArea.right,
-      }}
-    >
-      {currentScreen === 'shop' && <ShopScreen />}
-      {currentScreen === 'wholesale' && <WholesaleMarketScreen />}
-      {currentScreen === 'arrangement' && <BouquetArrangementScreen />}
-      {currentScreen === 'wrapping' && <WrappingScreen />}
+    <div className="bloomy-phone-outer">
+      <div className="bloomy-phone-inner" style={safeAreaPadding}>
+        {currentScreen === 'shop' && <ShopScreen />}
+        {currentScreen === 'wholesale' && <WholesaleMarketScreen />}
+        {currentScreen === 'arrangement' && <BouquetArrangementScreen />}
+        {currentScreen === 'wrapping' && <WrappingScreen />}
+      </div>
     </div>
   );
 }

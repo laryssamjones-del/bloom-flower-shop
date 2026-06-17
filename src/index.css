@@ -38,3 +38,31 @@ body {
   height: 100vh;
   height: 100dvh;
 }
+
+/* Phone-ratio wrapper — centres a 9:16 column on desktop, fills on mobile */
+.bloomy-phone-outer {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8d5c4;
+  overflow: hidden;
+}
+
+.bloomy-phone-inner {
+  position: relative;
+  /* Never wider than the viewport, never taller than the viewport.
+     On a landscape desktop this gives a tall phone-shaped column.
+     On a portrait mobile screen it fills edge-to-edge. */
+  width: min(100vw, calc(100vh * 9 / 16));
+  width: min(100vw, calc(100dvh * 9 / 16));
+  height: min(100vh, calc(100vw * 16 / 9));
+  height: min(100dvh, calc(100vw * 16 / 9));
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #2a1408;
+}
