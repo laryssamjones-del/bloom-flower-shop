@@ -271,36 +271,26 @@ export function ShopScreen() {
 
       {/* Shelf bouquet display — overlaid on the background shelves */}
       {shelfBouquets.length > 0 && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '22%',
-            left: '15%',
-            right: '15%',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '2%',
-            zIndex: 5,
-          }}
-        >
+        <div style={{ position: 'relative', width: '100%', height: '100%', zIndex: 5 }}>
           {shelfRows.map((row, rowIdx) => {
-            const isLastRow = rowIdx === shelfRows.length - 1;
+            // Shelf positions: top at 21%, middle at 29%, bottom at 39%
+            const shelfPositions = [21, 29, 39];
+            const yPosition = shelfPositions[rowIdx] || 21;
+
             return (
             <div
               key={rowIdx}
               style={{
+                position: 'absolute',
+                bottom: `calc(100% - ${yPosition}%)`,
+                left: '50%',
+                transform: 'translateX(-50%)',
                 display: 'grid',
                 gridTemplateColumns: `repeat(${BOUQUETS_PER_SHELF}, 1fr)`,
-                gap: '12px',
+                gap: '10%',
                 justifyItems: 'center',
                 alignItems: 'flex-end',
-                ...(isLastRow && {
-                  position: 'absolute',
-                  left: '20%',
-                  top: '35%',
-                  right: '20%',
-                  width: 'calc(100% - 40%)',
-                }),
+                width: '50vw',
               }}
             >
               {row.map((bouquet) => (
