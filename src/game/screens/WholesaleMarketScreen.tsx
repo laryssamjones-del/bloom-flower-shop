@@ -40,33 +40,35 @@ export function WholesaleMarketScreen() {
     return 0;
   };
 
-  const handleBuyFlowers = () => {
+  const handleBuyFlowers = (customQuantity?: number) => {
     if (!selectedFlower) return;
 
     const item = getItem(selectedFlower);
     if (!item) return;
 
+    const quantityToBuy = customQuantity || selectedBulk;
+
     // Check daily limit
-    const { canBuy } = checkDailyLimit(selectedFlower, selectedBulk);
+    const { canBuy } = checkDailyLimit(selectedFlower, quantityToBuy);
     if (!canBuy) {
       RundotGameAPI.analytics.recordCustomEvent('daily_limit_reached', {
         flowerId: selectedFlower,
-        attemptedQuantity: selectedBulk,
+        attemptedQuantity: quantityToBuy,
       });
       return;
     }
 
-    const discount = getDiscount(selectedBulk);
-    const baseCost = item.pricePerStem * selectedBulk;
+    const discount = getDiscount(quantityToBuy);
+    const baseCost = item.pricePerStem * quantityToBuy;
     const totalCost = Math.round(baseCost * (1 - discount));
 
     if (coins >= totalCost) {
-      if (spendCoins(totalCost) && addStemsToInventory(selectedFlower, selectedBulk)) {
-        recordDailyPurchase(selectedFlower, selectedBulk);
+      if (spendCoins(totalCost) && addStemsToInventory(selectedFlower, quantityToBuy)) {
+        recordDailyPurchase(selectedFlower, quantityToBuy);
 
         // Show success message
         const itemName = item.name;
-        const successMsg = `✅ Bought ${selectedBulk} ${itemName} for ${totalCost} 🌼`;
+        const successMsg = `✅ Bought ${quantityToBuy} ${itemName} for ${totalCost} 🌼`;
         setSuccessMessage(successMsg);
 
         // Clear success message after 2 seconds
@@ -74,7 +76,7 @@ export function WholesaleMarketScreen() {
 
         RundotGameAPI.analytics.recordCustomEvent('flowers_purchased', {
           flowerId: selectedFlower,
-          quantity: selectedBulk,
+          quantity: quantityToBuy,
           cost: totalCost,
           discount: discount > 0 ? `${(discount * 100).toFixed(0)}%` : 'none',
         });
@@ -377,10 +379,14 @@ export function WholesaleMarketScreen() {
               </button>
             </div>
 
-            {/* Buy button */}
+            {/* Buy buttons */}
             {selectedFlower && getItem(selectedFlower) && (
             (() => {
               const item = getItem(selectedFlower)!;
+              const alreadyBought = dailyPurchases[selectedFlower] || 0;
+              const maxAvailable = 50 - alreadyBought;
+
+              // Current selected amount
               const discount = getDiscount(selectedBulk);
               const totalCost = Math.round(item.pricePerStem * selectedBulk * (1 - discount));
               const { canBuy } = checkDailyLimit(selectedFlower, selectedBulk);
@@ -388,24 +394,53 @@ export function WholesaleMarketScreen() {
               const isDisabled = insufficientCoins || !canBuy;
               const buttonText = !canBuy ? '❌ Daily limit reached' : insufficientCoins ? '❌ Not enough coins' : `💚 Buy ${selectedBulk} stems`;
 
+              // Buy all calculation
+              const buyAllDiscount = getDiscount(maxAvailable);
+              const buyAllCost = Math.round(item.pricePerStem * maxAvailable * (1 - buyAllDiscount));
+              const canBuyAll = checkDailyLimit(selectedFlower, maxAvailable).canBuy;
+              const insufficientCoinsForAll = coins < buyAllCost;
+              const isBuyAllDisabled = insufficientCoinsForAll || !canBuyAll || maxAvailable <= 0;
+
               return (
-                <button
-                  onClick={handleBuyFlowers}
-                  disabled={isDisabled}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    background: isDisabled ? '#CCC' : '#6A9A50',
-                    color: '#FFF',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: isDisabled ? 'not-allowed' : 'pointer',
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  {buttonText}
-                </button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <button
+                    onClick={() => handleBuyFlowers()}
+                    disabled={isDisabled}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      background: isDisabled ? '#CCC' : '#6A9A50',
+                      color: '#FFF',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: isDisabled ? 'not-allowed' : 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {buttonText}
+                  </button>
+
+                  {maxAvailable > 0 && (
+                    <button
+                      onClick={() => handleBuyFlowers(maxAvailable)}
+                      disabled={isBuyAllDisabled}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        background: isBuyAllDisabled ? '#CCC' : '#C8956E',
+                        color: '#FFF',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: isBuyAllDisabled ? 'not-allowed' : 'pointer',
+                        fontSize: '13px',
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      {insufficientCoinsForAll ? `❌ Can't afford all (${buyAllCost} 🌼)` : `🌟 Buy All ${maxAvailable} (${buyAllCost} 🌼)`}
+                    </button>
+                  )}
+                </div>
               );
             })()
             )}
