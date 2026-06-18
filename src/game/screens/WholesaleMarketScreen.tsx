@@ -224,6 +224,11 @@ export function WholesaleMarketScreen() {
                 const totalCost = Math.round(baseCost * (1 - discount));
                 const isBulkSelected = selectedBulk === bulk;
 
+                // Calculate remaining limit after this purchase
+                const alreadyBought = dailyPurchases[selectedFlower!] || 0;
+                const remainingAfterPurchase = 50 - (alreadyBought + bulk);
+                const canAffordThisBulk = remainingAfterPurchase >= 0;
+
                 return (
                   <button
                     key={bulk}
@@ -237,6 +242,7 @@ export function WholesaleMarketScreen() {
                       cursor: 'pointer',
                       fontSize: '11px',
                       fontWeight: 'bold',
+                      opacity: canAffordThisBulk ? 1 : 0.5,
                     }}
                   >
                     <div>{bulk} stems</div>
@@ -246,6 +252,9 @@ export function WholesaleMarketScreen() {
                         -{(discount * 100).toFixed(0)}%
                       </div>
                     )}
+                    <div style={{ color: canAffordThisBulk ? '#666' : '#c45d5d', fontSize: '9px', marginTop: '4px' }}>
+                      {canAffordThisBulk ? `→ ${remainingAfterPurchase}/50` : '❌ exceeds limit'}
+                    </div>
                   </button>
                 );
               })}
