@@ -178,12 +178,6 @@ export const GREENERY = {
     spriteUrl: '/flowers/eucalyptus.png',
     pricePerStem: 2,
   },
-  dried_wheat_green: {
-    id: 'dried_wheat_green',
-    name: 'Dried Wheat (Green)',
-    spriteUrl: '/flowers/dried-wheat-g.png',
-    pricePerStem: 2,
-  },
   fern: {
     id: 'fern',
     name: 'Fern',
