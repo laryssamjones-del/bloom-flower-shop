@@ -8,6 +8,7 @@ import {
   StemInInventory,
 } from '../types';
 import { FLOWERS, INITIAL_UNLOCKED_FLOWERS } from '../constants/flowers';
+import { getRandomBouquetImage } from '../data/bouquets';
 
 const STARTING_COINS = 500;
 const MAX_INVENTORY_STEMS = 200;
@@ -228,6 +229,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       wrappingPaper: wrapping.wrapping,
       ribbonColor: wrapping.ribbon,
       sellPrice: price,
+      thumbnailUrl: getRandomBouquetImage(),
       createdAt: Date.now(),
     };
 

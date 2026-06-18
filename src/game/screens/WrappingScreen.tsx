@@ -44,6 +44,7 @@ export function WrappingScreen() {
         wrapping: selectedWrapping,
         ribbon: selectedRibbon,
         estimatedPrice: bouquet.sellPrice,
+        bouquetImage: bouquet.thumbnailUrl,
       });
 
       setCurrentScreen('shop');

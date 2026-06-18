@@ -40,6 +40,39 @@ export function BouquetPreview({
   };
 
   const dimensions = sizeMap[size];
+
+  // If we have a pre-made bouquet image, display it
+  if (bouquet.thumbnailUrl) {
+    return (
+      <div
+        onClick={clickable ? onClickHandler : undefined}
+        style={{
+          position: 'relative',
+          width: dimensions.container,
+          height: dimensions.container,
+          cursor: clickable ? 'pointer' : 'default',
+          transition: 'transform 0.2s, filter 0.2s',
+          backgroundImage: `url('${bouquet.thumbnailUrl}')`,
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+        }}
+        onMouseEnter={(e) => {
+          if (clickable) {
+            (e.currentTarget as HTMLElement).style.transform = 'scale(1.1)';
+            (e.currentTarget as HTMLElement).style.filter = 'drop-shadow(3px 3px 8px rgba(0,0,0,0.3))';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (clickable) {
+            (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
+            (e.currentTarget as HTMLElement).style.filter = 'drop-shadow(2px 2px 4px rgba(0,0,0,0.15))';
+          }
+        }}
+      />
+    );
+  }
+
   const wrappingStyle = WRAPPING_STYLES[bouquet.wrappingPaper];
   const ribbonColor = RIBBON_COLORS[bouquet.ribbonColor];
 
