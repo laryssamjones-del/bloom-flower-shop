@@ -13,7 +13,7 @@ import { FLOWERS, INITIAL_UNLOCKED_FLOWERS, CUSTOMER_MOODS } from '../constants/
 import { BOUQUET_RECIPES, getRecipeById } from '../data/bouquets';
 import { MYSTERY_BOX_COST_RUN_BUCKS, getRandomMysteryBouquet } from '../data/mysteryBox';
 
-const STARTING_COINS = 650;
+const STARTING_COINS = 250;
 const MAX_INVENTORY_STEMS = 200;
 const STARTING_SHELF_CAPACITY = 15;
 const DAILY_PURCHASE_LIMIT = 50; // 50 stems per flower per day
