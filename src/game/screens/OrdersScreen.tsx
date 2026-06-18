@@ -1,26 +1,45 @@
 import { useGameStore } from '../../stores/gameStore';
-import { FLOWERS } from '../../constants/flowers';
+import { FLOWERS, GREENERY } from '../../constants/flowers';
+import { getRecipeById, TIER_LABELS, TIER_COLORS } from '../../data/bouquets';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { ScreenNavigation } from '../components/ScreenNavigation';
+
+function getFlowerOrGreeneryName(flowerId: string): string {
+  const flower = FLOWERS[flowerId];
+  if (flower) return flower.name;
+  const greenery = GREENERY[flowerId as keyof typeof GREENERY];
+  if (greenery) return greenery.name;
+  return flowerId;
+}
+
+function getFlowerOrGreenerySprite(flowerId: string): string {
+  const flower = FLOWERS[flowerId];
+  if (flower) return flower.spriteUrl;
+  const greenery = GREENERY[flowerId as keyof typeof GREENERY];
+  if (greenery) return greenery.spriteUrl;
+  return '';
+}
 
 export function OrdersScreen() {
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
   const pendingOrders = useGameStore((s) => s.pendingOrders);
-  const stemsInArrangement = useGameStore((s) => s.stemsInArrangement);
-  const completeOrder = useGameStore((s) => s.completeOrder);
+  const selectRecipe = useGameStore((s) => s.selectRecipe);
+  const inventory = useGameStore((s) => s.inventory);
+  const canMakeRecipe = useGameStore((s) => s.canMakeRecipe);
+  const removeOrder = useGameStore((s) => s.removeOrder);
 
-  const handleConfirmOrder = (orderId: string, reward: number) => {
-    // Check if the arrangement matches the order
-    completeOrder(orderId, reward);
-
-    RundotGameAPI.analytics.recordCustomEvent('order_completed', {
+  const handleFulfillOrder = (orderId: string, recipeId: string) => {
+    selectRecipe(recipeId, orderId);
+    RundotGameAPI.analytics.recordCustomEvent('order_fulfill_started', {
       orderId,
-      reward,
-      stemCount: stemsInArrangement.length,
+      recipeId,
     });
+    setCurrentScreen('arrangement');
+  };
 
-    // Go back to shop
-    setCurrentScreen('shop');
+  const handleDeclineOrder = (orderId: string) => {
+    removeOrder(orderId);
+    RundotGameAPI.analytics.recordCustomEvent('order_declined', { orderId });
   };
 
   return (
@@ -44,7 +63,7 @@ export function OrdersScreen() {
           alignItems: 'center',
         }}
       >
-        <h1 style={{ margin: 0, fontSize: '18px' }}>📋 Orders ({pendingOrders.length})</h1>
+        <h1 style={{ margin: 0, fontSize: '18px' }}>📋 Orders ({pendingOrders.length}/10)</h1>
         <button
           onClick={() => setCurrentScreen('shop')}
           style={{
@@ -81,121 +100,181 @@ export function OrdersScreen() {
               color: '#666',
             }}
           >
-            <p style={{ fontSize: '14px', marginBottom: '8px' }}>No pending orders</p>
-            <p style={{ fontSize: '12px', opacity: 0.7 }}>Check back soon for customer orders!</p>
+            <p style={{ fontSize: '14px', marginBottom: '8px' }}>No pending orders 🌸</p>
+            <p style={{ fontSize: '12px', opacity: 0.7 }}>Check back soon — new orders arrive every 20 seconds!</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gap: '12px' }}>
-            {pendingOrders.map((order) => (
-              <div
-                key={order.id}
-                style={{
-                  padding: '12px',
-                  background: 'rgba(255,255,255,0.6)',
-                  border: '2px solid #6A9A50',
-                  borderRadius: '6px',
-                }}
-              >
-                {/* Customer Info */}
-                <div style={{ marginBottom: '12px' }}>
-                  <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '4px' }}>
-                    {order.customerMood}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#666' }}>Customer Type: {order.customerType}</div>
-                </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {pendingOrders.map((order) => {
+              const recipe = getRecipeById(order.recipeId);
+              const canMake = canMakeRecipe(order.recipeId);
 
-                {/* Required Stems */}
-                <div style={{ marginBottom: '12px' }}>
-                  <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>
-                    Required Stems:
-                  </div>
-                  <div style={{ display: 'grid', gap: '6px' }}>
-                    {order.requiredStems.map((stem, idx) => {
-                      const flower = FLOWERS[stem.flowerId];
-                      return (
-                        <div
-                          key={idx}
-                          style={{
-                            padding: '8px',
-                            background: 'rgba(0,0,0,0.05)',
-                            borderRadius: '4px',
-                            fontSize: '12px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                          }}
-                        >
-                          {flower && (
-                            <>
-                              <img
-                                src={flower.spriteUrl}
-                                alt={flower.name}
-                                style={{
-                                  width: '32px',
-                                  height: '32px',
-                                  objectFit: 'contain',
-                                }}
-                              />
-                              <span>{flower.name}</span>
-                            </>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+              // Build unique ingredient summary from recipe
+              const ingredientSummary = recipe
+                ? recipe.ingredients.map((ing) => {
+                    const inv = inventory.find((i) => i.flowerId === ing.flowerId);
+                    const have = inv ? inv.quantity : 0;
+                    return {
+                      flowerId: ing.flowerId,
+                      needed: ing.quantity,
+                      have,
+                      ok: have >= ing.quantity,
+                    };
+                  })
+                : [];
 
-                {/* Reward */}
+              return (
                 <div
+                  key={order.id}
                   style={{
-                    padding: '8px',
-                    background: '#d4f1d4',
-                    borderRadius: '4px',
-                    marginBottom: '12px',
-                    fontSize: '13px',
-                    fontWeight: 'bold',
-                    color: '#2A5A2A',
-                    textAlign: 'center',
+                    padding: '12px',
+                    background: 'rgba(255,255,255,0.7)',
+                    border: `2px solid ${canMake ? '#6A9A50' : '#D4AF37'}`,
+                    borderRadius: '10px',
                   }}
                 >
-                  Reward: {order.reward} 🌼
-                </div>
+                  {/* Order title row */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: '10px',
+                      alignItems: 'flex-start',
+                      marginBottom: '10px',
+                    }}
+                  >
+                    {recipe && (
+                      <img
+                        src={recipe.imageUrl}
+                        alt={recipe.name}
+                        style={{ width: '64px', height: '64px', objectFit: 'contain', flexShrink: 0 }}
+                      />
+                    )}
+                    <div style={{ flex: 1 }}>
+                      {recipe && (
+                        <div
+                          style={{
+                            display: 'inline-block',
+                            fontSize: '10px',
+                            fontWeight: 'bold',
+                            color: '#FFF',
+                            background: TIER_COLORS[recipe.tier],
+                            borderRadius: '8px',
+                            padding: '2px 6px',
+                            marginBottom: '4px',
+                          }}
+                        >
+                          {TIER_LABELS[recipe.tier]}
+                        </div>
+                      )}
+                      <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#333' }}>
+                        {order.recipeName}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#888', marginTop: '2px' }}>
+                        {order.customerMood}
+                      </div>
+                      <div
+                        style={{
+                          marginTop: '4px',
+                          fontSize: '13px',
+                          fontWeight: 'bold',
+                          color: '#6A9A50',
+                        }}
+                      >
+                        Reward: {order.reward} 🌼
+                      </div>
+                    </div>
+                  </div>
 
-                {/* Action Buttons */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                  <button
-                    onClick={() => setCurrentScreen('arrangement')}
-                    style={{
-                      padding: '10px',
-                      background: '#6A9A50',
-                      color: '#FFF',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    Arrange Bouquet
-                  </button>
-                  <button
-                    onClick={() => handleConfirmOrder(order.id, order.reward)}
-                    style={{
-                      padding: '10px',
-                      background: '#6A9A50',
-                      color: '#FFF',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    ✅ Confirm
-                  </button>
+                  {/* Ingredient checklist */}
+                  {ingredientSummary.length > 0 && (
+                    <div style={{ marginBottom: '10px' }}>
+                      <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#555', marginBottom: '6px' }}>
+                        What you need:
+                      </div>
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(2, 1fr)',
+                          gap: '4px',
+                        }}
+                      >
+                        {ingredientSummary.map((item) => {
+                          const sprite = getFlowerOrGreenerySprite(item.flowerId);
+                          const name = getFlowerOrGreeneryName(item.flowerId);
+                          return (
+                            <div
+                              key={item.flowerId}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                padding: '4px 6px',
+                                background: item.ok
+                                  ? 'rgba(106,154,80,0.1)'
+                                  : 'rgba(255,100,100,0.08)',
+                                borderRadius: '4px',
+                                border: `1px solid ${item.ok ? '#6A9A50' : '#E74C3C'}`,
+                              }}
+                            >
+                              {sprite && (
+                                <img
+                                  src={sprite}
+                                  alt={name}
+                                  style={{ width: '24px', height: '24px', objectFit: 'contain' }}
+                                />
+                              )}
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontSize: '10px', fontWeight: 'bold', color: '#333', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  {name}
+                                </div>
+                                <div style={{ fontSize: '9px', color: '#777' }}>
+                                  {item.have}/{item.needed}
+                                </div>
+                              </div>
+                              <div style={{ fontSize: '12px' }}>{item.ok ? '✅' : '❌'}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Action buttons */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    <button
+                      onClick={() => handleDeclineOrder(order.id)}
+                      style={{
+                        padding: '10px',
+                        background: 'rgba(200,100,100,0.15)',
+                        color: '#C0392B',
+                        border: '1px solid #C0392B',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      ✕ Decline
+                    </button>
+                    <button
+                      onClick={() => handleFulfillOrder(order.id, order.recipeId)}
+                      style={{
+                        padding: '10px',
+                        background: canMake ? '#6A9A50' : '#D4AF37',
+                        color: '#FFF',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      {canMake ? '✅ Fulfill Now' : '💐 Start Making'}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

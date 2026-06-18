@@ -57,6 +57,8 @@ export interface Order {
   customerId: string;
   customerType: 'customer-a' | 'customer-b' | 'customer-c';
   customerMood: string;
+  recipeId: string;
+  recipeName: string;
   requiredStems: BouquetStem[];
   reward: number;
   status: 'pending' | 'completed';
@@ -110,6 +112,9 @@ export interface ShopState extends GameState {
     ribbon: RibbonColor;
   };
   selectedOrderId?: string;
+  // Recipe system
+  selectedRecipeId?: string;    // which recipe the player is currently making
+  fulfillOrderId?: string;      // if making a bouquet to fulfill a specific order
 }
 
 export interface SpecialBox {

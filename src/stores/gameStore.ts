@@ -9,7 +9,7 @@ import {
   Order,
 } from '../types';
 import { FLOWERS, INITIAL_UNLOCKED_FLOWERS, CUSTOMER_MOODS } from '../constants/flowers';
-import { getBouquetImageForStems } from '../data/bouquets';
+import { BOUQUET_RECIPES, getRecipeById } from '../data/bouquets';
 
 const STARTING_COINS = 650;
 const MAX_INVENTORY_STEMS = 200;
@@ -85,6 +85,12 @@ interface GameStoreActions {
   // Wrapping
   setWrappingSelection: (wrapping: WrappingPaperType, ribbon: RibbonColor) => void;
   createBouquet: () => Bouquet | null;
+
+  // Recipe system
+  selectRecipe: (recipeId: string, fulfillOrderId?: string) => boolean;
+  clearSelectedRecipe: () => void;
+  canMakeRecipe: (recipeId: string) => boolean;
+  getRecipeMissingIngredients: (recipeId: string) => Array<{ flowerId: string; needed: number; have: number }>;
 
   // Shelf
   addBouquetToShelf: (bouquet: Bouquet) => boolean;
@@ -232,7 +238,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
   // Bouquet arrangement
   addStemToArrangement: (flowerId: string) => {
     const state = get();
-    if (state.stemsInArrangement.length >= 7) return false;
+    if (state.stemsInArrangement.length >= 10) return false;
     if (!state.inventory.find((item) => item.flowerId === flowerId && item.quantity > 0)) {
       return false;
     }
@@ -255,11 +261,60 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
   },
 
   clearArrangement: () => {
-    set({ stemsInArrangement: [], inProgressWrapping: undefined });
+    set({ stemsInArrangement: [], inProgressWrapping: undefined, selectedRecipeId: undefined, fulfillOrderId: undefined });
   },
 
   getStemsInArrangement: () => {
     return get().stemsInArrangement;
+  },
+
+  // Recipe system
+  selectRecipe: (recipeId: string, fulfillOrderId?: string) => {
+    const recipe = getRecipeById(recipeId);
+    if (!recipe) return false;
+    // Build stemsInArrangement from recipe ingredients (expanded per quantity)
+    const stems: BouquetStem[] = [];
+    let idx = 0;
+    for (const ing of recipe.ingredients) {
+      for (let q = 0; q < ing.quantity; q++) {
+        stems.push({ flowerId: ing.flowerId, order: idx++ });
+      }
+    }
+    set({
+      selectedRecipeId: recipeId,
+      fulfillOrderId,
+      stemsInArrangement: stems,
+    });
+    return true;
+  },
+
+  clearSelectedRecipe: () => {
+    set({ selectedRecipeId: undefined, fulfillOrderId: undefined, stemsInArrangement: [] });
+  },
+
+  canMakeRecipe: (recipeId: string) => {
+    const state = get();
+    const recipe = getRecipeById(recipeId);
+    if (!recipe) return false;
+    for (const ing of recipe.ingredients) {
+      const inv = state.inventory.find((i) => i.flowerId === ing.flowerId);
+      if (!inv || inv.quantity < ing.quantity) return false;
+    }
+    return true;
+  },
+
+  getRecipeMissingIngredients: (recipeId: string) => {
+    const state = get();
+    const recipe = getRecipeById(recipeId);
+    if (!recipe) return [];
+    return recipe.ingredients.map((ing) => {
+      const inv = state.inventory.find((i) => i.flowerId === ing.flowerId);
+      return {
+        flowerId: ing.flowerId,
+        needed: ing.quantity,
+        have: inv ? inv.quantity : 0,
+      };
+    });
   },
 
   // Wrapping
@@ -274,27 +329,53 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
 
     if (stems.length === 0 || !wrapping) return null;
 
-    // Remove stems from inventory
+    // Remove stems from inventory (1 per stem entry)
     for (const stem of stems) {
       if (!state.removeStemsFromInventory(stem.flowerId, 1)) {
         return null;
       }
     }
 
-    const price = state.calculateBouquetPrice(stems);
+    // Use recipe data if a recipe is selected, otherwise fall back to calculation
+    const recipe = state.selectedRecipeId ? getRecipeById(state.selectedRecipeId) : undefined;
+    const price = recipe ? recipe.sellPrice : state.calculateBouquetPrice(stems);
+    const thumbnailUrl = recipe ? recipe.imageUrl : '/bouquets/sunshine-bunch.png';
+
     const bouquet: Bouquet = {
       id: `bouquet-${Date.now()}-${Math.random()}`,
       stems,
       wrappingPaper: wrapping.wrapping,
       ribbonColor: wrapping.ribbon,
       sellPrice: price,
-      thumbnailUrl: getBouquetImageForStems(stems.map((s) => s.flowerId)),
+      thumbnailUrl,
       createdAt: Date.now(),
     };
+
+    // If fulfilling an order, complete it instead of going to shop shelf
+    const fulfillOrderId = state.fulfillOrderId;
+    if (fulfillOrderId) {
+      const order = state.pendingOrders.find((o) => o.id === fulfillOrderId);
+      if (order) {
+        set((s) => ({
+          pendingOrders: s.pendingOrders.filter((o) => o.id !== fulfillOrderId),
+          completedOrders: [...s.completedOrders, { ...order, status: 'completed' }],
+          totalCustomersServed: s.totalCustomersServed + 1,
+          stemsInArrangement: [],
+          inProgressWrapping: undefined,
+          selectedRecipeId: undefined,
+          fulfillOrderId: undefined,
+          currentScreen: 'orders',
+          lastUpdated: Date.now(),
+        }));
+        state.addCoins(price);
+        return bouquet;
+      }
+    }
 
     set({
       stemsInArrangement: [],
       inProgressWrapping: undefined,
+      selectedRecipeId: undefined,
       currentScreen: 'shop',
     });
 
@@ -425,30 +506,27 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     const selectedType = types[Math.floor(Math.random() * types.length)]!;
     const mood = CUSTOMER_MOODS[Math.floor(Math.random() * CUSTOMER_MOODS.length)]!;
 
-    // Generate random bouquet requirement (1-7 stems)
-    const stemCount = Math.floor(Math.random() * 7) + 1;
-    const availableFlowerIds = Array.from(INITIAL_UNLOCKED_FLOWERS);
-    const selectedFlowerIds = availableFlowerIds.sort(() => Math.random() - 0.5).slice(0, stemCount);
+    // Pick a random recipe from the full recipe book
+    const recipe = BOUQUET_RECIPES[Math.floor(Math.random() * BOUQUET_RECIPES.length)]!;
 
-    const requiredStems: BouquetStem[] = selectedFlowerIds.map((flowerId, index) => ({
-      flowerId,
-      order: index,
-    }));
-
-    // Calculate reward based on stems
-    const stemPrice = requiredStems.reduce((sum, stem) => {
-      const flower = FLOWERS[stem.flowerId];
-      return sum + (flower?.pricePerStem || 0);
-    }, 0);
-    const reward = Math.round(stemPrice * 2.5 + (stemCount - 1) * 3); // Same as bouquet pricing
+    // Build requiredStems from recipe ingredients (expanded per quantity)
+    const requiredStems: BouquetStem[] = [];
+    let idx = 0;
+    for (const ing of recipe.ingredients) {
+      for (let q = 0; q < ing.quantity; q++) {
+        requiredStems.push({ flowerId: ing.flowerId, order: idx++ });
+      }
+    }
 
     const order: Order = {
       id: `order-${Date.now()}-${Math.random()}`,
       customerId: `customer-${Date.now()}`,
       customerType: selectedType,
       customerMood: mood.text,
+      recipeId: recipe.id,
+      recipeName: recipe.name,
       requiredStems,
-      reward,
+      reward: recipe.sellPrice,
       status: 'pending',
       createdAt: Date.now(),
     };

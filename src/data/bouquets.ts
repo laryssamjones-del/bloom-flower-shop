@@ -1,145 +1,461 @@
-export interface PreMadeBouquet {
-  id: number;
+export interface RecipeIngredient {
+  flowerId: string;
+  quantity: number;
+}
+
+export type BouquetTier = 'budget' | 'standard' | 'premium' | 'deluxe';
+
+export interface BouquetRecipe {
+  id: string;
   name: string;
+  tier: BouquetTier;
+  sellPrice: number;
+  ingredients: RecipeIngredient[];
   imageUrl: string;
+  totalStems: number;
 }
 
-export const preMadeBouquets: PreMadeBouquet[] = [
-  { id: 1, name: 'Sunshine Bunch', imageUrl: '/bouquets/sunshine-bunch.png' },
-  { id: 2, name: 'Lavender Dream', imageUrl: '/bouquets/lavender-dream.png' },
-  { id: 3, name: 'Golden Meadow', imageUrl: '/bouquets/golden-meadow.png' },
-  { id: 4, name: 'Spring Cosmos', imageUrl: '/bouquets/spring-cosmos.png' },
-  { id: 5, name: 'Tulip Garden', imageUrl: '/bouquets/tulip-garden.png' },
-  { id: 6, name: 'Violet Anemone', imageUrl: '/bouquets/violet-anemone.png' },
-  { id: 7, name: 'Poppy Field', imageUrl: '/bouquets/poppy-field.png' },
-  { id: 8, name: 'Carnation Kiss', imageUrl: '/bouquets/carnation-kiss.png' },
-  { id: 9, name: 'Golden Luxury', imageUrl: '/bouquets/golden-luxury.png' },
-  { id: 10, name: 'Rose Garden', imageUrl: '/bouquets/rose-garden.png' },
-  { id: 11, name: 'Peony Blush', imageUrl: '/bouquets/peony-blush.png' },
-  { id: 12, name: 'Lily & Orchid', imageUrl: '/bouquets/lily-orchid.png' },
-  { id: 13, name: 'Hydrangea Cloud', imageUrl: '/bouquets/hydrangea-cloud.png' },
-  { id: 14, name: 'Cherry Blossom Dream', imageUrl: '/bouquets/cherry-blossom-dream.png' },
-  { id: 15, name: 'Protea Statement', imageUrl: '/bouquets/protea-statement.png' },
-  { id: 16, name: 'Midnight Poppy', imageUrl: '/bouquets/midnight-poppy.png' },
-  { id: 17, name: 'Enchanted Lilac', imageUrl: '/bouquets/enchanted-lilac.png' },
-  { id: 18, name: 'Grand Opulence', imageUrl: '/bouquets/grand-opulence.png' },
+export const BOUQUET_RECIPES: BouquetRecipe[] = [
+  // ── BUDGET ────────────────────────────────────────────────────────────────
+  {
+    id: 'sunshine-bunch',
+    name: 'Sunshine Bunch',
+    tier: 'budget',
+    sellPrice: 18,
+    ingredients: [
+      { flowerId: 'daisy', quantity: 3 },
+      { flowerId: 'babys_breath', quantity: 1 },
+      { flowerId: 'fern', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/sunshine-bunch.png',
+    totalStems: 5,
+  },
+  {
+    id: 'lavender-dream',
+    name: 'Lavender Dream',
+    tier: 'budget',
+    sellPrice: 22,
+    ingredients: [
+      { flowerId: 'lavender', quantity: 1 },
+      { flowerId: 'daisy', quantity: 2 },
+      { flowerId: 'eucalyptus', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/lavender-dream.png',
+    totalStems: 4,
+  },
+  {
+    id: 'golden-meadow',
+    name: 'Golden Meadow',
+    tier: 'budget',
+    sellPrice: 24,
+    ingredients: [
+      { flowerId: 'sunflower', quantity: 1 },
+      { flowerId: 'marigold', quantity: 2 },
+      { flowerId: 'dried_wheat', quantity: 2 },
+      { flowerId: 'ruscus', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/golden-meadow.png',
+    totalStems: 6,
+  },
+  {
+    id: 'spring-cosmos',
+    name: 'Spring Cosmos',
+    tier: 'budget',
+    sellPrice: 20,
+    ingredients: [
+      { flowerId: 'cosmos', quantity: 3 },
+      { flowerId: 'daisy', quantity: 2 },
+      { flowerId: 'babys_breath', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/spring-cosmos.png',
+    totalStems: 6,
+  },
+  {
+    id: 'wheat-and-herb',
+    name: 'Wheat & Herb',
+    tier: 'budget',
+    sellPrice: 16,
+    ingredients: [
+      { flowerId: 'dried_wheat', quantity: 3 },
+      { flowerId: 'eucalyptus', quantity: 1 },
+      { flowerId: 'ruscus', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/golden-meadow.png',
+    totalStems: 5,
+  },
+  {
+    id: 'daisy-and-fern',
+    name: 'Daisy & Fern',
+    tier: 'budget',
+    sellPrice: 14,
+    ingredients: [
+      { flowerId: 'daisy', quantity: 4 },
+      { flowerId: 'fern', quantity: 2 },
+    ],
+    imageUrl: '/bouquets/sunshine-bunch.png',
+    totalStems: 6,
+  },
+
+  // ── STANDARD ──────────────────────────────────────────────────────────────
+  {
+    id: 'tulip-garden',
+    name: 'Tulip Garden',
+    tier: 'standard',
+    sellPrice: 32,
+    ingredients: [
+      { flowerId: 'tulip', quantity: 3 },
+      { flowerId: 'carnation', quantity: 1 },
+      { flowerId: 'eucalyptus', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/tulip-garden.png',
+    totalStems: 5,
+  },
+  {
+    id: 'violet-anemone',
+    name: 'Violet Anemone',
+    tier: 'standard',
+    sellPrice: 34,
+    ingredients: [
+      { flowerId: 'anemone', quantity: 2 },
+      { flowerId: 'lavender', quantity: 1 },
+      { flowerId: 'sweet_pea', quantity: 1 },
+      { flowerId: 'fern', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/violet-anemone.png',
+    totalStems: 5,
+  },
+  {
+    id: 'poppy-field',
+    name: 'Poppy Field',
+    tier: 'standard',
+    sellPrice: 38,
+    ingredients: [
+      { flowerId: 'poppy', quantity: 2 },
+      { flowerId: 'cosmos', quantity: 2 },
+      { flowerId: 'babys_breath', quantity: 1 },
+      { flowerId: 'olive_branch', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/poppy-field.png',
+    totalStems: 6,
+  },
+  {
+    id: 'carnation-kiss',
+    name: 'Carnation Kiss',
+    tier: 'standard',
+    sellPrice: 30,
+    ingredients: [
+      { flowerId: 'carnation', quantity: 3 },
+      { flowerId: 'sweet_pea', quantity: 2 },
+      { flowerId: 'ruscus', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/carnation-kiss.png',
+    totalStems: 6,
+  },
+  {
+    id: 'marigold-sunrise',
+    name: 'Marigold Sunrise',
+    tier: 'standard',
+    sellPrice: 28,
+    ingredients: [
+      { flowerId: 'marigold', quantity: 3 },
+      { flowerId: 'cosmos', quantity: 2 },
+      { flowerId: 'dried_wheat', quantity: 2 },
+    ],
+    imageUrl: '/bouquets/golden-meadow.png',
+    totalStems: 7,
+  },
+  {
+    id: 'tulip-and-lilac',
+    name: 'Tulip & Lilac',
+    tier: 'standard',
+    sellPrice: 36,
+    ingredients: [
+      { flowerId: 'tulip', quantity: 2 },
+      { flowerId: 'lilac', quantity: 1 },
+      { flowerId: 'babys_breath', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/tulip-garden.png',
+    totalStems: 4,
+  },
+  {
+    id: 'sweet-meadow',
+    name: 'Sweet Meadow',
+    tier: 'standard',
+    sellPrice: 33,
+    ingredients: [
+      { flowerId: 'sweet_pea', quantity: 2 },
+      { flowerId: 'cosmos', quantity: 2 },
+      { flowerId: 'daisy', quantity: 2 },
+      { flowerId: 'olive_branch', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/spring-cosmos.png',
+    totalStems: 7,
+  },
+
+  // ── PREMIUM ───────────────────────────────────────────────────────────────
+  {
+    id: 'golden-luxury',
+    name: 'Golden Luxury',
+    tier: 'premium',
+    sellPrice: 52,
+    ingredients: [
+      { flowerId: 'sunflower', quantity: 1 },
+      { flowerId: 'rose', quantity: 2 },
+      { flowerId: 'marigold', quantity: 2 },
+      { flowerId: 'monstera', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/golden-luxury.png',
+    totalStems: 6,
+  },
+  {
+    id: 'rose-garden',
+    name: 'Rose Garden',
+    tier: 'premium',
+    sellPrice: 58,
+    ingredients: [
+      { flowerId: 'rose', quantity: 2 },
+      { flowerId: 'white_rose', quantity: 2 },
+      { flowerId: 'babys_breath', quantity: 1 },
+      { flowerId: 'eucalyptus', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/rose-garden.png',
+    totalStems: 6,
+  },
+  {
+    id: 'peony-blush',
+    name: 'Peony Blush',
+    tier: 'premium',
+    sellPrice: 62,
+    ingredients: [
+      { flowerId: 'peony', quantity: 1 },
+      { flowerId: 'ranunculus', quantity: 2 },
+      { flowerId: 'lilac', quantity: 1 },
+      { flowerId: 'fern', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/peony-blush.png',
+    totalStems: 5,
+  },
+  {
+    id: 'lily-orchid',
+    name: 'Lily & Orchid',
+    tier: 'premium',
+    sellPrice: 64,
+    ingredients: [
+      { flowerId: 'lily', quantity: 1 },
+      { flowerId: 'orchid', quantity: 1 },
+      { flowerId: 'lisianthus', quantity: 2 },
+      { flowerId: 'ruscus', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/lily-orchid.png',
+    totalStems: 5,
+  },
+  {
+    id: 'hydrangea-cloud',
+    name: 'Hydrangea Cloud',
+    tier: 'premium',
+    sellPrice: 56,
+    ingredients: [
+      { flowerId: 'hydrangea', quantity: 1 },
+      { flowerId: 'white_rose', quantity: 2 },
+      { flowerId: 'sweet_pea', quantity: 1 },
+      { flowerId: 'olive_branch', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/hydrangea-cloud.png',
+    totalStems: 5,
+  },
+  {
+    id: 'lisianthus-and-rose',
+    name: 'Lisianthus & Rose',
+    tier: 'premium',
+    sellPrice: 54,
+    ingredients: [
+      { flowerId: 'lisianthus', quantity: 2 },
+      { flowerId: 'rose', quantity: 1 },
+      { flowerId: 'carnation', quantity: 1 },
+      { flowerId: 'eucalyptus', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/rose-garden.png',
+    totalStems: 5,
+  },
+  {
+    id: 'tropical-sunset',
+    name: 'Tropical Sunset',
+    tier: 'premium',
+    sellPrice: 60,
+    ingredients: [
+      { flowerId: 'protea', quantity: 1 },
+      { flowerId: 'marigold', quantity: 3 },
+      { flowerId: 'monstera', quantity: 1 },
+      { flowerId: 'ruscus', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/protea-statement.png',
+    totalStems: 6,
+  },
+  {
+    id: 'orchard-blossom',
+    name: 'Orchard Blossom',
+    tier: 'premium',
+    sellPrice: 55,
+    ingredients: [
+      { flowerId: 'cherry_blossom', quantity: 1 },
+      { flowerId: 'tulip', quantity: 2 },
+      { flowerId: 'babys_breath', quantity: 1 },
+      { flowerId: 'fern', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/cherry-blossom-dream.png',
+    totalStems: 5,
+  },
+
+  // ── DELUXE ────────────────────────────────────────────────────────────────
+  {
+    id: 'cherry-blossom-dream',
+    name: 'Cherry Blossom Dream',
+    tier: 'deluxe',
+    sellPrice: 85,
+    ingredients: [
+      { flowerId: 'cherry_blossom', quantity: 1 },
+      { flowerId: 'ranunculus', quantity: 2 },
+      { flowerId: 'babys_breath', quantity: 1 },
+      { flowerId: 'eucalyptus', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/cherry-blossom-dream.png',
+    totalStems: 5,
+  },
+  {
+    id: 'protea-statement',
+    name: 'Protea Statement',
+    tier: 'deluxe',
+    sellPrice: 92,
+    ingredients: [
+      { flowerId: 'protea', quantity: 1 },
+      { flowerId: 'rose', quantity: 2 },
+      { flowerId: 'monstera', quantity: 1 },
+      { flowerId: 'ruscus', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/protea-statement.png',
+    totalStems: 5,
+  },
+  {
+    id: 'midnight-poppy',
+    name: 'Midnight Poppy',
+    tier: 'deluxe',
+    sellPrice: 88,
+    ingredients: [
+      { flowerId: 'poppy', quantity: 2 },
+      { flowerId: 'anemone', quantity: 2 },
+      { flowerId: 'orchid', quantity: 1 },
+      { flowerId: 'fern', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/midnight-poppy.png',
+    totalStems: 6,
+  },
+  {
+    id: 'enchanted-lilac',
+    name: 'Enchanted Lilac',
+    tier: 'deluxe',
+    sellPrice: 82,
+    ingredients: [
+      { flowerId: 'lilac', quantity: 2 },
+      { flowerId: 'peony', quantity: 1 },
+      { flowerId: 'cherry_blossom', quantity: 1 },
+      { flowerId: 'sweet_pea', quantity: 2 },
+    ],
+    imageUrl: '/bouquets/enchanted-lilac.png',
+    totalStems: 6,
+  },
+  {
+    id: 'grand-opulence',
+    name: 'Grand Opulence',
+    tier: 'deluxe',
+    sellPrice: 110,
+    ingredients: [
+      { flowerId: 'rose', quantity: 2 },
+      { flowerId: 'peony', quantity: 1 },
+      { flowerId: 'orchid', quantity: 1 },
+      { flowerId: 'lily', quantity: 1 },
+      { flowerId: 'protea', quantity: 1 },
+      { flowerId: 'eucalyptus', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/grand-opulence.png',
+    totalStems: 7,
+  },
+  {
+    id: 'moonlit-garden',
+    name: 'Moonlit Garden',
+    tier: 'deluxe',
+    sellPrice: 96,
+    ingredients: [
+      { flowerId: 'white_rose', quantity: 2 },
+      { flowerId: 'hydrangea', quantity: 1 },
+      { flowerId: 'lilac', quantity: 1 },
+      { flowerId: 'sweet_pea', quantity: 1 },
+      { flowerId: 'ruscus', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/enchanted-lilac.png',
+    totalStems: 6,
+  },
+  {
+    id: 'autumn-ember',
+    name: 'Autumn Ember',
+    tier: 'deluxe',
+    sellPrice: 90,
+    ingredients: [
+      { flowerId: 'protea', quantity: 1 },
+      { flowerId: 'poppy', quantity: 2 },
+      { flowerId: 'marigold', quantity: 2 },
+      { flowerId: 'ranunculus', quantity: 2 },
+      { flowerId: 'dried_wheat', quantity: 1 },
+      { flowerId: 'olive_branch', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/midnight-poppy.png',
+    totalStems: 9,
+  },
+  {
+    id: 'rose-orchid-luxe',
+    name: 'Rose & Orchid Luxe',
+    tier: 'deluxe',
+    sellPrice: 95,
+    ingredients: [
+      { flowerId: 'rose', quantity: 3 },
+      { flowerId: 'orchid', quantity: 1 },
+      { flowerId: 'peony', quantity: 1 },
+      { flowerId: 'eucalyptus', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/grand-opulence.png',
+    totalStems: 6,
+  },
+  {
+    id: 'woodland-crown',
+    name: 'Woodland Crown',
+    tier: 'deluxe',
+    sellPrice: 88,
+    ingredients: [
+      { flowerId: 'anemone', quantity: 2 },
+      { flowerId: 'sweet_pea', quantity: 2 },
+      { flowerId: 'ranunculus', quantity: 2 },
+      { flowerId: 'fern', quantity: 1 },
+      { flowerId: 'monstera', quantity: 1 },
+      { flowerId: 'olive_branch', quantity: 1 },
+    ],
+    imageUrl: '/bouquets/violet-anemone.png',
+    totalStems: 9,
+  },
 ];
 
-// Set recipes: specific flower combinations always map to the same bouquet
-interface BouquetRecipe {
-  flowers: string[]; // sorted flower IDs for this recipe
-  imageUrl: string;
-}
+export const TIER_LABELS: Record<BouquetTier, string> = {
+  budget: 'Budget',
+  standard: 'Standard',
+  premium: 'Premium',
+  deluxe: 'Deluxe',
+};
 
-const BOUQUET_RECIPES: BouquetRecipe[] = [
-  // Sunshine bouquets
-  { flowers: ['daisy', 'sunflower', 'babys_breath'].sort(), imageUrl: '/bouquets/sunshine-bunch.png' },
-  { flowers: ['daisy', 'sunflower'].sort(), imageUrl: '/bouquets/sunshine-bunch.png' },
-  { flowers: ['sunflower', 'babys_breath'].sort(), imageUrl: '/bouquets/sunshine-bunch.png' },
+export const TIER_COLORS: Record<BouquetTier, string> = {
+  budget: '#8BC34A',
+  standard: '#2196F3',
+  premium: '#9C27B0',
+  deluxe: '#FF9800',
+};
 
-  // Lavender dreams
-  { flowers: ['lavender', 'sweet_pea', 'anemone'].sort(), imageUrl: '/bouquets/lavender-dream.png' },
-  { flowers: ['lavender', 'sweet_pea'].sort(), imageUrl: '/bouquets/lavender-dream.png' },
-
-  // Golden
-  { flowers: ['marigold', 'dried_wheat', 'ranunculus'].sort(), imageUrl: '/bouquets/golden-meadow.png' },
-  { flowers: ['marigold', 'dried_wheat'].sort(), imageUrl: '/bouquets/golden-meadow.png' },
-  { flowers: ['ranunculus', 'marigold'].sort(), imageUrl: '/bouquets/golden-luxury.png' },
-
-  // Spring cosmos
-  { flowers: ['cosmos', 'daisy', 'babys_breath'].sort(), imageUrl: '/bouquets/spring-cosmos.png' },
-  { flowers: ['cosmos', 'daisy'].sort(), imageUrl: '/bouquets/spring-cosmos.png' },
-
-  // Tulips
-  { flowers: ['tulip', 'eucalyptus'].sort(), imageUrl: '/bouquets/tulip-garden.png' },
-  { flowers: ['tulip', 'fern'].sort(), imageUrl: '/bouquets/tulip-garden.png' },
-  { flowers: ['tulip'].sort(), imageUrl: '/bouquets/tulip-garden.png' },
-
-  // Anemone
-  { flowers: ['anemone', 'olive_branch'].sort(), imageUrl: '/bouquets/violet-anemone.png' },
-  { flowers: ['anemone', 'lavender'].sort(), imageUrl: '/bouquets/violet-anemone.png' },
-
-  // Poppy
-  { flowers: ['poppy', 'dried_wheat'].sort(), imageUrl: '/bouquets/poppy-field.png' },
-  { flowers: ['poppy', 'wheat'].sort(), imageUrl: '/bouquets/midnight-poppy.png' },
-
-  // Carnation
-  { flowers: ['carnation', 'babys_breath'].sort(), imageUrl: '/bouquets/carnation-kiss.png' },
-  { flowers: ['carnation'].sort(), imageUrl: '/bouquets/carnation-kiss.png' },
-
-  // Rose garden
-  { flowers: ['rose', 'white_rose', 'peony'].sort(), imageUrl: '/bouquets/rose-garden.png' },
-  { flowers: ['rose', 'white_rose'].sort(), imageUrl: '/bouquets/rose-garden.png' },
-  { flowers: ['rose', 'peony'].sort(), imageUrl: '/bouquets/rose-garden.png' },
-
-  // Peony blush
-  { flowers: ['peony', 'daisy', 'babys_breath'].sort(), imageUrl: '/bouquets/peony-blush.png' },
-  { flowers: ['peony', 'daisy'].sort(), imageUrl: '/bouquets/peony-blush.png' },
-  { flowers: ['peony'].sort(), imageUrl: '/bouquets/peony-blush.png' },
-
-  // Lily & Orchid
-  { flowers: ['lily', 'orchid', 'eucalyptus'].sort(), imageUrl: '/bouquets/lily-orchid.png' },
-  { flowers: ['lily', 'orchid'].sort(), imageUrl: '/bouquets/lily-orchid.png' },
-
-  // Hydrangea
-  { flowers: ['hydrangea', 'lisianthus'].sort(), imageUrl: '/bouquets/hydrangea-cloud.png' },
-  { flowers: ['hydrangea'].sort(), imageUrl: '/bouquets/hydrangea-cloud.png' },
-
-  // Cherry blossom
-  { flowers: ['cherry_blossom', 'sweet_pea'].sort(), imageUrl: '/bouquets/cherry-blossom-dream.png' },
-  { flowers: ['cherry_blossom'].sort(), imageUrl: '/bouquets/cherry-blossom-dream.png' },
-
-  // Protea
-  { flowers: ['protea', 'monstera'].sort(), imageUrl: '/bouquets/protea-statement.png' },
-  { flowers: ['protea'].sort(), imageUrl: '/bouquets/protea-statement.png' },
-
-  // Lilac
-  { flowers: ['lilac', 'lavender'].sort(), imageUrl: '/bouquets/enchanted-lilac.png' },
-  { flowers: ['lilac'].sort(), imageUrl: '/bouquets/enchanted-lilac.png' },
-
-  // Grand opulence (premium mix)
-  { flowers: ['rose', 'orchid', 'ranunculus'].sort(), imageUrl: '/bouquets/grand-opulence.png' },
-];
-
-/**
- * Picks a bouquet image based on the exact flower combination (set recipe).
- * Same flower combination always produces the same bouquet.
- */
-export function getBouquetImageForStems(stemIds: string[]): string {
-  // Sort and deduplicate flower types for recipe matching
-  const uniqueFlowers = Array.from(new Set(stemIds)).sort();
-  const recipeKey = uniqueFlowers.join(',');
-
-  // Look for exact match
-  for (const recipe of BOUQUET_RECIPES) {
-    if (recipe.flowers.join(',') === recipeKey) {
-      return recipe.imageUrl;
-    }
-  }
-
-  // If no exact match, try subset matching (find recipe with most matching flowers)
-  let bestMatch: BouquetRecipe | null = null;
-  let bestMatchCount = 0;
-
-  for (const recipe of BOUQUET_RECIPES) {
-    const matchCount = recipe.flowers.filter(f => uniqueFlowers.includes(f)).length;
-    if (matchCount > bestMatchCount) {
-      bestMatchCount = matchCount;
-      bestMatch = recipe;
-    }
-  }
-
-  if (bestMatch) {
-    return bestMatch.imageUrl;
-  }
-
-  // Fallback: return a consistent bouquet based on hash of flowers
-  const hash = uniqueFlowers.reduce((acc, f) => acc + f.charCodeAt(0), 0);
-  const bouquetIndex = hash % preMadeBouquets.length;
-  return preMadeBouquets[bouquetIndex]!.imageUrl;
-}
-
-export function getRandomBouquetImage(): string {
-  const randomIndex = Math.floor(Math.random() * preMadeBouquets.length);
-  return preMadeBouquets[randomIndex]!.imageUrl;
+export function getRecipeById(id: string): BouquetRecipe | undefined {
+  return BOUQUET_RECIPES.find((r) => r.id === id);
 }

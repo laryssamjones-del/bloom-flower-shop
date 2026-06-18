@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { WrappingPaperType, RibbonColor } from '../../types';
+import { getRecipeById } from '../../data/bouquets';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
 const WRAPPING_COLORS = {
@@ -23,6 +24,8 @@ const RIBBON_COLORS = {
 export function WrappingScreen() {
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
   const stemsInArrangement = useGameStore((s) => s.stemsInArrangement);
+  const selectedRecipeId = useGameStore((s) => s.selectedRecipeId);
+  const fulfillOrderId = useGameStore((s) => s.fulfillOrderId);
   const setWrappingSelection = useGameStore((s) => s.setWrappingSelection);
   const createBouquet = useGameStore((s) => s.createBouquet);
   const addBouquetToShelf = useGameStore((s) => s.addBouquetToShelf);
@@ -31,23 +34,30 @@ export function WrappingScreen() {
   const [selectedWrapping, setSelectedWrapping] = useState<WrappingPaperType>('plain-white');
   const [selectedRibbon, setSelectedRibbon] = useState<RibbonColor>('blush');
 
-  const estimatedPrice = calculateBouquetPrice(stemsInArrangement);
+  const activeRecipe = selectedRecipeId ? getRecipeById(selectedRecipeId) : undefined;
+  const estimatedPrice = activeRecipe ? activeRecipe.sellPrice : calculateBouquetPrice(stemsInArrangement);
 
   const handleFinishBouquet = () => {
     setWrappingSelection(selectedWrapping, selectedRibbon);
     const bouquet = createBouquet();
 
-    if (bouquet && addBouquetToShelf(bouquet)) {
+    if (bouquet) {
       RundotGameAPI.analytics.recordCustomEvent('bouquet_completed', {
         bouquetId: bouquet.id,
         stemCount: bouquet.stems.length,
         wrapping: selectedWrapping,
         ribbon: selectedRibbon,
-        estimatedPrice: bouquet.sellPrice,
-        bouquetImage: bouquet.thumbnailUrl,
+        sellPrice: bouquet.sellPrice,
+        recipeId: selectedRecipeId ?? 'none',
+        forOrder: !!fulfillOrderId,
       });
 
-      setCurrentScreen('shop');
+      // If fulfilling an order, createBouquet already navigated to 'orders' screen
+      // For self-made bouquets, add to shelf and go to shop
+      if (!fulfillOrderId) {
+        addBouquetToShelf(bouquet);
+        setCurrentScreen('shop');
+      }
     }
   };
 
@@ -128,9 +138,17 @@ export function WrappingScreen() {
               justifyContent: 'center',
             }}
           >
-            <div style={{ fontSize: '36px' }}>💐</div>
-            <div style={{ fontSize: '12px', color: '#666' }}>
-              {stemsInArrangement.length} stems
+            {activeRecipe ? (
+              <img
+                src={activeRecipe.imageUrl}
+                alt={activeRecipe.name}
+                style={{ width: '80px', height: '80px', objectFit: 'contain' }}
+              />
+            ) : (
+              <div style={{ fontSize: '36px' }}>💐</div>
+            )}
+            <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#444' }}>
+              {activeRecipe?.name ?? `${stemsInArrangement.length} stems`}
             </div>
             <div
               style={{
@@ -156,7 +174,7 @@ export function WrappingScreen() {
               color: '#6A9A50',
             }}
           >
-            Estimated sale price: {estimatedPrice} 🌼
+            {activeRecipe ? 'Sells for' : 'Estimated price'}: {estimatedPrice} 🌼
           </div>
         </div>
 
