@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { CoinCounter } from '../components/CoinCounter';
-import { BouquetPreview } from '../components/BouquetPreview';
 
 const CUSTOMER_SPAWN_INTERVAL = 20000; // 20 seconds
 
@@ -10,7 +9,6 @@ export function ShopScreen() {
   const [menuOpen, setMenuOpen] = useState(false);
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
   const coins = useGameStore((s) => s.coins);
-  const displayedBouquets = useGameStore((s) => s.displayedBouquets);
 
   // Spawn customers periodically
   useEffect(() => {
@@ -257,7 +255,7 @@ export function ShopScreen() {
         </div>
       )}
 
-      {/* Main shop content */}
+      {/* Main shop content - welcome area */}
       <div
         style={{
           flex: 1,
@@ -267,82 +265,25 @@ export function ShopScreen() {
           padding: '0',
           overflow: 'auto',
           WebkitOverflowScrolling: 'touch',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
-        {/* Shop shelves and display area - integrated into background */}
         <div
           style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-start',
-            alignItems: 'center',
-            padding: '80px 20px 20px 20px',
-            minHeight: 0,
-            position: 'relative',
+            padding: '40px 20px',
+            textAlign: 'center',
+            color: '#666',
           }}
         >
-          {/* Display shelf - bouquets placed on background shelves */}
-          {displayedBouquets.length === 0 || displayedBouquets.every((b) => b === null) ? (
-            <div
-              style={{
-                padding: '20px',
-                color: '#ccc',
-                fontSize: '13px',
-                textAlign: 'center',
-              }}
-            >
-              Arrange bouquets to display
-            </div>
-          ) : (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
-                gap: '16px',
-                width: '100%',
-                maxWidth: '360px',
-              }}
-            >
-              {displayedBouquets.map((bouquet, idx) =>
-                bouquet ? (
-                  <div
-                    key={idx}
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '6px',
-                    }}
-                  >
-                    <BouquetPreview
-                      bouquet={bouquet}
-                      size="medium"
-                      clickable={true}
-                      onClickHandler={() => {
-                        useGameStore.getState().sellBouquet(bouquet.id);
-                        RundotGameAPI.analytics.recordCustomEvent('bouquet_sold', {
-                          price: bouquet.sellPrice,
-                        });
-                      }}
-                    />
-                    <div
-                      style={{
-                        fontSize: '11px',
-                        color: '#d4a574',
-                        fontWeight: '500',
-                        textShadow: '0 1px 2px rgba(0,0,0,0.2)',
-                      }}
-                    >
-                      {bouquet.sellPrice}💰
-                    </div>
-                  </div>
-                ) : null
-              )}
-            </div>
-          )}
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🌸</div>
+          <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
+            Welcome to Bloomy!
+          </div>
+          <div style={{ fontSize: '13px', color: '#999' }}>
+            Use the menu to manage orders, buy stems, and arrange bouquets
+          </div>
         </div>
-
       </div>
 
     </div>
