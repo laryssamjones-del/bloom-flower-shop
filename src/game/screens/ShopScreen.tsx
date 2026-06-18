@@ -208,7 +208,7 @@ export function ShopScreen() {
             right: '15%',
             display: 'flex',
             flexDirection: 'column',
-            gap: '7%',
+            gap: '4%',
             zIndex: 5,
           }}
         >
@@ -266,18 +266,6 @@ export function ShopScreen() {
                         marginBottom: '2px',
                       }}
                     />
-                    <span
-                      style={{
-                        fontSize: '9px',
-                        fontWeight: 'bold',
-                        color: '#5A3820',
-                        background: 'rgba(255,255,255,0.75)',
-                        borderRadius: '3px',
-                        padding: '1px 4px',
-                      }}
-                    >
-                      {bouquet.sellPrice} 🌼
-                    </span>
                   </div>
 
                   {/* Delete button shown on long-press */}
