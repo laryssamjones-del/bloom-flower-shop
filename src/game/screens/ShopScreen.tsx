@@ -283,18 +283,18 @@ export function ShopScreen() {
             flexDirection: 'column',
             justifyContent: 'flex-start',
             alignItems: 'center',
-            paddingTop: '60px',
+            paddingTop: '30px',
           }}
         >
           {/* Display window for bouquets */}
           <div
             style={{
-              background: 'rgba(255, 255, 255, 0.95)',
+              background: 'rgba(255, 255, 255, 0.75)',
               border: '3px solid #8B7355',
               borderRadius: '12px',
               padding: '20px',
               boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
-              maxWidth: '90%',
+              maxWidth: '70%',
               display: 'flex',
               flexDirection: 'column',
               gap: '15px',
