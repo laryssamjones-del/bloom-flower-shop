@@ -1,52 +1,47 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGameStore } from '../../stores/gameStore';
-import { WrappingPaperType, RibbonColor } from '../../types';
 import { getRecipeById } from '../../data/bouquets';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
-const WRAPPING_COLORS = {
-  'spring-floral': { name: 'Spring Floral', hex: '#F4C0D1' },
-  'kraft': { name: 'Kraft Paper', hex: '#C09840' },
-  'pastel-stripe': { name: 'Pastel Stripe', hex: '#CECBF6' },
-  'tissue': { name: 'Tissue Paper', hex: '#F0EFE4' },
-  'plain-white': { name: 'Plain White', hex: '#FEFEFE' },
-} as const;
-
-const RIBBON_COLORS = {
-  'blush': { name: 'Blush', hex: '#F4C0D1' },
-  'sage': { name: 'Sage', hex: '#5A8C50' },
-  'butter-yellow': { name: 'Butter Yellow', hex: '#FAC040' },
-  'lavender': { name: 'Lavender', hex: '#AFA9EC' },
-  'ivory': { name: 'Ivory', hex: '#FFF8E8' },
-  'dusty-rose': { name: 'Dusty Rose', hex: '#D4537E' },
-} as const;
-
 export function WrappingScreen() {
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
-  const stemsInArrangement = useGameStore((s) => s.stemsInArrangement);
   const selectedRecipeId = useGameStore((s) => s.selectedRecipeId);
   const fulfillOrderId = useGameStore((s) => s.fulfillOrderId);
   const setWrappingSelection = useGameStore((s) => s.setWrappingSelection);
   const createBouquet = useGameStore((s) => s.createBouquet);
   const addBouquetToShelf = useGameStore((s) => s.addBouquetToShelf);
-  const calculateBouquetPrice = useGameStore((s) => s.calculateBouquetPrice);
 
-  const [selectedWrapping, setSelectedWrapping] = useState<WrappingPaperType>('plain-white');
-  const [selectedRibbon, setSelectedRibbon] = useState<RibbonColor>('blush');
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
 
   const activeRecipe = selectedRecipeId ? getRecipeById(selectedRecipeId) : undefined;
-  const estimatedPrice = activeRecipe ? activeRecipe.sellPrice : calculateBouquetPrice(stemsInArrangement);
+
+  // Trigger animation for 3 seconds when wrapping is started
+  useEffect(() => {
+    if (isAnimating) {
+      const timer = setTimeout(() => {
+        setIsAnimating(false);
+        setIsComplete(true);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [isAnimating]);
+
+  const handleAddWrapping = () => {
+    setWrappingSelection('plain-white', 'blush');
+    setIsAnimating(true);
+    RundotGameAPI.analytics.recordCustomEvent('wrapping_started', {
+      recipeId: selectedRecipeId ?? 'none',
+    });
+  };
 
   const handleFinishBouquet = () => {
-    setWrappingSelection(selectedWrapping, selectedRibbon);
     const bouquet = createBouquet();
 
     if (bouquet) {
       RundotGameAPI.analytics.recordCustomEvent('bouquet_completed', {
         bouquetId: bouquet.id,
         stemCount: bouquet.stems.length,
-        wrapping: selectedWrapping,
-        ribbon: selectedRibbon,
         sellPrice: bouquet.sellPrice,
         recipeId: selectedRecipeId ?? 'none',
         forOrder: !!fulfillOrderId,
@@ -62,7 +57,12 @@ export function WrappingScreen() {
   };
 
   const handleBack = () => {
-    setCurrentScreen('arrangement');
+    if (isComplete) {
+      setIsComplete(false);
+      setIsAnimating(false);
+    } else {
+      setCurrentScreen('arrangement');
+    }
   };
 
   return (
@@ -86,185 +86,130 @@ export function WrappingScreen() {
           alignItems: 'center',
         }}
       >
-        <h1 style={{ margin: 0, fontSize: '18px' }}>🎁 Wrap Your Bouquet</h1>
-        <button
-          onClick={handleBack}
-          style={{
-            padding: '8px 12px',
-            background: '#B8A890',
-            color: '#F5E6D3',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '12px',
-          }}
-        >
-          Back
-        </button>
+        <h1 style={{ margin: 0, fontSize: '18px' }}>
+          {isComplete ? '✨ It\'s Ready!' : '🎁 Arrange Your Bouquet'}
+        </h1>
+        {isComplete && (
+          <button
+            onClick={handleBack}
+            style={{
+              padding: '8px 12px',
+              background: '#B8A890',
+              color: '#F5E6D3',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '12px',
+            }}
+          >
+            Back
+          </button>
+        )}
       </div>
 
       {/* Main content */}
       <div
         style={{
           flex: 1,
-          overflow: 'auto',
-          WebkitOverflowScrolling: 'touch',
-          padding: '12px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '12px',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px',
+          gap: '20px',
         }}
       >
-        {/* Preview */}
-        <div
-          style={{
-            padding: '12px',
-            background: 'rgba(255,255,255,0.5)',
-            borderRadius: '6px',
-            textAlign: 'center',
-          }}
-        >
-          <h2 style={{ margin: '0 0 8px 0', fontSize: '14px' }}>Preview</h2>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '16px',
-              background: selectedWrapping ? WRAPPING_COLORS[selectedWrapping as WrappingPaperType].hex : '#FFF',
-              borderRadius: '4px',
-              minHeight: '120px',
-              justifyContent: 'center',
-            }}
-          >
-            {activeRecipe ? (
-              <img
-                src={activeRecipe.imageUrl}
-                alt={activeRecipe.name}
-                style={{ width: '80px', height: '80px', objectFit: 'contain' }}
-              />
-            ) : (
-              <div style={{ fontSize: '36px' }}>💐</div>
-            )}
-            <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#444' }}>
-              {activeRecipe?.name ?? `${stemsInArrangement.length} stems`}
-            </div>
+        {/* Animation / Result Display */}
+        {!isComplete ? (
+          <>
+            {/* Pre-animation: Show bouquet preview */}
             <div
               style={{
-                padding: '4px 8px',
-                background: selectedRibbon ? RIBBON_COLORS[selectedRibbon as RibbonColor].hex : '#FFF',
-                borderRadius: '3px',
-                fontSize: '10px',
-                color: '#666',
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '12px',
               }}
             >
-              with {selectedRibbon} ribbon
+              <div style={{ fontSize: '14px', color: '#666', fontWeight: '500' }}>
+                {activeRecipe?.name || 'Your Bouquet'}
+              </div>
+              <div
+                style={{
+                  padding: '16px',
+                  background: 'rgba(255,255,255,0.5)',
+                  borderRadius: '8px',
+                  minHeight: '120px',
+                  minWidth: '120px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {activeRecipe ? (
+                  <img
+                    src={activeRecipe.imageUrl}
+                    alt={activeRecipe.name}
+                    style={{
+                      width: '100px',
+                      height: '100px',
+                      objectFit: 'contain',
+                      animation: isAnimating ? 'magicalSparkle 3s ease-in-out' : 'none',
+                    }}
+                  />
+                ) : (
+                  <div style={{ fontSize: '48px' }}>💐</div>
+                )}
+              </div>
+              <div style={{ fontSize: '12px', color: '#666' }}>
+                {activeRecipe ? `Sells for ${activeRecipe.sellPrice} 🌼` : ''}
+              </div>
             </div>
-          </div>
-
-          <div
-            style={{
-              marginTop: '8px',
-              padding: '8px',
-              background: 'rgba(106,154,80,0.1)',
-              borderRadius: '4px',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              color: '#6A9A50',
-            }}
-          >
-            {activeRecipe ? 'Sells for' : 'Estimated price'}: {estimatedPrice} 🌼
-          </div>
-        </div>
-
-        {/* Wrapping paper selection */}
-        <div
-          style={{
-            padding: '12px',
-            background: 'rgba(255,255,255,0.5)',
-            borderRadius: '6px',
-          }}
-        >
-          <h2 style={{ margin: '0 0 8px 0', fontSize: '14px' }}>Wrapping Paper</h2>
-
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
-              gap: '8px',
-            }}
-          >
-            {Object.entries(WRAPPING_COLORS).map(([key, { name, hex }]) => (
-              <button
-                key={key}
-                onClick={() => setSelectedWrapping(key as WrappingPaperType)}
-                style={{
-                  padding: '8px',
-                  background: hex,
-                  border: selectedWrapping === key ? '3px solid #333' : '2px solid #999',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  minHeight: '60px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '4px',
-                  fontSize: '11px',
-                  fontWeight: 'bold',
-                  color: key === 'plain-white' ? '#666' : '#FFF',
-                }}
-              >
-                {name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Ribbon selection */}
-        <div
-          style={{
-            padding: '12px',
-            background: 'rgba(255,255,255,0.5)',
-            borderRadius: '6px',
-          }}
-        >
-          <h2 style={{ margin: '0 0 8px 0', fontSize: '14px' }}>Ribbon Color</h2>
-
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
-              gap: '8px',
-            }}
-          >
-            {Object.entries(RIBBON_COLORS).map(([key, { name, hex }]) => (
-              <button
-                key={key}
-                onClick={() => setSelectedRibbon(key as RibbonColor)}
-                style={{
-                  padding: '8px',
-                  background: hex,
-                  border: selectedRibbon === key ? '3px solid #333' : '2px solid #999',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  minHeight: '60px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '4px',
-                  fontSize: '11px',
-                  fontWeight: 'bold',
-                  color: key === 'ivory' ? '#666' : '#FFF',
-                }}
-              >
-                {name}
-              </button>
-            ))}
-          </div>
-        </div>
+          </>
+        ) : (
+          <>
+            {/* Post-animation: Show result */}
+            <div style={{ fontSize: '32px' }}>🌸</div>
+            <div
+              style={{
+                padding: '20px',
+                background: 'rgba(255,255,255,0.6)',
+                borderRadius: '8px',
+                textAlign: 'center',
+                minHeight: '140px',
+                minWidth: '140px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexDirection: 'column',
+                gap: '8px',
+              }}
+            >
+              {activeRecipe ? (
+                <>
+                  <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px' }}>
+                    {activeRecipe.name}
+                  </div>
+                  <img
+                    src={activeRecipe.imageUrl}
+                    alt={activeRecipe.name}
+                    style={{
+                      width: '100px',
+                      height: '100px',
+                      objectFit: 'contain',
+                    }}
+                  />
+                  <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#6A9A50', marginTop: '4px' }}>
+                    {activeRecipe.sellPrice} 🌼
+                  </div>
+                </>
+              ) : (
+                <div style={{ fontSize: '36px' }}>💐</div>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Footer - action button */}
@@ -273,24 +218,81 @@ export function WrappingScreen() {
           padding: '12px',
           borderTop: '2px solid rgba(0,0,0,0.1)',
           background: 'rgba(255,255,255,0.3)',
+          display: 'flex',
+          gap: '8px',
         }}
       >
-        <button
-          onClick={handleFinishBouquet}
-          style={{
-            width: '100%',
-            padding: '12px',
-            background: '#6A9A50',
-            color: '#FFF',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: 'bold',
-          }}
-        >
-          ✓ Place on Shelf
-        </button>
+        {!isComplete && !isAnimating && (
+          <button
+            onClick={handleAddWrapping}
+            style={{
+              flex: 1,
+              padding: '12px',
+              background: '#6A9A50',
+              color: '#FFF',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: 'bold',
+            }}
+          >
+            ✨ Add Wrapping Paper + Ribbon
+          </button>
+        )}
+        {isAnimating && (
+          <div
+            style={{
+              flex: 1,
+              padding: '12px',
+              background: '#F0EFE4',
+              color: '#6A9A50',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              textAlign: 'center',
+            }}
+          >
+            Wrapping...
+          </div>
+        )}
+        {isComplete && (
+          <>
+            <button
+              onClick={handleBack}
+              style={{
+                flex: 0.3,
+                padding: '12px',
+                background: '#D4D4D4',
+                color: '#444',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: 'bold',
+              }}
+            >
+              ← Back
+            </button>
+            <button
+              onClick={handleFinishBouquet}
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: '#6A9A50',
+                color: '#FFF',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: 'bold',
+              }}
+            >
+              {fulfillOrderId ? '✓ Complete Order' : '✓ Add to Shelf'}
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
