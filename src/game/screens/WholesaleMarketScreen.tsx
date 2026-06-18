@@ -32,9 +32,16 @@ export function WholesaleMarketScreen() {
 
   const availableFlowers = Array.from(INITIAL_UNLOCKED_FLOWERS);
   const availableGreenery = Object.keys(GREENERY);
-  const allAvailable = [...availableFlowers, ...availableGreenery];
 
   const getItem = (id: string) => FLOWERS[id] || (GREENERY as Record<string, any>)[id];
+
+  // Sort all items alphabetically by name
+  const allAvailable = [...availableFlowers, ...availableGreenery].sort((a, b) => {
+    const itemA = getItem(a);
+    const itemB = getItem(b);
+    if (!itemA || !itemB) return 0;
+    return itemA.name.localeCompare(itemB.name);
+  });
 
   // Get discount for any quantity
   const getDiscount = (qty: number): number => {
