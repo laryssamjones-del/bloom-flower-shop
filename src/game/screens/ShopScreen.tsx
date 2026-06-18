@@ -265,24 +265,18 @@ export function ShopScreen() {
           padding: '0',
           overflow: 'auto',
           WebkitOverflowScrolling: 'touch',
-          alignItems: 'center',
-          justifyContent: 'center',
         }}
       >
         <div
           style={{
-            padding: '40px 20px',
+            padding: '20px',
             textAlign: 'center',
             color: '#666',
+            fontSize: '18px',
+            fontWeight: 'bold',
           }}
         >
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🌸</div>
-          <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
-            Welcome to Bloomy!
-          </div>
-          <div style={{ fontSize: '13px', color: '#999' }}>
-            Use the menu to manage orders, buy stems, and arrange bouquets
-          </div>
+          Welcome to Bloom Floral Shop!
         </div>
       </div>
 
