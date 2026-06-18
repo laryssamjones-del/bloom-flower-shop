@@ -272,11 +272,12 @@ export function ShopScreen() {
             padding: '20px',
             textAlign: 'center',
             color: '#666',
-            fontSize: '18px',
-            fontWeight: 'bold',
+            fontSize: '24px',
+            fontStyle: 'italic',
+            fontFamily: 'cursive',
           }}
         >
-          Welcome to Bloom Floral Shop!
+          🪔 Bloom Floral Shop 🪔
         </div>
       </div>
 
