@@ -324,8 +324,8 @@ export function WholesaleMarketScreen() {
           );
         })()}
 
-        {/* Mystery Box Section */}
-        <div
+        {/* Mystery Box Section — hidden until ready */}
+        {false && <div
           style={{
             marginTop: '24px',
             padding: '16px',
@@ -389,7 +389,7 @@ export function WholesaleMarketScreen() {
           >
             {premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS ? '❌ Not enough Run Bucks' : '🎲 Unlock Mystery Box'}
           </button>
-        </div>
+        </div>}
       </div>
 
       {/* Fixed Purchase Details Panel */}
