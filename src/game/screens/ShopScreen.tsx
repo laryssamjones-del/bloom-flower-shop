@@ -292,7 +292,7 @@ export function ShopScreen() {
               key={row[0]?.id}
               style={{
                 display: 'flex',
-                gap: '2px',
+                gap: '4px',
                 justifyContent: 'center',
                 alignItems: 'flex-end',
               }}
