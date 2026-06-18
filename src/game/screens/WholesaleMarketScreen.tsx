@@ -22,7 +22,7 @@ export function WholesaleMarketScreen() {
   const dailyPurchases = useGameStore((s) => s.dailyPurchases);
 
   const [selectedFlower, setSelectedFlower] = useState<string | null>(null);
-  const [selectedBulk, setSelectedBulk] = useState<BulkOption>(1);
+  const [selectedBulk, setSelectedBulk] = useState<number>(1);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const availableFlowers = Array.from(INITIAL_UNLOCKED_FLOWERS);
@@ -30,6 +30,14 @@ export function WholesaleMarketScreen() {
   const allAvailable = [...availableFlowers, ...availableGreenery];
 
   const getItem = (id: string) => FLOWERS[id] || (GREENERY as Record<string, any>)[id];
+
+  // Get discount for any quantity
+  const getDiscount = (qty: number): number => {
+    if (qty >= 20) return BULK_DISCOUNTS[20];
+    if (qty >= 10) return BULK_DISCOUNTS[10];
+    if (qty >= 5) return BULK_DISCOUNTS[5];
+    return 0;
+  };
 
   const handleBuyFlowers = () => {
     if (!selectedFlower) return;
@@ -47,7 +55,7 @@ export function WholesaleMarketScreen() {
       return;
     }
 
-    const discount = BULK_DISCOUNTS[selectedBulk];
+    const discount = getDiscount(selectedBulk);
     const baseCost = item.pricePerStem * selectedBulk;
     const totalCost = Math.round(baseCost * (1 - discount));
 
@@ -302,11 +310,75 @@ export function WholesaleMarketScreen() {
               })}
             </div>
 
+            {/* Custom quantity controls */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                marginBottom: '12px',
+                padding: '12px',
+                background: 'rgba(0,0,0,0.05)',
+                borderRadius: '4px',
+              }}
+            >
+              <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', flex: 1 }}>
+                Custom qty:
+              </span>
+              <button
+                onClick={() => setSelectedBulk(Math.max(1, selectedBulk - 1))}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  padding: 0,
+                  background: '#DDD',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                }}
+              >
+                ➖
+              </button>
+              <div
+                style={{
+                  minWidth: '60px',
+                  textAlign: 'center',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  color: '#2A1408',
+                }}
+              >
+                {selectedBulk} stems
+              </div>
+              <button
+                onClick={() => {
+                  const maxRemaining = Math.max(0, 50 - (dailyPurchases[selectedFlower!] || 0));
+                  setSelectedBulk(Math.min(maxRemaining, selectedBulk + 1));
+                }}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  padding: 0,
+                  background: (selectedBulk + 1) > Math.max(0, 50 - (dailyPurchases[selectedFlower!] || 0)) ? '#CCC' : '#DDD',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: (selectedBulk + 1) > Math.max(0, 50 - (dailyPurchases[selectedFlower!] || 0)) ? 'not-allowed' : 'pointer',
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                }}
+              >
+                ➕
+              </button>
+            </div>
+
             {/* Buy button */}
             {selectedFlower && getItem(selectedFlower) && (
             (() => {
               const item = getItem(selectedFlower)!;
-              const totalCost = Math.round(item.pricePerStem * selectedBulk * (1 - BULK_DISCOUNTS[selectedBulk]));
+              const discount = getDiscount(selectedBulk);
+              const totalCost = Math.round(item.pricePerStem * selectedBulk * (1 - discount));
               const { canBuy } = checkDailyLimit(selectedFlower, selectedBulk);
               const insufficientCoins = coins < totalCost;
               const isDisabled = insufficientCoins || !canBuy;
