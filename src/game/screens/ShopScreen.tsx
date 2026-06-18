@@ -283,11 +283,25 @@ export function ShopScreen() {
             flexDirection: 'column',
             justifyContent: 'flex-start',
             alignItems: 'center',
-            gap: '15px',
-            paddingTop: '80px',
+            paddingTop: '60px',
           }}
         >
-          {shelfRows.map((row) => (
+          {/* Display window for bouquets */}
+          <div
+            style={{
+              background: 'rgba(255, 255, 255, 0.95)',
+              border: '3px solid #8B7355',
+              borderRadius: '12px',
+              padding: '20px',
+              boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
+              maxWidth: '90%',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '15px',
+              alignItems: 'center',
+            }}
+          >
+            {shelfRows.map((row) => (
             <div
               key={row[0]?.id}
               style={{
@@ -370,6 +384,7 @@ export function ShopScreen() {
               ))}
             </div>
           ))}
+          </div>
         </div>
       )}
 
