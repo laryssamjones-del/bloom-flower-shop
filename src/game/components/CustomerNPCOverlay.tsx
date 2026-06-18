@@ -5,6 +5,8 @@ const NPC_IMAGES = [
   '/npcs/npc-young-woman-02.png',
   '/npcs/npc-young-woman-03.png',
   '/npcs/npc-young-woman-04.png',
+  '/npcs/npc-woman-braid-glasses.png',
+  '/npcs/npc-man-bald-beard.png',
 ];
 
 const REQUEST_TEMPLATES = [
