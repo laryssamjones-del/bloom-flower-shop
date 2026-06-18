@@ -127,7 +127,10 @@ export function ShopScreen() {
           backgroundSize: '10% 10%',
         }}
       >
-        {/* Percentage markers */}
+        {/* Y-axis label */}
+        <div style={{ position: 'absolute', top: '0px', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold', background: 'rgba(255,255,255,0.8)' }}>Y%</div>
+
+        {/* Y-axis percentage markers (left side) */}
         <div style={{ position: 'absolute', top: '10%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>10%</div>
         <div style={{ position: 'absolute', top: '20%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>20%</div>
         <div style={{ position: 'absolute', top: '30%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>30%</div>
@@ -136,6 +139,20 @@ export function ShopScreen() {
         <div style={{ position: 'absolute', top: '60%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>60%</div>
         <div style={{ position: 'absolute', top: '70%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>70%</div>
         <div style={{ position: 'absolute', top: '80%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>80%</div>
+
+        {/* X-axis label */}
+        <div style={{ position: 'absolute', top: '2px', left: '10%', fontSize: '10px', color: 'red', fontWeight: 'bold', background: 'rgba(255,255,255,0.8)' }}>X%</div>
+
+        {/* X-axis percentage markers (top) */}
+        <div style={{ position: 'absolute', top: '2px', left: '10%', fontSize: '9px', color: 'red', fontWeight: 'bold', marginLeft: '20px' }}>10%</div>
+        <div style={{ position: 'absolute', top: '2px', left: '20%', fontSize: '9px', color: 'red', fontWeight: 'bold', marginLeft: '20px' }}>20%</div>
+        <div style={{ position: 'absolute', top: '2px', left: '30%', fontSize: '9px', color: 'red', fontWeight: 'bold', marginLeft: '20px' }}>30%</div>
+        <div style={{ position: 'absolute', top: '2px', left: '40%', fontSize: '9px', color: 'red', fontWeight: 'bold', marginLeft: '20px' }}>40%</div>
+        <div style={{ position: 'absolute', top: '2px', left: '50%', fontSize: '9px', color: 'red', fontWeight: 'bold', marginLeft: '20px' }}>50%</div>
+        <div style={{ position: 'absolute', top: '2px', left: '60%', fontSize: '9px', color: 'red', fontWeight: 'bold', marginLeft: '20px' }}>60%</div>
+        <div style={{ position: 'absolute', top: '2px', left: '70%', fontSize: '9px', color: 'red', fontWeight: 'bold', marginLeft: '20px' }}>70%</div>
+        <div style={{ position: 'absolute', top: '2px', left: '80%', fontSize: '9px', color: 'red', fontWeight: 'bold', marginLeft: '20px' }}>80%</div>
+        <div style={{ position: 'absolute', top: '2px', left: '90%', fontSize: '9px', color: 'red', fontWeight: 'bold', marginLeft: '20px' }}>90%</div>
       </div>
 
       {/* Purchase Notification */}
