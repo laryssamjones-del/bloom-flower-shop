@@ -302,7 +302,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'babys_breath', quantity: 1 },
       { flowerId: 'fern', quantity: 1 },
     ],
-    imageUrl: '/bouquets/cherry-blossom-dream.png',
+    imageUrl: '/bouquets/orchard-blossom.png',
     totalStems: 5,
   },
 
@@ -391,7 +391,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'sweet_pea', quantity: 1 },
       { flowerId: 'ruscus', quantity: 1 },
     ],
-    imageUrl: '/bouquets/enchanted-lilac.png',
+    imageUrl: '/bouquets/moonlit-garden.png',
     totalStems: 6,
   },
   {
@@ -407,7 +407,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'dried_wheat', quantity: 1 },
       { flowerId: 'olive_branch', quantity: 1 },
     ],
-    imageUrl: '/bouquets/midnight-poppy.png',
+    imageUrl: '/bouquets/autumn-ember.png',
     totalStems: 9,
   },
   {
