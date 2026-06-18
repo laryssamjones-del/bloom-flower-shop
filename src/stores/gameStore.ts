@@ -6,8 +6,9 @@ import {
   RibbonColor,
   WrappingPaperType,
   StemInInventory,
+  Order,
 } from '../types';
-import { FLOWERS, INITIAL_UNLOCKED_FLOWERS } from '../constants/flowers';
+import { FLOWERS, INITIAL_UNLOCKED_FLOWERS, CUSTOMER_MOODS } from '../constants/flowers';
 import { getRandomBouquetImage } from '../data/bouquets';
 
 const STARTING_COINS = 500;
@@ -34,9 +35,14 @@ const createInitialState = (): ShopState => ({
   shelfBouquets: [],
   displayedBouquets: Array(STARTING_SHELF_CAPACITY).fill(null),
 
-  // Customers
+  // Customers & Orders
   activeCustomers: [],
   totalCustomersServed: 0,
+  pendingOrders: [],
+  completedOrders: [],
+
+  // Notifications
+  lastNotification: null,
 
   // Progression
   unlockedFlowers: new Set(INITIAL_UNLOCKED_FLOWERS),
@@ -90,12 +96,20 @@ interface GameStoreActions {
   getShelfExpansionCost: () => number;
 
   // Screen navigation
-  setCurrentScreen: (screen: 'shop' | 'wholesale' | 'arrangement' | 'wrapping') => void;
+  setCurrentScreen: (screen: 'shop' | 'wholesale' | 'arrangement' | 'wrapping' | 'inventory' | 'orders') => void;
 
   // Customer management
   addActiveCustomer: () => void;
   removeActiveCustomer: (customerId: string) => void;
   sellBouquet: (bouquetId: string, priceOverride?: number) => boolean;
+
+  // Order management
+  createOrder: () => Order | null;
+  completeOrder: (orderId: string, reward: number) => void;
+  removeOrder: (orderId: string) => void;
+  getPendingOrders: () => Order[];
+  triggerNotification: (message: string) => void;
+  clearNotification: () => void;
 
   // Progression
   unlockFlower: (flowerId: string) => void;
@@ -392,6 +406,87 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     }));
 
     return true;
+  },
+
+  // Order management
+  createOrder: () => {
+    const types: Array<'customer-a' | 'customer-b' | 'customer-c'> = [
+      'customer-a',
+      'customer-b',
+      'customer-c',
+    ];
+    const selectedType = types[Math.floor(Math.random() * types.length)]!;
+    const mood = CUSTOMER_MOODS[Math.floor(Math.random() * CUSTOMER_MOODS.length)]!;
+
+    // Generate random bouquet requirement (1-7 stems)
+    const stemCount = Math.floor(Math.random() * 7) + 1;
+    const availableFlowerIds = Array.from(INITIAL_UNLOCKED_FLOWERS);
+    const selectedFlowerIds = availableFlowerIds.sort(() => Math.random() - 0.5).slice(0, stemCount);
+
+    const requiredStems: BouquetStem[] = selectedFlowerIds.map((flowerId, index) => ({
+      flowerId,
+      order: index,
+    }));
+
+    // Calculate reward based on stems
+    const stemPrice = requiredStems.reduce((sum, stem) => {
+      const flower = FLOWERS[stem.flowerId];
+      return sum + (flower?.pricePerStem || 0);
+    }, 0);
+    const reward = Math.round(stemPrice * 2.5 + (stemCount - 1) * 3); // Same as bouquet pricing
+
+    const order: Order = {
+      id: `order-${Date.now()}-${Math.random()}`,
+      customerId: `customer-${Date.now()}`,
+      customerType: selectedType,
+      customerMood: mood.text,
+      requiredStems,
+      reward,
+      status: 'pending',
+      createdAt: Date.now(),
+    };
+
+    set((s) => ({
+      pendingOrders: [...s.pendingOrders, order],
+      lastUpdated: Date.now(),
+    }));
+
+    return order;
+  },
+
+  completeOrder: (orderId: string, reward: number) => {
+    const state = get();
+    const order = state.pendingOrders.find((o) => o.id === orderId);
+
+    if (!order) return;
+
+    set((s) => ({
+      pendingOrders: s.pendingOrders.filter((o) => o.id !== orderId),
+      completedOrders: [...s.completedOrders, { ...order, status: 'completed' }],
+      totalCustomersServed: s.totalCustomersServed + 1,
+      lastUpdated: Date.now(),
+    }));
+
+    state.addCoins(reward);
+  },
+
+  removeOrder: (orderId: string) => {
+    set((s) => ({
+      pendingOrders: s.pendingOrders.filter((o) => o.id !== orderId),
+      lastUpdated: Date.now(),
+    }));
+  },
+
+  getPendingOrders: () => {
+    return get().pendingOrders;
+  },
+
+  triggerNotification: (message: string) => {
+    set({ lastNotification: message });
+  },
+
+  clearNotification: () => {
+    set({ lastNotification: null });
   },
 
   // Progression

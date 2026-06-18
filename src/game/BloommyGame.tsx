@@ -6,6 +6,9 @@ import { ShopScreen } from './screens/ShopScreen';
 import { WholesaleMarketScreen } from './screens/WholesaleMarketScreen';
 import { BouquetArrangementScreen } from './screens/BouquetArrangementScreen';
 import { WrappingScreen } from './screens/WrappingScreen';
+import { InventoryScreen } from './screens/InventoryScreen';
+import { OrdersScreen } from './screens/OrdersScreen';
+import { NotificationBell } from './components/NotificationBell';
 
 // Module-level telemetry registration (runs once on import)
 RundotGameAPI.lifecycles.onPause(() => RundotGameAPI.analytics.recordCustomEvent('game_paused'));
@@ -64,6 +67,27 @@ export function BloommyGame() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
 
+  // Order generation - spawn orders every 20 seconds
+  useEffect(() => {
+    const createOrder = useGameStore.getState().createOrder;
+    const triggerNotification = useGameStore.getState().triggerNotification;
+
+    const orderInterval = setInterval(() => {
+      const order = createOrder();
+      if (order) {
+        triggerNotification('New Order!');
+        RundotGameAPI.analytics.recordCustomEvent('order_generated', {
+          orderId: order.id,
+          customerType: order.customerType,
+          stemCount: order.requiredStems.length,
+          reward: order.reward,
+        });
+      }
+    }, 20000); // Generate order every 20 seconds
+
+    return () => clearInterval(orderInterval);
+  }, []);
+
   // Safe-area padding applied inline (values come from SDK at runtime)
   const safeAreaPadding = {
     paddingTop: safeArea.top,
@@ -98,7 +122,10 @@ export function BloommyGame() {
         {currentScreen === 'wholesale' && <WholesaleMarketScreen />}
         {currentScreen === 'arrangement' && <BouquetArrangementScreen />}
         {currentScreen === 'wrapping' && <WrappingScreen />}
+        {currentScreen === 'inventory' && <InventoryScreen />}
+        {currentScreen === 'orders' && <OrdersScreen />}
       </div>
+      <NotificationBell />
     </div>
   );
 }

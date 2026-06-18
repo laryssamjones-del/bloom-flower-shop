@@ -52,6 +52,17 @@ export interface Customer {
   mood_emoji: string;
 }
 
+export interface Order {
+  id: string;
+  customerId: string;
+  customerType: 'customer-a' | 'customer-b' | 'customer-c';
+  customerMood: string;
+  requiredStems: BouquetStem[];
+  reward: number;
+  status: 'pending' | 'completed';
+  createdAt: number;
+}
+
 export interface GameState {
   // Economy
   coins: number;
@@ -66,9 +77,14 @@ export interface GameState {
   shelfBouquets: Bouquet[];
   displayedBouquets: (Bouquet | null)[]; // Array matching shelf capacity, null = empty spot
 
-  // Customers
+  // Customers & Orders
   activeCustomers: Customer[];
   totalCustomersServed: number;
+  pendingOrders: Order[];
+  completedOrders: Order[];
+
+  // Notifications
+  lastNotification: string | null;
 
   // Progression
   unlockedFlowers: Set<string>;
@@ -86,13 +102,14 @@ export interface GameState {
 
 export interface ShopState extends GameState {
   // Shop UI state
-  currentScreen: 'shop' | 'wholesale' | 'arrangement' | 'wrapping';
+  currentScreen: 'shop' | 'wholesale' | 'arrangement' | 'wrapping' | 'inventory' | 'orders';
   selectedBouquetForWrapping?: Bouquet;
   stemsInArrangement: BouquetStem[];
   inProgressWrapping?: {
     wrapping: WrappingPaperType;
     ribbon: RibbonColor;
   };
+  selectedOrderId?: string;
 }
 
 export interface SpecialBox {
