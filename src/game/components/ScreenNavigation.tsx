@@ -10,7 +10,7 @@ export function ScreenNavigation({ currentScreen }: ScreenNavigationProps) {
   const navItems = [
     { screen: 'inventory' as const, label: '📦 Inventory' },
     { screen: 'orders' as const, label: '📋 Orders' },
-    { screen: 'arrangement' as const, label: '💐 Arrange' },
+    { screen: 'arrangement' as const, label: '✨ Create' },
     { screen: 'wholesale' as const, label: '🌾 Market' },
   ];
 

@@ -9,7 +9,7 @@ import {
   Order,
 } from '../types';
 import { FLOWERS, INITIAL_UNLOCKED_FLOWERS, CUSTOMER_MOODS } from '../constants/flowers';
-import { getRandomBouquetImage } from '../data/bouquets';
+import { getBouquetImageForStems } from '../data/bouquets';
 
 const STARTING_COINS = 650;
 const MAX_INVENTORY_STEMS = 200;
@@ -288,7 +288,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       wrappingPaper: wrapping.wrapping,
       ribbonColor: wrapping.ribbon,
       sellPrice: price,
-      thumbnailUrl: getRandomBouquetImage(),
+      thumbnailUrl: getBouquetImageForStems(stems.map((s) => s.flowerId)),
       createdAt: Date.now(),
     };
 
