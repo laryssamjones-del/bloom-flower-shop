@@ -12204,11 +12204,29 @@
       "timestamp": 1781820836783,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1781820909729",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "How often are NPCs showing up?",
+      "timestamp": 1781820909729,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781820916078-5bjhasl8s",
+      "role": "assistant",
+      "content": "Looking at the code, NPCs are spawning every **45–90 seconds** (a random interval within that range).\n\nWould you like to adjust the frequency? I can make them appear more often, less often, or at a fixed interval if you prefer!",
+      "isShownToUser": true,
+      "timestamp": 1781820916398,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781820836861,
-  "tokenUsage": 55661,
+  "updatedAt": 1781820916446,
+  "tokenUsage": 55842,
   "script": "default",
   "claudeSessionId": "21cab1fd-d6cd-46b4-ad7e-db52414c5572"
 }
