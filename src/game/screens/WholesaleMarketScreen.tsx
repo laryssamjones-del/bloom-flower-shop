@@ -129,16 +129,16 @@ export function WholesaleMarketScreen() {
         </div>
       )}
 
-      {/* Main content */}
+      {/* Main content - Flower & Greenery grid */}
       <div
         style={{
           flex: 1,
           overflow: 'auto',
           WebkitOverflowScrolling: 'touch',
           padding: '12px',
+          paddingBottom: selectedFlower ? '360px' : '12px', // Make room for fixed purchase panel
         }}
       >
-        {/* Flower & Greenery grid */}
         <div
           style={{
             display: 'grid',
@@ -201,15 +201,29 @@ export function WholesaleMarketScreen() {
             );
           })}
         </div>
+      </div>
 
-        {/* Purchase details */}
-        {selectedFlower && (
+      {/* Fixed Purchase Details Panel */}
+      {selectedFlower && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            padding: '12px',
+            background: 'rgba(255,255,255,0.95)',
+            borderTop: '2px solid rgba(0,0,0,0.1)',
+            maxHeight: '360px',
+            overflow: 'auto',
+            zIndex: 10,
+          }}
+        >
           <div
             style={{
               padding: '12px',
               background: 'rgba(255,255,255,0.5)',
               borderRadius: '6px',
-              marginBottom: '16px',
             }}
           >
             <h3 style={{ margin: '0 0 8px 0', fontSize: '14px' }}>
@@ -320,8 +334,8 @@ export function WholesaleMarketScreen() {
             })()
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
