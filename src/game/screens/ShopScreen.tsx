@@ -283,7 +283,7 @@ export function ShopScreen() {
             flexDirection: 'column',
             justifyContent: 'flex-start',
             alignItems: 'center',
-            gap: '60px',
+            gap: '15px',
             paddingTop: '80px',
           }}
         >
