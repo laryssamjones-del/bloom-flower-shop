@@ -110,6 +110,34 @@ export function ShopScreen() {
         <CoinCounter />
       </div>
 
+      {/* Grid Overlay for positioning (temporary debug) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          pointerEvents: 'none',
+          zIndex: 1,
+          backgroundImage: `
+            linear-gradient(0deg, transparent 24%, rgba(255,0,0,0.1) 25%, rgba(255,0,0,0.1) 26%, transparent 27%, transparent 74%, rgba(255,0,0,0.1) 75%, rgba(255,0,0,0.1) 76%, transparent 77%, transparent),
+            linear-gradient(90deg, transparent 24%, rgba(255,0,0,0.1) 25%, rgba(255,0,0,0.1) 26%, transparent 27%, transparent 74%, rgba(255,0,0,0.1) 75%, rgba(255,0,0,0.1) 76%, transparent 77%, transparent)
+          `,
+          backgroundSize: '10% 10%',
+        }}
+      >
+        {/* Percentage markers */}
+        <div style={{ position: 'absolute', top: '10%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>10%</div>
+        <div style={{ position: 'absolute', top: '20%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>20%</div>
+        <div style={{ position: 'absolute', top: '30%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>30%</div>
+        <div style={{ position: 'absolute', top: '40%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>40%</div>
+        <div style={{ position: 'absolute', top: '50%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>50%</div>
+        <div style={{ position: 'absolute', top: '60%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>60%</div>
+        <div style={{ position: 'absolute', top: '70%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>70%</div>
+        <div style={{ position: 'absolute', top: '80%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>80%</div>
+      </div>
+
       {/* Purchase Notification */}
       {purchaseNotification && (
         <div
