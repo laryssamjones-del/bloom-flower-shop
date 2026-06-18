@@ -8,8 +8,8 @@ import { Bouquet } from '../../types';
 import { BOUQUET_RECIPES } from '../../data/bouquets';
 
 const BOUQUETS_PER_SHELF = 5;
-// NPC visits: a customer slides in every 45–90 seconds
-const NPC_VISIT_MIN = 45000;
+// NPC visits: a customer slides in every 25–90 seconds
+const NPC_VISIT_MIN = 25000;
 const NPC_VISIT_MAX = 90000;
 
 // Lifecycle analytics (module-scope — runs once)
