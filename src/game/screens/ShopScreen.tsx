@@ -282,7 +282,7 @@ export function ShopScreen() {
           }}
         >
           {shelfRows.map((row, rowIdx) => {
-            // Shelf positions: top at 21%, middle at 29%, bottom at 39%
+            // Shelf positions: bottom at 21%, 29%, 39%
             const shelfPositions = [21, 29, 39];
             const yPosition = shelfPositions[rowIdx] || 21;
 
@@ -291,15 +291,15 @@ export function ShopScreen() {
               key={rowIdx}
               style={{
                 position: 'absolute',
-                top: `${yPosition}%`,
-                left: '50%',
-                transform: 'translateX(-50%) translateY(-100%)',
+                bottom: `${100 - yPosition}%`,
+                left: '23%',
+                transform: 'translateX(-50%)',
                 display: 'grid',
                 gridTemplateColumns: `repeat(${BOUQUETS_PER_SHELF}, 1fr)`,
-                gap: '10%',
+                gap: '12px',
+                width: '380px',
                 justifyItems: 'center',
                 alignItems: 'flex-end',
-                width: 'auto',
               }}
             >
               {row.map((bouquet) => (
@@ -336,8 +336,8 @@ export function ShopScreen() {
                       alt="Bouquet"
                       style={{
                         width: '100%',
-                        maxWidth: '70px',
-                        height: '90px',
+                        maxWidth: '90px',
+                        height: '110px',
                         objectFit: 'contain',
                         backgroundColor: 'transparent',
                         filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
