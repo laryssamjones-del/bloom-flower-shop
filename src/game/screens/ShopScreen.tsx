@@ -208,7 +208,7 @@ export function ShopScreen() {
             right: '15%',
             display: 'flex',
             flexDirection: 'column',
-            gap: '10%',
+            gap: '7%',
             zIndex: 5,
           }}
         >
