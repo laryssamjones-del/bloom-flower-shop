@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
-import { InventoryDrawer } from '../components/InventoryDrawer';
 import { CoinCounter } from '../components/CoinCounter';
 import { BouquetPreview } from '../components/BouquetPreview';
 
@@ -171,6 +170,62 @@ export function ShopScreen() {
 
           <button
             onClick={() => {
+              setCurrentScreen('inventory');
+              setMenuOpen(false);
+            }}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              background: 'transparent',
+              border: 'none',
+              borderBottom: '1px solid rgba(0,0,0,0.1)',
+              cursor: 'pointer',
+              fontSize: '13px',
+              fontWeight: '500',
+              color: '#333',
+              textAlign: 'left',
+              transition: 'background 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.background = 'rgba(200, 150, 100, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.background = 'transparent';
+            }}
+          >
+            📦 Inventory
+          </button>
+
+          <button
+            onClick={() => {
+              setCurrentScreen('orders');
+              setMenuOpen(false);
+            }}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              background: 'transparent',
+              border: 'none',
+              borderBottom: '1px solid rgba(0,0,0,0.1)',
+              cursor: 'pointer',
+              fontSize: '13px',
+              fontWeight: '500',
+              color: '#333',
+              textAlign: 'left',
+              transition: 'background 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.background = 'rgba(200, 150, 100, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.background = 'transparent';
+            }}
+          >
+            📋 Orders
+          </button>
+
+          <button
+            onClick={() => {
               handleExpandShelf();
               setMenuOpen(false);
             }}
@@ -290,20 +345,6 @@ export function ShopScreen() {
 
       </div>
 
-      {/* Inventory drawer - mobile optimized */}
-      <div
-        style={{
-          background: 'rgba(255, 255, 255, 0.9)',
-          backdropFilter: 'blur(4px)',
-          padding: '8px',
-          maxHeight: '100px',
-          overflow: 'auto',
-          WebkitOverflowScrolling: 'touch',
-          borderTop: '2px solid rgba(0,0,0,0.1)',
-        }}
-      >
-        <InventoryDrawer />
-      </div>
     </div>
   );
 }

@@ -68,47 +68,37 @@ export function NotificationBell() {
     <div
       style={{
         position: 'fixed',
-        top: '50%',
+        top: '20px',
         left: '50%',
-        transform: 'translate(-50%, -50%)',
+        transform: 'translateX(-50%)',
         zIndex: 1000,
-        animation: 'popIn 0.3s ease-out',
+        animation: 'popInSubtle 0.3s ease-out',
       }}
     >
       <style>{`
-        @keyframes popIn {
+        @keyframes popInSubtle {
           0% {
             opacity: 0;
-            transform: translate(-50%, -50%) scale(0.8);
+            transform: translateX(-50%) translateY(-10px);
           }
           100% {
             opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-          }
-        }
-        @keyframes popOut {
-          0% {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-          }
-          100% {
-            opacity: 0;
-            transform: translate(-50%, -50%) scale(0.8);
+            transform: translateX(-50%) translateY(0);
           }
         }
       `}</style>
       <div
         style={{
-          padding: '24px 48px',
+          padding: '10px 16px',
           background: '#FFF8DC',
-          border: '4px solid #FFD700',
-          borderRadius: '12px',
-          fontSize: '24px',
+          border: '2px solid #FFD700',
+          borderRadius: '8px',
+          fontSize: '14px',
           fontWeight: 'bold',
           color: '#2A1408',
           textAlign: 'center',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
-          minWidth: '200px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+          minWidth: '140px',
         }}
       >
         🔔 {lastNotification}
