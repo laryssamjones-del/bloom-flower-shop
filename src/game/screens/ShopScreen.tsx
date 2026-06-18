@@ -271,7 +271,16 @@ export function ShopScreen() {
 
       {/* Shelf bouquet display — overlaid on the background shelves */}
       {shelfBouquets.length > 0 && (
-        <div style={{ position: 'relative', width: '100%', height: '100%', zIndex: 5 }}>
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 5,
+          }}
+        >
           {shelfRows.map((row, rowIdx) => {
             // Shelf positions: top at 21%, middle at 29%, bottom at 39%
             const shelfPositions = [21, 29, 39];
@@ -282,15 +291,15 @@ export function ShopScreen() {
               key={rowIdx}
               style={{
                 position: 'absolute',
-                bottom: `calc(100% - ${yPosition}%)`,
+                top: `${yPosition}%`,
                 left: '50%',
-                transform: 'translateX(-50%)',
+                transform: 'translateX(-50%) translateY(-100%)',
                 display: 'grid',
                 gridTemplateColumns: `repeat(${BOUQUETS_PER_SHELF}, 1fr)`,
                 gap: '10%',
                 justifyItems: 'center',
                 alignItems: 'flex-end',
-                width: '50vw',
+                width: 'auto',
               }}
             >
               {row.map((bouquet) => (
