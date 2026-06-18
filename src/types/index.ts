@@ -75,6 +75,10 @@ export interface GameState {
   unlockedRibbons: RibbonColor[];
   unlockedWrappings: WrappingPaperType[];
 
+  // Daily limits
+  dailyPurchases: Record<string, number>;
+  lastPurchaseDate: string;
+
   // Meta
   lastUpdated: number;
   sessionStarted: number;

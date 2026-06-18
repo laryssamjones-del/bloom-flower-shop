@@ -13,6 +13,12 @@ import { getRandomBouquetImage } from '../data/bouquets';
 const STARTING_COINS = 500;
 const MAX_INVENTORY_STEMS = 200;
 const STARTING_SHELF_CAPACITY = 20;
+const DAILY_PURCHASE_LIMIT = 50; // 50 stems per flower per day
+
+const getTodayDateString = () => {
+  const now = new Date();
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}`;
+};
 
 const createInitialState = (): ShopState => ({
   // Economy
@@ -37,6 +43,10 @@ const createInitialState = (): ShopState => ({
   unlockedRibbons: ['blush', 'ivory'],
   unlockedWrappings: ['plain-white', 'kraft'],
 
+  // Daily limits
+  dailyPurchases: {},
+  lastPurchaseDate: getTodayDateString(),
+
   // Meta
   lastUpdated: Date.now(),
   sessionStarted: Date.now(),
@@ -55,6 +65,10 @@ interface GameStoreActions {
   addStemsToInventory: (flowerId: string, quantity: number) => boolean;
   removeStemsFromInventory: (flowerId: string, quantity: number) => boolean;
   getTotalStemsInInventory: () => number;
+
+  // Daily limits
+  checkDailyLimit: (flowerId: string, quantity: number) => { canBuy: boolean; remaining: number };
+  recordDailyPurchase: (flowerId: string, quantity: number) => void;
 
   // Bouquet creation
   addStemToArrangement: (flowerId: string) => boolean;
@@ -168,6 +182,37 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
   getTotalStemsInInventory: () => {
     const state = get();
     return state.inventory.reduce((sum, item) => sum + item.quantity, 0);
+  },
+
+  // Daily limits
+  checkDailyLimit: (flowerId: string, quantity: number) => {
+    const state = get();
+    const today = getTodayDateString();
+
+    // Reset if it's a new day
+    if (state.lastPurchaseDate !== today) {
+      set({ dailyPurchases: {}, lastPurchaseDate: today });
+      return { canBuy: true, remaining: DAILY_PURCHASE_LIMIT };
+    }
+
+    const alreadyBought = state.dailyPurchases[flowerId] || 0;
+    const remaining = DAILY_PURCHASE_LIMIT - alreadyBought;
+    const canBuy = remaining >= quantity;
+
+    return { canBuy, remaining: Math.max(0, remaining - quantity) };
+  },
+
+  recordDailyPurchase: (flowerId: string, quantity: number) => {
+    const state = get();
+    const today = getTodayDateString();
+
+    set({
+      dailyPurchases: {
+        ...state.dailyPurchases,
+        [flowerId]: (state.dailyPurchases[flowerId] || 0) + quantity,
+      },
+      lastPurchaseDate: today,
+    });
   },
 
   // Bouquet arrangement

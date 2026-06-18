@@ -17,6 +17,9 @@ export function WholesaleMarketScreen() {
   const coins = useGameStore((s) => s.coins);
   const addStemsToInventory = useGameStore((s) => s.addStemsToInventory);
   const spendCoins = useGameStore((s) => s.spendCoins);
+  const checkDailyLimit = useGameStore((s) => s.checkDailyLimit);
+  const recordDailyPurchase = useGameStore((s) => s.recordDailyPurchase);
+  const dailyPurchases = useGameStore((s) => s.dailyPurchases);
 
   const [selectedFlower, setSelectedFlower] = useState<string | null>(null);
   const [selectedBulk, setSelectedBulk] = useState<BulkOption>(1);
@@ -33,12 +36,23 @@ export function WholesaleMarketScreen() {
     const item = getItem(selectedFlower);
     if (!item) return;
 
+    // Check daily limit
+    const { canBuy } = checkDailyLimit(selectedFlower, selectedBulk);
+    if (!canBuy) {
+      RundotGameAPI.analytics.recordCustomEvent('daily_limit_reached', {
+        flowerId: selectedFlower,
+        attemptedQuantity: selectedBulk,
+      });
+      return;
+    }
+
     const discount = BULK_DISCOUNTS[selectedBulk];
     const baseCost = item.pricePerStem * selectedBulk;
     const totalCost = Math.round(baseCost * (1 - discount));
 
     if (coins >= totalCost) {
       if (spendCoins(totalCost) && addStemsToInventory(selectedFlower, selectedBulk)) {
+        recordDailyPurchase(selectedFlower, selectedBulk);
         RundotGameAPI.analytics.recordCustomEvent('flowers_purchased', {
           flowerId: selectedFlower,
           quantity: selectedBulk,
@@ -174,6 +188,25 @@ export function WholesaleMarketScreen() {
               {selectedFlower && getItem(selectedFlower)?.name}
             </h3>
 
+            {/* Daily limit indicator */}
+            {selectedFlower && (
+              <div
+                style={{
+                  fontSize: '12px',
+                  color: '#666',
+                  marginBottom: '12px',
+                  padding: '8px',
+                  background: 'rgba(0,0,0,0.05)',
+                  borderRadius: '4px',
+                }}
+              >
+                <div>📊 Daily limit: {dailyPurchases[selectedFlower] || 0}/50 stems bought</div>
+                <div style={{ color: (dailyPurchases[selectedFlower] || 0) >= 40 ? '#c45d5d' : '#666' }}>
+                  Remaining today: {Math.max(0, 50 - (dailyPurchases[selectedFlower] || 0))} stems
+                </div>
+              </div>
+            )}
+
             {/* Bulk options */}
             <div
               style={{
@@ -220,27 +253,34 @@ export function WholesaleMarketScreen() {
 
             {/* Buy button */}
             {selectedFlower && getItem(selectedFlower) && (
-            <button
-              onClick={handleBuyFlowers}
-              disabled={coins < Math.round(getItem(selectedFlower)!.pricePerStem * selectedBulk * (1 - BULK_DISCOUNTS[selectedBulk]))}
-              style={{
-                width: '100%',
-                padding: '12px',
-                background:
-                  coins <
-                  Math.round(getItem(selectedFlower)!.pricePerStem * selectedBulk * (1 - BULK_DISCOUNTS[selectedBulk]))
-                    ? '#CCC'
-                    : '#6A9A50',
-                color: '#FFF',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: 'bold',
-              }}
-            >
-              Buy {selectedBulk} stems
-            </button>
+            (() => {
+              const item = getItem(selectedFlower)!;
+              const totalCost = Math.round(item.pricePerStem * selectedBulk * (1 - BULK_DISCOUNTS[selectedBulk]));
+              const { canBuy } = checkDailyLimit(selectedFlower, selectedBulk);
+              const insufficientCoins = coins < totalCost;
+              const isDisabled = insufficientCoins || !canBuy;
+              const buttonText = !canBuy ? '❌ Daily limit reached' : insufficientCoins ? '❌ Not enough coins' : `💚 Buy ${selectedBulk} stems`;
+
+              return (
+                <button
+                  onClick={handleBuyFlowers}
+                  disabled={isDisabled}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    background: isDisabled ? '#CCC' : '#6A9A50',
+                    color: '#FFF',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: isDisabled ? 'not-allowed' : 'pointer',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {buttonText}
+                </button>
+              );
+            })()
             )}
           </div>
         )}
