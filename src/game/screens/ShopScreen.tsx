@@ -196,12 +196,12 @@ export function ShopScreen() {
         <div
           style={{
             position: 'absolute',
-            top: '18%',
-            left: '4%',
-            right: '4%',
+            top: '20%',
+            left: '10%',
+            right: '10%',
             display: 'flex',
             flexDirection: 'column',
-            gap: '6px',
+            gap: '12%',
             zIndex: 5,
           }}
         >
@@ -211,7 +211,9 @@ export function ShopScreen() {
               style={{
                 display: 'grid',
                 gridTemplateColumns: `repeat(${BOUQUETS_PER_SHELF}, 1fr)`,
-                gap: '4px',
+                gap: '12px',
+                justifyItems: 'center',
+                alignItems: 'flex-end',
               }}
             >
               {row.map((bouquet) => (
@@ -242,10 +244,12 @@ export function ShopScreen() {
                     alt="Bouquet"
                     style={{
                       width: '100%',
-                      maxWidth: '72px',
-                      height: 'auto',
+                      maxWidth: '80px',
+                      height: '100px',
                       objectFit: 'contain',
-                      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))',
+                      backgroundColor: 'transparent',
+                      filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
+                      imageRendering: 'crisp-edges',
                     }}
                   />
                   <span
