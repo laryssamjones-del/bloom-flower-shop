@@ -6608,11 +6608,29 @@
       "timestamp": 1781752474350,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1781752962278",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "You haven't added my petal coins. I tried buying something and it says I have insufficient funds",
+      "timestamp": 1781752962278,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781752971411-tf7l55x39",
+      "role": "assistant",
+      "content": "The issue is that your game is loading the old saved state from your browser's memory (500 coins). The increase to 650 only applies to new games. You'll need to clear your browser cache or local storage to reset the game and get the new starting amount.\n\nTry refreshing the page and clearing your browser cache, or you can:\n1. Open your browser's Developer Tools (F12 or right-click → Inspect)\n2. Go to the Application/Storage tab\n3. Find \"Local Storage\" and delete the \"bloomy-game-state\" entry\n4. Refresh the page\n\nThat should reset the game with your new 650 coins! 💰",
+      "isShownToUser": true,
+      "timestamp": 1781752972687,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781752474479,
-  "tokenUsage": 86664,
+  "updatedAt": 1781752972724,
+  "tokenUsage": 87059,
   "script": "default",
   "claudeSessionId": "c23f9329-04d5-4495-ba2f-c4d583787eb0"
 }
