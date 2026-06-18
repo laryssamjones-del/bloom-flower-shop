@@ -136,7 +136,7 @@ export function WholesaleMarketScreen() {
           overflow: 'auto',
           WebkitOverflowScrolling: 'touch',
           padding: '12px',
-          paddingBottom: selectedFlower ? '360px' : '12px', // Make room for fixed purchase panel
+          paddingBottom: selectedFlower ? '300px' : '12px', // Make room for fixed purchase panel
         }}
       >
         <div
@@ -214,7 +214,7 @@ export function WholesaleMarketScreen() {
             padding: '12px',
             background: 'rgba(255,255,255,0.95)',
             borderTop: '2px solid rgba(0,0,0,0.1)',
-            maxHeight: '360px',
+            maxHeight: '280px',
             overflow: 'auto',
             zIndex: 10,
           }}
