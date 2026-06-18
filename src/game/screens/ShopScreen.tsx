@@ -255,7 +255,7 @@ export function ShopScreen() {
         </div>
       )}
 
-      {/* Main shop content - welcome area */}
+      {/* Main shop content */}
       <div
         style={{
           flex: 1,
@@ -266,20 +266,7 @@ export function ShopScreen() {
           overflow: 'auto',
           WebkitOverflowScrolling: 'touch',
         }}
-      >
-        <div
-          style={{
-            padding: '20px',
-            textAlign: 'center',
-            color: '#666',
-            fontSize: '24px',
-            fontStyle: 'italic',
-            fontFamily: 'cursive',
-          }}
-        >
-          🪔 Bloom Floral Shop 🪔
-        </div>
-      </div>
+      />
 
     </div>
   );
