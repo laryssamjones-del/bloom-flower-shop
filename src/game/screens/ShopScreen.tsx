@@ -63,8 +63,6 @@ export function ShopScreen() {
     const order = createOrder();
     setActiveVisit(null);
     if (order) {
-      setPurchaseNotification(`Order accepted! Check your Orders tab 📋`);
-      setTimeout(() => setPurchaseNotification(null), 3000);
       RundotGameAPI.analytics.recordCustomEvent('npc_order_accepted', {
         recipeId: activeVisit.recipeId,
         recipeName: activeVisit.recipeName,

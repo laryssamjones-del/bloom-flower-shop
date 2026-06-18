@@ -55,14 +55,6 @@ export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOv
     return () => clearTimeout(t);
   }, []);
 
-  // Auto-dismiss after 20 seconds if player doesn't interact
-  useEffect(() => {
-    const t = setTimeout(() => {
-      handleDecline();
-    }, 20000);
-    return () => clearTimeout(t);
-  }, []);
-
   const handleAccept = () => {
     setPhase('leaving');
     setTimeout(() => onAccept(), 500);
