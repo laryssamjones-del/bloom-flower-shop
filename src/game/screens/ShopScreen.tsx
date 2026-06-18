@@ -283,7 +283,9 @@ export function ShopScreen() {
             zIndex: 5,
           }}
         >
-          {shelfRows.map((row, rowIdx) => (
+          {shelfRows.map((row, rowIdx) => {
+            const isLastRow = rowIdx === shelfRows.length - 1;
+            return (
             <div
               key={rowIdx}
               style={{
@@ -292,6 +294,13 @@ export function ShopScreen() {
                 gap: '12px',
                 justifyItems: 'center',
                 alignItems: 'flex-end',
+                ...(isLastRow && {
+                  position: 'absolute',
+                  left: '20%',
+                  top: '35%',
+                  right: '20%',
+                  width: 'calc(100% - 40%)',
+                }),
               }}
             >
               {row.map((bouquet) => (
@@ -366,7 +375,8 @@ export function ShopScreen() {
                 </div>
               ))}
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
