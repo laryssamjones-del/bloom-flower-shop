@@ -1,12 +1,26 @@
 import { useEffect, useState } from 'react';
 
 const NPC_IMAGES = [
+  // Young women
   '/npcs/npc-young-woman-01.png',
   '/npcs/npc-young-woman-02.png',
   '/npcs/npc-young-woman-03.png',
   '/npcs/npc-young-woman-04.png',
+  // Adult women
   '/npcs/npc-woman-braid-glasses.png',
+  '/npcs/npc-elder-woman-white-hair.png',
+  '/npcs/npc-elder-woman-grey-curly.png',
+  // Children
+  '/npcs/npc-girl-pigtails.png',
+  '/npcs/npc-girl-ponytail.png',
+  '/npcs/npc-boy-brown-hair.png',
+  // Men
   '/npcs/npc-man-bald-beard.png',
+  '/npcs/npc-man-black-hair-linen.png',
+  '/npcs/npc-man-brown-hair-sweater.png',
+  '/npcs/npc-man-curly-hair.png',
+  '/npcs/npc-man-grey-beard-blue.png',
+  '/npcs/npc-man-grey-hair-navy.png',
 ];
 
 const REQUEST_TEMPLATES = [
