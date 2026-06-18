@@ -15,7 +15,7 @@ import { MYSTERY_BOX_COST_RUN_BUCKS, getRandomMysteryBouquet } from '../data/mys
 
 const STARTING_COINS = 650;
 const MAX_INVENTORY_STEMS = 200;
-const STARTING_SHELF_CAPACITY = 20;
+const STARTING_SHELF_CAPACITY = 15;
 const DAILY_PURCHASE_LIMIT = 50; // 50 stems per flower per day
 
 const getTodayDateString = () => {

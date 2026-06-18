@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { CoinCounter } from '../components/CoinCounter';
@@ -6,11 +6,12 @@ import { BottomTabNavigation } from '../components/BottomTabNavigation';
 import { Bouquet } from '../../types';
 
 const CUSTOMER_SPAWN_INTERVAL = 20000; // 20 seconds
-const BOUQUETS_PER_SHELF = 4;
+const BOUQUETS_PER_SHELF = 5;
 
 export function ShopScreen() {
   const shelfBouquets = useGameStore((s) => s.shelfBouquets);
   const sellBouquet = useGameStore((s) => s.sellBouquet);
+  const [purchaseNotification, setPurchaseNotification] = useState<string | null>(null);
 
   // Spawn customers periodically
   useEffect(() => {
@@ -25,6 +26,9 @@ export function ShopScreen() {
 
   const handleSellBouquet = (bouquet: Bouquet) => {
     if (sellBouquet(bouquet.id)) {
+      setPurchaseNotification('A customer bought your bouquet from the shelf!');
+      setTimeout(() => setPurchaseNotification(null), 2500);
+
       RundotGameAPI.analytics.recordCustomEvent('bouquet_sold', {
         bouquetId: bouquet.id,
         price: bouquet.sellPrice,
@@ -64,6 +68,29 @@ export function ShopScreen() {
       >
         <CoinCounter />
       </div>
+
+      {/* Purchase Notification */}
+      {purchaseNotification && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: '#6A9A50',
+            color: '#FFF',
+            padding: '10px 16px',
+            borderRadius: '6px',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+            zIndex: 15,
+            animation: 'fadeInOut 2.5s ease-in-out',
+          }}
+        >
+          {purchaseNotification}
+        </div>
+      )}
 
       {/* Shelf bouquet display — overlaid on the background shelves */}
       {shelfBouquets.length > 0 && (
