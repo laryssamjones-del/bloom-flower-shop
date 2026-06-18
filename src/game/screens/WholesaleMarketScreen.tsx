@@ -23,6 +23,7 @@ export function WholesaleMarketScreen() {
 
   const [selectedFlower, setSelectedFlower] = useState<string | null>(null);
   const [selectedBulk, setSelectedBulk] = useState<BulkOption>(1);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const availableFlowers = Array.from(INITIAL_UNLOCKED_FLOWERS);
   const availableGreenery = Object.keys(GREENERY);
@@ -53,6 +54,15 @@ export function WholesaleMarketScreen() {
     if (coins >= totalCost) {
       if (spendCoins(totalCost) && addStemsToInventory(selectedFlower, selectedBulk)) {
         recordDailyPurchase(selectedFlower, selectedBulk);
+
+        // Show success message
+        const itemName = item.name;
+        const successMsg = `✅ Bought ${selectedBulk} ${itemName} for ${totalCost} 🌼`;
+        setSuccessMessage(successMsg);
+
+        // Clear success message after 2 seconds
+        setTimeout(() => setSuccessMessage(null), 2000);
+
         RundotGameAPI.analytics.recordCustomEvent('flowers_purchased', {
           flowerId: selectedFlower,
           quantity: selectedBulk,
@@ -100,6 +110,24 @@ export function WholesaleMarketScreen() {
           Back to Shop
         </button>
       </div>
+
+      {/* Success message */}
+      {successMessage && (
+        <div
+          style={{
+            padding: '12px 16px',
+            background: '#d4f1d4',
+            color: '#2A5A2A',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            textAlign: 'center',
+            borderBottom: '2px solid #A8D5A8',
+            transition: 'opacity 0.3s ease-in-out',
+          }}
+        >
+          {successMessage}
+        </div>
+      )}
 
       {/* Main content */}
       <div
