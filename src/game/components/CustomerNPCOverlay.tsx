@@ -1,18 +1,10 @@
 import { useEffect, useState } from 'react';
 
 const NPC_IMAGES = [
-  // Individual keyed characters
   '/npcs/npc-young-woman-01.png',
   '/npcs/npc-young-woman-02.png',
   '/npcs/npc-young-woman-03.png',
   '/npcs/npc-young-woman-04.png',
-  // Composite fallback characters
-  '/npcs/npc-couple.png',
-  '/npcs/npc-young-women.png',
-  '/npcs/npc-elderly.png',
-  '/npcs/npc-kids.png',
-  '/npcs/npc-young-men.png',
-  '/npcs/npc-varied.png',
 ];
 
 const REQUEST_TEMPLATES = [
