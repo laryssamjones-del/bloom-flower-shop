@@ -358,6 +358,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       sellPrice: price,
       thumbnailUrl,
       createdAt: Date.now(),
+      recipeName: recipe?.name,
     };
 
     // If fulfilling an order, complete it instead of going to shop shelf

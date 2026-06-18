@@ -38,6 +38,7 @@ export interface Bouquet {
   thumbnailUrl?: string;
   createdAt: number;
   fromSpecialBox?: boolean;
+  recipeName?: string;
 }
 
 export type WrappingPaperType = 'spring-floral' | 'kraft' | 'pastel-stripe' | 'tissue' | 'plain-white';

@@ -4,6 +4,7 @@ import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { CoinCounter } from '../components/CoinCounter';
 import { BottomTabNavigation } from '../components/BottomTabNavigation';
 import { CustomerNPCOverlay, NPCVisit, createNPCVisit } from '../components/CustomerNPCOverlay';
+import { ShelfPurchaseNPC } from '../components/ShelfPurchaseNPC';
 import { Bouquet } from '../../types';
 import { BOUQUET_RECIPES } from '../../data/bouquets';
 
@@ -24,13 +25,19 @@ export function ShopScreen() {
   const removeBouquetFromShelf = useGameStore((s) => s.removeBouquetFromShelf);
   const createOrder = useGameStore((s) => s.createOrder);
 
-  const [purchaseNotification, setPurchaseNotification] = useState<string | null>(null);
   const [longPressId, setLongPressId] = useState<string | null>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Active NPC visit
+  // Active NPC visit (order requests)
   const [activeVisit, setActiveVisit] = useState<NPCVisit | null>(null);
   const npcTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Shelf purchase NPC
+  const [shelfPurchaseNPC, setShelfPurchaseNPC] = useState<{
+    npcImage: string;
+    bouquet: Bouquet;
+  } | null>(null);
+  const shelfPurchaseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Schedule next NPC visit
   const scheduleNextVisit = () => {
@@ -79,27 +86,63 @@ export function ShopScreen() {
     setActiveVisit(null);
   };
 
-  // Auto-purchase random bouquet every 60-120 seconds (passive income)
-  useEffect(() => {
-    const purchaseRandomBouquet = () => {
+  // Shelf purchase NPC - shows an NPC complimenting and buying a bouquet every 60-120 seconds
+  const scheduleNextShelfPurchase = () => {
+    const delay = 60000 + Math.random() * 60000;
+    shelfPurchaseTimerRef.current = setTimeout(() => {
       const bouquets = useGameStore.getState().shelfBouquets;
       if (bouquets.length > 0) {
         const randomBouquet = bouquets[Math.floor(Math.random() * bouquets.length)];
-        if (randomBouquet && sellBouquet(randomBouquet.id)) {
-          setPurchaseNotification('A customer bought your bouquet from the shelf!');
-          setTimeout(() => setPurchaseNotification(null), 2500);
-          RundotGameAPI.analytics.recordCustomEvent('bouquet_sold', {
-            bouquetId: randomBouquet.id,
-            price: randomBouquet.sellPrice,
-          });
+        if (randomBouquet && !shelfPurchaseNPC) {
+          const NPC_IMAGES = [
+            '/npcs/npc-young-woman-01.png',
+            '/npcs/npc-young-woman-02.png',
+            '/npcs/npc-young-woman-03.png',
+            '/npcs/npc-young-woman-04.png',
+            '/npcs/npc-woman-braid-glasses.png',
+            '/npcs/npc-elder-woman-white-hair.png',
+            '/npcs/npc-elder-woman-grey-curly.png',
+            '/npcs/npc-woman-auburn-curly.png',
+            '/npcs/npc-woman-curly-afro.png',
+            '/npcs/npc-woman-dark-updo.png',
+            '/npcs/npc-girl-pigtails.png',
+            '/npcs/npc-girl-ponytail.png',
+            '/npcs/npc-boy-brown-hair.png',
+            '/npcs/npc-teen-purple-hair.png',
+            '/npcs/npc-man-bald-beard.png',
+            '/npcs/npc-man-black-hair-linen.png',
+            '/npcs/npc-man-brown-hair-sweater.png',
+            '/npcs/npc-man-curly-hair.png',
+            '/npcs/npc-man-grey-beard-blue.png',
+            '/npcs/npc-man-grey-hair-navy.png',
+            '/npcs/npc-man-locs-sweater.png',
+            '/npcs/npc-nonbinary-mint-hair.png',
+          ];
+          const randomNPC = NPC_IMAGES[Math.floor(Math.random() * NPC_IMAGES.length)]!;
+          setShelfPurchaseNPC({ npcImage: randomNPC, bouquet: randomBouquet });
         }
       }
-    };
+      scheduleNextShelfPurchase();
+    }, delay);
+  };
 
-    const randomDelay = 60000 + Math.random() * 60000;
-    const interval = setInterval(purchaseRandomBouquet, randomDelay);
-    return () => clearInterval(interval);
+  useEffect(() => {
+    scheduleNextShelfPurchase();
+    return () => {
+      if (shelfPurchaseTimerRef.current) clearTimeout(shelfPurchaseTimerRef.current);
+    };
   }, []);
+
+  const handleShelfPurchaseComplete = () => {
+    if (shelfPurchaseNPC) {
+      sellBouquet(shelfPurchaseNPC.bouquet.id);
+      RundotGameAPI.analytics.recordCustomEvent('shelf_bouquet_sold', {
+        bouquetId: shelfPurchaseNPC.bouquet.id,
+        price: shelfPurchaseNPC.bouquet.sellPrice,
+      });
+    }
+    setShelfPurchaseNPC(null);
+  };
 
   // Long-press handling for delete
   const handlePointerDown = (bouquetId: string) => {
@@ -153,30 +196,6 @@ export function ShopScreen() {
       >
         <CoinCounter />
       </div>
-
-      {/* Purchase / Order notification */}
-      {purchaseNotification && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '20px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            background: '#6A9A50',
-            color: '#FFF',
-            padding: '10px 16px',
-            borderRadius: '6px',
-            fontSize: '14px',
-            fontWeight: 'bold',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-            zIndex: 15,
-            whiteSpace: 'nowrap',
-            animation: 'fadeInOut 3s ease-in-out',
-          }}
-        >
-          {purchaseNotification}
-        </div>
-      )}
 
       {/* Shelf bouquet display — overlaid on the background shelves */}
       {shelfBouquets.length > 0 && (
@@ -291,12 +310,21 @@ export function ShopScreen() {
         </div>
       )}
 
-      {/* NPC Customer Visitor */}
+      {/* NPC Customer Visitor (Order Requests) */}
       {activeVisit && (
         <CustomerNPCOverlay
           visit={activeVisit}
           onAccept={handleNPCAccept}
           onDecline={handleNPCDecline}
+        />
+      )}
+
+      {/* NPC Shelf Purchase */}
+      {shelfPurchaseNPC && (
+        <ShelfPurchaseNPC
+          npcImage={shelfPurchaseNPC.npcImage}
+          bouquet={shelfPurchaseNPC.bouquet}
+          onComplete={handleShelfPurchaseComplete}
         />
       )}
 
