@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 
 const NPC_IMAGES = [
+  // Individual keyed characters
+  '/npcs/npc-young-woman-01.png',
+  '/npcs/npc-young-woman-02.png',
+  '/npcs/npc-young-woman-03.png',
+  '/npcs/npc-young-woman-04.png',
+  // Composite fallback characters
   '/npcs/npc-couple.png',
   '/npcs/npc-young-women.png',
   '/npcs/npc-elderly.png',
@@ -200,9 +206,8 @@ export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOv
           height: '300px',
           width: 'auto',
           objectFit: 'contain',
-          filter: 'drop-shadow(-4px 0 8px rgba(0,0,0,0.25)) brightness(1.05) saturate(0.85)',
+          filter: 'drop-shadow(-4px 0 8px rgba(0,0,0,0.25))',
           imageRendering: 'crisp-edges',
-          backgroundColor: 'rgba(0,255,0,0)',
         }}
       />
     </div>
