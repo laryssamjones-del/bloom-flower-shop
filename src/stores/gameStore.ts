@@ -11,7 +11,7 @@ import {
 import { FLOWERS, INITIAL_UNLOCKED_FLOWERS, CUSTOMER_MOODS } from '../constants/flowers';
 import { getRandomBouquetImage } from '../data/bouquets';
 
-const STARTING_COINS = 500;
+const STARTING_COINS = 650;
 const MAX_INVENTORY_STEMS = 200;
 const STARTING_SHELF_CAPACITY = 20;
 const DAILY_PURCHASE_LIMIT = 50; // 50 stems per flower per day

@@ -6366,11 +6366,51 @@
       "timestamp": 1781751922589,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1781752061813",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "Can you add 150 petal coins so that I can try out the new features?",
+      "timestamp": 1781752061813,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781752069612-xo7m7n77x",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1781752069612,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1781752072058-9ypvzk566",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1781752072058,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1781752081359-trw5xt9v7",
+      "role": "assistant",
+      "content": "Done! I've increased your starting coins from 500 to 650, so you'll have an extra 150 coins to test out all the new features. 💰\n\nYou can now:\n- Buy more stems from the Wholesale Market\n- Expand your shelf more times\n- Test out the full order system and navigation without worrying about running out of coins\n\nIf you've already been playing, you may need to clear your browser cache or refresh to see the new starting amount!",
+      "isShownToUser": true,
+      "timestamp": 1781752082155,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781751922633,
-  "tokenUsage": 80929,
+  "updatedAt": 1781752082197,
+  "tokenUsage": 81663,
   "script": "default",
   "claudeSessionId": "c23f9329-04d5-4495-ba2f-c4d583787eb0"
 }
