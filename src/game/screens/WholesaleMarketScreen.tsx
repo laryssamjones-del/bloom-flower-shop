@@ -144,7 +144,7 @@ export function WholesaleMarketScreen() {
           alignItems: 'center',
         }}
       >
-        <h1 style={{ margin: 0, fontSize: '18px' }}>🌾 Wholesale Market</h1>
+        <h1 style={{ margin: 0, fontSize: '18px' }}>🛍️ Shop</h1>
         <button
           onClick={() => setCurrentScreen('shop')}
           style={{

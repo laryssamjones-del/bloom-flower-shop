@@ -25,52 +25,118 @@ export const preMadeBouquets: PreMadeBouquet[] = [
   { id: 18, name: 'Grand Opulence', imageUrl: '/bouquets/grand-opulence.png' },
 ];
 
-// Maps the dominant flower in an arrangement to the best-matching bouquet image
-const FLOWER_TO_BOUQUET: Record<string, string> = {
-  daisy: '/bouquets/sunshine-bunch.png',
-  sunflower: '/bouquets/sunshine-bunch.png',
-  babys_breath: '/bouquets/sunshine-bunch.png',
-  lavender: '/bouquets/lavender-dream.png',
-  sweet_pea: '/bouquets/lavender-dream.png',
-  marigold: '/bouquets/golden-meadow.png',
-  dried_wheat: '/bouquets/golden-meadow.png',
-  cosmos: '/bouquets/spring-cosmos.png',
-  tulip: '/bouquets/tulip-garden.png',
-  anemone: '/bouquets/violet-anemone.png',
-  poppy: '/bouquets/poppy-field.png',
-  carnation: '/bouquets/carnation-kiss.png',
-  rose: '/bouquets/rose-garden.png',
-  white_rose: '/bouquets/rose-garden.png',
-  peony: '/bouquets/peony-blush.png',
-  lily: '/bouquets/lily-orchid.png',
-  orchid: '/bouquets/lily-orchid.png',
-  hydrangea: '/bouquets/hydrangea-cloud.png',
-  lisianthus: '/bouquets/hydrangea-cloud.png',
-  cherry_blossom: '/bouquets/cherry-blossom-dream.png',
-  protea: '/bouquets/protea-statement.png',
-  lilac: '/bouquets/enchanted-lilac.png',
-  ranunculus: '/bouquets/golden-luxury.png',
-};
+// Set recipes: specific flower combinations always map to the same bouquet
+interface BouquetRecipe {
+  flowers: string[]; // sorted flower IDs for this recipe
+  imageUrl: string;
+}
+
+const BOUQUET_RECIPES: BouquetRecipe[] = [
+  // Sunshine bouquets
+  { flowers: ['daisy', 'sunflower', 'babys_breath'].sort(), imageUrl: '/bouquets/sunshine-bunch.png' },
+  { flowers: ['daisy', 'sunflower'].sort(), imageUrl: '/bouquets/sunshine-bunch.png' },
+  { flowers: ['sunflower', 'babys_breath'].sort(), imageUrl: '/bouquets/sunshine-bunch.png' },
+
+  // Lavender dreams
+  { flowers: ['lavender', 'sweet_pea', 'anemone'].sort(), imageUrl: '/bouquets/lavender-dream.png' },
+  { flowers: ['lavender', 'sweet_pea'].sort(), imageUrl: '/bouquets/lavender-dream.png' },
+
+  // Golden
+  { flowers: ['marigold', 'dried_wheat', 'ranunculus'].sort(), imageUrl: '/bouquets/golden-meadow.png' },
+  { flowers: ['marigold', 'dried_wheat'].sort(), imageUrl: '/bouquets/golden-meadow.png' },
+  { flowers: ['ranunculus', 'marigold'].sort(), imageUrl: '/bouquets/golden-luxury.png' },
+
+  // Spring cosmos
+  { flowers: ['cosmos', 'daisy', 'babys_breath'].sort(), imageUrl: '/bouquets/spring-cosmos.png' },
+  { flowers: ['cosmos', 'daisy'].sort(), imageUrl: '/bouquets/spring-cosmos.png' },
+
+  // Tulips
+  { flowers: ['tulip', 'eucalyptus'].sort(), imageUrl: '/bouquets/tulip-garden.png' },
+  { flowers: ['tulip', 'fern'].sort(), imageUrl: '/bouquets/tulip-garden.png' },
+  { flowers: ['tulip'].sort(), imageUrl: '/bouquets/tulip-garden.png' },
+
+  // Anemone
+  { flowers: ['anemone', 'olive_branch'].sort(), imageUrl: '/bouquets/violet-anemone.png' },
+  { flowers: ['anemone', 'lavender'].sort(), imageUrl: '/bouquets/violet-anemone.png' },
+
+  // Poppy
+  { flowers: ['poppy', 'dried_wheat'].sort(), imageUrl: '/bouquets/poppy-field.png' },
+  { flowers: ['poppy', 'wheat'].sort(), imageUrl: '/bouquets/midnight-poppy.png' },
+
+  // Carnation
+  { flowers: ['carnation', 'babys_breath'].sort(), imageUrl: '/bouquets/carnation-kiss.png' },
+  { flowers: ['carnation'].sort(), imageUrl: '/bouquets/carnation-kiss.png' },
+
+  // Rose garden
+  { flowers: ['rose', 'white_rose', 'peony'].sort(), imageUrl: '/bouquets/rose-garden.png' },
+  { flowers: ['rose', 'white_rose'].sort(), imageUrl: '/bouquets/rose-garden.png' },
+  { flowers: ['rose', 'peony'].sort(), imageUrl: '/bouquets/rose-garden.png' },
+
+  // Peony blush
+  { flowers: ['peony', 'daisy', 'babys_breath'].sort(), imageUrl: '/bouquets/peony-blush.png' },
+  { flowers: ['peony', 'daisy'].sort(), imageUrl: '/bouquets/peony-blush.png' },
+  { flowers: ['peony'].sort(), imageUrl: '/bouquets/peony-blush.png' },
+
+  // Lily & Orchid
+  { flowers: ['lily', 'orchid', 'eucalyptus'].sort(), imageUrl: '/bouquets/lily-orchid.png' },
+  { flowers: ['lily', 'orchid'].sort(), imageUrl: '/bouquets/lily-orchid.png' },
+
+  // Hydrangea
+  { flowers: ['hydrangea', 'lisianthus'].sort(), imageUrl: '/bouquets/hydrangea-cloud.png' },
+  { flowers: ['hydrangea'].sort(), imageUrl: '/bouquets/hydrangea-cloud.png' },
+
+  // Cherry blossom
+  { flowers: ['cherry_blossom', 'sweet_pea'].sort(), imageUrl: '/bouquets/cherry-blossom-dream.png' },
+  { flowers: ['cherry_blossom'].sort(), imageUrl: '/bouquets/cherry-blossom-dream.png' },
+
+  // Protea
+  { flowers: ['protea', 'monstera'].sort(), imageUrl: '/bouquets/protea-statement.png' },
+  { flowers: ['protea'].sort(), imageUrl: '/bouquets/protea-statement.png' },
+
+  // Lilac
+  { flowers: ['lilac', 'lavender'].sort(), imageUrl: '/bouquets/enchanted-lilac.png' },
+  { flowers: ['lilac'].sort(), imageUrl: '/bouquets/enchanted-lilac.png' },
+
+  // Grand opulence (premium mix)
+  { flowers: ['rose', 'orchid', 'ranunculus'].sort(), imageUrl: '/bouquets/grand-opulence.png' },
+];
 
 /**
- * Picks a bouquet image based on the dominant flower in the arrangement.
- * Falls back to a random bouquet if no match found.
+ * Picks a bouquet image based on the exact flower combination (set recipe).
+ * Same flower combination always produces the same bouquet.
  */
 export function getBouquetImageForStems(stemIds: string[]): string {
-  // Count how many of each flower type are in the arrangement
-  const frequency: Record<string, number> = {};
-  for (const id of stemIds) {
-    frequency[id] = (frequency[id] || 0) + 1;
+  // Sort and deduplicate flower types for recipe matching
+  const uniqueFlowers = Array.from(new Set(stemIds)).sort();
+  const recipeKey = uniqueFlowers.join(',');
+
+  // Look for exact match
+  for (const recipe of BOUQUET_RECIPES) {
+    if (recipe.flowers.join(',') === recipeKey) {
+      return recipe.imageUrl;
+    }
   }
 
-  // Find the most-used flower
-  const dominantFlower = Object.entries(frequency).sort(([, a], [, b]) => b - a)[0]?.[0];
+  // If no exact match, try subset matching (find recipe with most matching flowers)
+  let bestMatch: BouquetRecipe | null = null;
+  let bestMatchCount = 0;
 
-  if (dominantFlower && FLOWER_TO_BOUQUET[dominantFlower]) {
-    return FLOWER_TO_BOUQUET[dominantFlower]!;
+  for (const recipe of BOUQUET_RECIPES) {
+    const matchCount = recipe.flowers.filter(f => uniqueFlowers.includes(f)).length;
+    if (matchCount > bestMatchCount) {
+      bestMatchCount = matchCount;
+      bestMatch = recipe;
+    }
   }
 
-  return getRandomBouquetImage();
+  if (bestMatch) {
+    return bestMatch.imageUrl;
+  }
+
+  // Fallback: return a consistent bouquet based on hash of flowers
+  const hash = uniqueFlowers.reduce((acc, f) => acc + f.charCodeAt(0), 0);
+  const bouquetIndex = hash % preMadeBouquets.length;
+  return preMadeBouquets[bouquetIndex]!.imageUrl;
 }
 
 export function getRandomBouquetImage(): string {

@@ -52,7 +52,7 @@ export function BouquetArrangementScreen() {
           alignItems: 'center',
         }}
       >
-        <h1 style={{ margin: 0, fontSize: '18px' }}>✨ Create Your Own</h1>
+        <h1 style={{ margin: 0, fontSize: '18px' }}>💐 Create Bouquet</h1>
         <button
           onClick={() => {
             clearArrangement();
