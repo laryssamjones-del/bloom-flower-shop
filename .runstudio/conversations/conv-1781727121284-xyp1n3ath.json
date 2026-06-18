@@ -12407,11 +12407,29 @@
       "timestamp": 1781821380664,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1781821491560",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "Is it possible to make an NPC pop in and say, \"I love this bouquet you made!\" and then it's bought?",
+      "timestamp": 1781821491560,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781821500344-anfmnyt2n",
+      "role": "assistant",
+      "content": "That's a great idea! Yes, it's definitely possible. I could create a variant NPC overlay that:\n\n1. **Shows a random NPC** sliding in\n2. **Displays a compliment** in a chat bubble like \"I love this bouquet you made! 🌸\" with the bouquet name\n3. **Shows the bouquet image** they're buying\n4. **Has them slide back out** with a \"Sold!\" confirmation\n5. **Removes the bouquet from the shelf** and adds the coins\n\nThis would replace the current green notification system for shelf purchases with a more interactive, NPC-driven experience — making passive income feel less automated and more like real customers appreciating your work!\n\nWould you like me to implement this? I'd have it work the same way the current auto-purchase does (every 60-120 seconds when there are bouquets on the shelf), but with the visual NPC interaction instead. 🎨",
+      "isShownToUser": true,
+      "timestamp": 1781821502258,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781821380718,
-  "tokenUsage": 60414,
+  "updatedAt": 1781821502312,
+  "tokenUsage": 61001,
   "script": "default",
   "claudeSessionId": "21cab1fd-d6cd-46b4-ad7e-db52414c5572"
 }
