@@ -10,10 +10,14 @@ const NPC_IMAGES = [
   '/npcs/npc-woman-braid-glasses.png',
   '/npcs/npc-elder-woman-white-hair.png',
   '/npcs/npc-elder-woman-grey-curly.png',
+  '/npcs/npc-woman-auburn-curly.png',
+  '/npcs/npc-woman-curly-afro.png',
+  '/npcs/npc-woman-dark-updo.png',
   // Children
   '/npcs/npc-girl-pigtails.png',
   '/npcs/npc-girl-ponytail.png',
   '/npcs/npc-boy-brown-hair.png',
+  '/npcs/npc-teen-purple-hair.png',
   // Men
   '/npcs/npc-man-bald-beard.png',
   '/npcs/npc-man-black-hair-linen.png',
@@ -21,6 +25,9 @@ const NPC_IMAGES = [
   '/npcs/npc-man-curly-hair.png',
   '/npcs/npc-man-grey-beard-blue.png',
   '/npcs/npc-man-grey-hair-navy.png',
+  '/npcs/npc-man-locs-sweater.png',
+  // Other
+  '/npcs/npc-nonbinary-mint-hair.png',
 ];
 
 const REQUEST_TEMPLATES = [
