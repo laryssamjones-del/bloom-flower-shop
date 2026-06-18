@@ -410,6 +410,13 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
 
   // Order management
   createOrder: () => {
+    const state = get();
+
+    // Don't create orders if there are already 10 pending
+    if (state.pendingOrders.length >= 10) {
+      return null;
+    }
+
     const types: Array<'customer-a' | 'customer-b' | 'customer-c'> = [
       'customer-a',
       'customer-b',
