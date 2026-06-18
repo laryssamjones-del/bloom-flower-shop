@@ -12389,11 +12389,29 @@
       "timestamp": 1781821105172,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1781821371108",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "For the bouquets that players can create on their own and then display on the shelf, I see that I have it set so that a notification pops up when a customer buys it, correct?",
+      "timestamp": 1781821371108,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781821380121-0814slzh7",
+      "role": "assistant",
+      "content": "Yes, that's correct! When a customer buys a bouquet from the shelf (through the auto-purchase system every 60-120 seconds), a green notification pops up at the top that says:\n\n**\"A customer bought your bouquet from the shelf!\"**\n\nThis notification fades out after 2.5 seconds and the bouquet disappears from the shelf. The coins are also added to their total. 🌸",
+      "isShownToUser": true,
+      "timestamp": 1781821380664,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781821105207,
-  "tokenUsage": 59891,
+  "updatedAt": 1781821380718,
+  "tokenUsage": 60414,
   "script": "default",
   "claudeSessionId": "21cab1fd-d6cd-46b4-ad7e-db52414c5572"
 }
