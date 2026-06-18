@@ -138,12 +138,13 @@ export function ShopScreen() {
         <div
           style={{
             position: 'absolute',
-            top: '20%',
-            left: '10%',
-            right: '10%',
+            top: '18%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '90%',
             display: 'flex',
             flexDirection: 'column',
-            gap: '12%',
+            gap: '13%',
             zIndex: 5,
           }}
         >
@@ -193,13 +194,13 @@ export function ShopScreen() {
                       alt="Bouquet"
                       style={{
                         width: '100%',
-                        maxWidth: '75px',
-                        height: '95px',
+                        maxWidth: '70px',
+                        height: '90px',
                         objectFit: 'contain',
                         backgroundColor: 'transparent',
                         filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
                         imageRendering: 'crisp-edges',
-                        marginBottom: '4px',
+                        marginBottom: '2px',
                       }}
                     />
                     <span
