@@ -561,9 +561,9 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
         const unlockedFlowers = new Set(
           Array.isArray(data['unlockedFlowers']) ? (data['unlockedFlowers'] as string[]) : []
         );
-        // Boost coins from 500 to 650 if needed
+        // Boost coins to 650 if needed
         const coins = typeof data['coins'] === 'number' ? (data['coins'] as number) : 50;
-        const boostedCoins = coins === 500 ? 650 : coins;
+        const boostedCoins = coins < 650 ? 650 : coins;
         set({
           coins: boostedCoins,
           totalEarned: typeof data['totalEarned'] === 'number' ? (data['totalEarned'] as number) : 0,
@@ -587,8 +587,8 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
         try {
           const parsed = JSON.parse(saved);
           const unlockedFlowers = new Set(parsed.unlockedFlowers || []);
-          // Boost coins from 500 to 650 if needed
-          const coins = parsed.coins === 500 ? 650 : parsed.coins;
+          // Boost coins to 650 if needed
+          const coins = parsed.coins < 650 ? 650 : parsed.coins;
           set({
             ...parsed,
             coins,
