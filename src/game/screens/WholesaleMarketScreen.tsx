@@ -256,23 +256,35 @@ export function WholesaleMarketScreen() {
         </div>
 
         {/* Buy All Items Button */}
-        <button
-          onClick={handleBuyAllItems}
-          style={{
-            width: '100%',
-            padding: '14px',
-            background: '#E8A87C',
-            color: '#FFF',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: 'bold',
-            marginTop: '12px',
-          }}
-        >
-          🌸 Buy 1 of Each (All Items)
-        </button>
+        {(() => {
+          let totalCostForAll = 0;
+          for (const itemId of allAvailable) {
+            const item = getItem(itemId);
+            if (item) {
+              totalCostForAll += item.pricePerStem;
+            }
+          }
+
+          return (
+            <button
+              onClick={handleBuyAllItems}
+              style={{
+                width: '100%',
+                padding: '14px',
+                background: '#E8A87C',
+                color: '#FFF',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                marginTop: '12px',
+              }}
+            >
+              🌸 Buy 1 of Each ({totalCostForAll} 🌼)
+            </button>
+          );
+        })()}
       </div>
 
       {/* Fixed Purchase Details Panel */}
