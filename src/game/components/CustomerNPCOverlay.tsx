@@ -99,22 +99,22 @@ export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOv
       {phase !== 'entering' && (
         <div
           style={{
-            marginRight: '100px',
-            marginBottom: '8px',
+            marginRight: '90px',
+            marginBottom: '6px',
             animation: 'bubblePop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
           }}
         >
           <div
             style={{
               background: '#FFFDF5',
-              border: '2px solid #E8C5A0',
-              borderRadius: '16px',
-              padding: '10px 14px',
-              maxWidth: '200px',
-              fontSize: '13px',
+              border: '1.5px solid #E8C5A0',
+              borderRadius: '14px',
+              padding: '8px 11px',
+              maxWidth: '170px',
+              fontSize: '12px',
               color: '#4A2C17',
-              lineHeight: 1.4,
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+              lineHeight: 1.3,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
               position: 'relative',
             }}
           >
@@ -151,8 +151,8 @@ export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOv
             <div
               style={{
                 display: 'flex',
-                gap: '8px',
-                marginTop: '8px',
+                gap: '6px',
+                marginTop: '6px',
                 justifyContent: 'flex-end',
               }}
             >
@@ -160,10 +160,10 @@ export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOv
                 onClick={handleDecline}
                 style={{
                   background: '#F5E6D8',
-                  border: '2px solid #D4A57C',
-                  borderRadius: '20px',
-                  padding: '6px 14px',
-                  fontSize: '12px',
+                  border: '1.5px solid #D4A57C',
+                  borderRadius: '18px',
+                  padding: '5px 11px',
+                  fontSize: '11px',
                   fontWeight: 'bold',
                   color: '#8B5E3C',
                   cursor: 'pointer',
@@ -175,10 +175,10 @@ export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOv
                 onClick={handleAccept}
                 style={{
                   background: '#C8A96E',
-                  border: '2px solid #A07840',
-                  borderRadius: '20px',
-                  padding: '6px 14px',
-                  fontSize: '12px',
+                  border: '1.5px solid #A07840',
+                  borderRadius: '18px',
+                  padding: '5px 11px',
+                  fontSize: '11px',
                   fontWeight: 'bold',
                   color: '#FFF8EE',
                   cursor: 'pointer',
@@ -197,11 +197,12 @@ export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOv
         src={visit.npcImage}
         alt="Customer"
         style={{
-          height: '220px',
+          height: '300px',
           width: 'auto',
           objectFit: 'contain',
-          filter: 'drop-shadow(-4px 0 8px rgba(0,0,0,0.25))',
+          filter: 'drop-shadow(-4px 0 8px rgba(0,0,0,0.25)) brightness(1.05) saturate(0.85)',
           imageRendering: 'crisp-edges',
+          backgroundColor: 'rgba(0,255,0,0)',
         }}
       />
     </div>
