@@ -67,27 +67,6 @@ export function BloommyGame() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
 
-  // Order generation - spawn orders every 20 seconds
-  useEffect(() => {
-    const createOrder = useGameStore.getState().createOrder;
-    const triggerNotification = useGameStore.getState().triggerNotification;
-
-    const orderInterval = setInterval(() => {
-      const order = createOrder();
-      if (order) {
-        triggerNotification('New Order!');
-        RundotGameAPI.analytics.recordCustomEvent('order_generated', {
-          orderId: order.id,
-          customerType: order.customerType,
-          stemCount: order.requiredStems.length,
-          reward: order.reward,
-        });
-      }
-    }, 20000); // Generate order every 20 seconds
-
-    return () => clearInterval(orderInterval);
-  }, []);
-
   // Safe-area padding applied inline (values come from SDK at runtime)
   const safeAreaPadding = {
     paddingTop: safeArea.top,
