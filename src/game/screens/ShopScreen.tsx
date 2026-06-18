@@ -269,7 +269,7 @@ export function ShopScreen() {
         ))}
       </div>
 
-      {/* Shelf bouquet display — overlaid on the background shelves */}
+      {/* Shelf bouquet display — centered and stacked */}
       {shelfBouquets.length > 0 && (
         <div
           style={{
@@ -279,26 +279,21 @@ export function ShopScreen() {
             right: 0,
             bottom: 0,
             zIndex: 5,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '60px',
+            paddingTop: '40px',
           }}
         >
-          {shelfRows.map((row, rowIdx) => {
-            // Shelf positions: bottom at 21%, 29%, 39%
-            const shelfPositions = [21, 29, 39];
-            const yPosition = shelfPositions[rowIdx] || 21;
-
-            return (
+          {shelfRows.map((row) => (
             <div
-              key={rowIdx}
+              key={row[0]?.id}
               style={{
-                position: 'absolute',
-                bottom: `${100 - yPosition}%`,
-                left: '23%',
-                transform: 'translateX(-50%)',
-                display: 'grid',
-                gridTemplateColumns: `repeat(${BOUQUETS_PER_SHELF}, 1fr)`,
-                gap: '12px',
-                width: '380px',
-                justifyItems: 'center',
+                display: 'flex',
+                gap: '20px',
+                justifyContent: 'center',
                 alignItems: 'flex-end',
               }}
             >
@@ -374,8 +369,7 @@ export function ShopScreen() {
                 </div>
               ))}
             </div>
-            );
-          })}
+          ))}
         </div>
       )}
 
