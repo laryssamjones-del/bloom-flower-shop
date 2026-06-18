@@ -110,51 +110,6 @@ export function ShopScreen() {
         <CoinCounter />
       </div>
 
-      {/* Grid Overlay for positioning (temporary debug) */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          pointerEvents: 'none',
-          zIndex: 1,
-          backgroundImage: `
-            linear-gradient(0deg, transparent 24%, rgba(255,0,0,0.1) 25%, rgba(255,0,0,0.1) 26%, transparent 27%, transparent 74%, rgba(255,0,0,0.1) 75%, rgba(255,0,0,0.1) 76%, transparent 77%, transparent),
-            linear-gradient(90deg, transparent 24%, rgba(255,0,0,0.1) 25%, rgba(255,0,0,0.1) 26%, transparent 27%, transparent 74%, rgba(255,0,0,0.1) 75%, rgba(255,0,0,0.1) 76%, transparent 77%, transparent)
-          `,
-          backgroundSize: '10% 10%',
-        }}
-      >
-        {/* Y-axis label */}
-        <div style={{ position: 'absolute', top: '0px', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold', background: 'rgba(255,255,255,0.8)' }}>Y%</div>
-
-        {/* Y-axis percentage markers (left side) */}
-        <div style={{ position: 'absolute', top: '10%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>10%</div>
-        <div style={{ position: 'absolute', top: '20%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>20%</div>
-        <div style={{ position: 'absolute', top: '30%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>30%</div>
-        <div style={{ position: 'absolute', top: '40%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>40%</div>
-        <div style={{ position: 'absolute', top: '50%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>50%</div>
-        <div style={{ position: 'absolute', top: '60%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>60%</div>
-        <div style={{ position: 'absolute', top: '70%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>70%</div>
-        <div style={{ position: 'absolute', top: '80%', left: '2px', fontSize: '10px', color: 'red', fontWeight: 'bold' }}>80%</div>
-
-        {/* X-axis label */}
-        <div style={{ position: 'absolute', top: '2px', left: '10%', fontSize: '10px', color: 'red', fontWeight: 'bold', background: 'rgba(255,255,255,0.8)' }}>X%</div>
-
-        {/* X-axis percentage markers (top) */}
-        <div style={{ position: 'absolute', top: '2px', left: '10%', fontSize: '9px', color: 'red', fontWeight: 'bold', marginLeft: '20px' }}>10%</div>
-        <div style={{ position: 'absolute', top: '2px', left: '20%', fontSize: '9px', color: 'red', fontWeight: 'bold', marginLeft: '20px' }}>20%</div>
-        <div style={{ position: 'absolute', top: '2px', left: '30%', fontSize: '9px', color: 'red', fontWeight: 'bold', marginLeft: '20px' }}>30%</div>
-        <div style={{ position: 'absolute', top: '2px', left: '40%', fontSize: '9px', color: 'red', fontWeight: 'bold', marginLeft: '20px' }}>40%</div>
-        <div style={{ position: 'absolute', top: '2px', left: '50%', fontSize: '9px', color: 'red', fontWeight: 'bold', marginLeft: '20px' }}>50%</div>
-        <div style={{ position: 'absolute', top: '2px', left: '60%', fontSize: '9px', color: 'red', fontWeight: 'bold', marginLeft: '20px' }}>60%</div>
-        <div style={{ position: 'absolute', top: '2px', left: '70%', fontSize: '9px', color: 'red', fontWeight: 'bold', marginLeft: '20px' }}>70%</div>
-        <div style={{ position: 'absolute', top: '2px', left: '80%', fontSize: '9px', color: 'red', fontWeight: 'bold', marginLeft: '20px' }}>80%</div>
-        <div style={{ position: 'absolute', top: '2px', left: '90%', fontSize: '9px', color: 'red', fontWeight: 'bold', marginLeft: '20px' }}>90%</div>
-      </div>
-
       {/* Purchase Notification */}
       {purchaseNotification && (
         <div
