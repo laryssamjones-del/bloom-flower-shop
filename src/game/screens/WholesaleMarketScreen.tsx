@@ -157,7 +157,7 @@ export function WholesaleMarketScreen() {
             return (
               <div
                 key={itemId}
-                onClick={() => setSelectedFlower(itemId)}
+                onClick={() => setSelectedFlower(isSelected ? null : itemId)}
                 style={{
                   padding: '8px',
                   background: isSelected ? 'rgba(100,150,100,0.3)' : 'rgba(255,255,255,0.5)',
