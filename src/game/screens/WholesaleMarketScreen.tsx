@@ -84,6 +84,45 @@ export function WholesaleMarketScreen() {
     }
   };
 
+  const handleBuyAllItems = () => {
+    let totalCost = 0;
+    let itemsBought = 0;
+    const purchases: { itemId: string; cost: number }[] = [];
+
+    // Try to buy 1 of each item
+    for (const itemId of allAvailable) {
+      const item = getItem(itemId);
+      if (!item) continue;
+
+      const quantityToBuy = 1;
+      const { canBuy } = checkDailyLimit(itemId, quantityToBuy);
+
+      if (canBuy && coins >= totalCost + item.pricePerStem) {
+        totalCost += item.pricePerStem;
+        purchases.push({ itemId, cost: item.pricePerStem });
+      }
+    }
+
+    // Execute all purchases
+    if (purchases.length > 0 && spendCoins(totalCost)) {
+      for (const { itemId } of purchases) {
+        addStemsToInventory(itemId, 1);
+        recordDailyPurchase(itemId, 1);
+        itemsBought++;
+      }
+
+      // Show success message
+      const successMsg = `✅ Bought 1 of ${itemsBought} items for ${totalCost} 🌼`;
+      setSuccessMessage(successMsg);
+      setTimeout(() => setSuccessMessage(null), 2000);
+
+      RundotGameAPI.analytics.recordCustomEvent('buy_all_items', {
+        itemCount: itemsBought,
+        totalCost: totalCost,
+      });
+    }
+  };
+
   return (
     <div
       style={{
@@ -215,6 +254,25 @@ export function WholesaleMarketScreen() {
             );
           })}
         </div>
+
+        {/* Buy All Items Button */}
+        <button
+          onClick={handleBuyAllItems}
+          style={{
+            width: '100%',
+            padding: '14px',
+            background: '#E8A87C',
+            color: '#FFF',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            marginTop: '12px',
+          }}
+        >
+          🌸 Buy 1 of Each (All Items)
+        </button>
       </div>
 
       {/* Fixed Purchase Details Panel */}
