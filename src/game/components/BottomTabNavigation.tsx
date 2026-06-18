@@ -28,9 +28,9 @@ export function BottomTabNavigation() {
           onClick={() => setCurrentScreen(item.screen)}
           style={{
             padding: '12px 8px',
-            background: 'rgba(200, 150, 100, 0.4)',
+            background: '#F5F0E8',
             color: '#2A1408',
-            border: '1px solid rgba(200, 150, 100, 0.6)',
+            border: '2px solid #D4AF37',
             borderRadius: '6px',
             cursor: 'pointer',
             fontSize: '13px',
@@ -42,11 +42,11 @@ export function BottomTabNavigation() {
             gap: '4px',
           }}
           onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.background = 'rgba(200, 150, 100, 0.6)';
+            (e.currentTarget as HTMLElement).style.background = '#FFFBF5';
             (e.currentTarget as HTMLElement).style.transform = 'scale(1.05)';
           }}
           onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.background = 'rgba(200, 150, 100, 0.4)';
+            (e.currentTarget as HTMLElement).style.background = '#F5F0E8';
             (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
           }}
         >
