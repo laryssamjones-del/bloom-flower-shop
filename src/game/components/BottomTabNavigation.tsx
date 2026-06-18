@@ -2,10 +2,12 @@ import { useGameStore } from '../../stores/gameStore';
 
 export function BottomTabNavigation() {
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
+  const pendingOrders = useGameStore((s) => s.pendingOrders);
+  const hasOrders = pendingOrders.length > 0;
 
   const navItems = [
     { screen: 'inventory' as const, label: '📦 Inventory' },
-    { screen: 'orders' as const, label: '📋 Orders' },
+    { screen: 'orders' as const, label: '📋 Orders', badge: hasOrders },
     { screen: 'arrangement' as const, label: '💐 Create Bouquet' },
     { screen: 'wholesale' as const, label: '🛍️ Shop' },
   ];
@@ -40,6 +42,7 @@ export function BottomTabNavigation() {
             flexDirection: 'column',
             alignItems: 'center',
             gap: '4px',
+            position: 'relative',
           }}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLElement).style.background = '#FFFBF5';
@@ -56,6 +59,21 @@ export function BottomTabNavigation() {
           <div style={{ fontSize: '11px' }}>
             {item.label.split(' ').slice(1).join(' ')}
           </div>
+          {/* Red badge indicator for pending orders */}
+          {(item as any).badge && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '6px',
+                right: '6px',
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                background: '#E74C3C',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+              }}
+            />
+          )}
         </button>
       ))}
     </div>
