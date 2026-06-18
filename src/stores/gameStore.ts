@@ -561,8 +561,11 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
         const unlockedFlowers = new Set(
           Array.isArray(data['unlockedFlowers']) ? (data['unlockedFlowers'] as string[]) : []
         );
+        // Boost coins from 500 to 650 if needed
+        const coins = typeof data['coins'] === 'number' ? (data['coins'] as number) : 50;
+        const boostedCoins = coins === 500 ? 650 : coins;
         set({
-          coins: typeof data['coins'] === 'number' ? (data['coins'] as number) : 50,
+          coins: boostedCoins,
           totalEarned: typeof data['totalEarned'] === 'number' ? (data['totalEarned'] as number) : 0,
           inventory: Array.isArray(data['inventory']) ? (data['inventory'] as StemInInventory[]) : [],
           inventoryCapacity: typeof data['inventoryCapacity'] === 'number' ? (data['inventoryCapacity'] as number) : 200,
