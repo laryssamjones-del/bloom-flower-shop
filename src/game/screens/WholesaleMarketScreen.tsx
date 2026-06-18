@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
-import { FLOWERS, INITIAL_UNLOCKED_FLOWERS } from '../../constants/flowers';
+import { FLOWERS, GREENERY, INITIAL_UNLOCKED_FLOWERS } from '../../constants/flowers';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
 type BulkOption = 1 | 5 | 10 | 20;
@@ -22,15 +22,19 @@ export function WholesaleMarketScreen() {
   const [selectedBulk, setSelectedBulk] = useState<BulkOption>(1);
 
   const availableFlowers = Array.from(INITIAL_UNLOCKED_FLOWERS);
+  const availableGreenery = Object.keys(GREENERY);
+  const allAvailable = [...availableFlowers, ...availableGreenery];
+
+  const getItem = (id: string) => FLOWERS[id] || (GREENERY as Record<string, any>)[id];
 
   const handleBuyFlowers = () => {
     if (!selectedFlower) return;
 
-    const flower = FLOWERS[selectedFlower];
-    if (!flower) return;
+    const item = getItem(selectedFlower);
+    if (!item) return;
 
     const discount = BULK_DISCOUNTS[selectedBulk];
-    const baseCost = flower.pricePerStem * selectedBulk;
+    const baseCost = item.pricePerStem * selectedBulk;
     const totalCost = Math.round(baseCost * (1 - discount));
 
     if (coins >= totalCost) {
@@ -92,7 +96,7 @@ export function WholesaleMarketScreen() {
           padding: '12px',
         }}
       >
-        {/* Flower grid */}
+        {/* Flower & Greenery grid */}
         <div
           style={{
             display: 'grid',
@@ -101,16 +105,17 @@ export function WholesaleMarketScreen() {
             marginBottom: '16px',
           }}
         >
-          {availableFlowers.map((flowerId) => {
-            const flower = FLOWERS[flowerId];
-            if (!flower) return null;
+          {allAvailable.map((itemId) => {
+            const item = getItem(itemId);
+            if (!item) return null;
 
-            const isSelected = selectedFlower === flowerId;
+            const isSelected = selectedFlower === itemId;
+            const isGreenery = availableGreenery.includes(itemId);
 
             return (
               <div
-                key={flowerId}
-                onClick={() => setSelectedFlower(flowerId)}
+                key={itemId}
+                onClick={() => setSelectedFlower(itemId)}
                 style={{
                   padding: '8px',
                   background: isSelected ? 'rgba(100,150,100,0.3)' : 'rgba(255,255,255,0.5)',
@@ -121,11 +126,12 @@ export function WholesaleMarketScreen() {
                   flexDirection: 'column',
                   alignItems: 'center',
                   gap: '4px',
+                  opacity: isGreenery ? 0.9 : 1,
                 }}
               >
                 <img
-                  src={flower.spriteUrl}
-                  alt={flower.name}
+                  src={item.spriteUrl}
+                  alt={item.name}
                   style={{
                     width: '60px',
                     height: '60px',
@@ -139,7 +145,7 @@ export function WholesaleMarketScreen() {
                     textAlign: 'center',
                   }}
                 >
-                  {flower.name}
+                  {item.name}
                 </div>
                 <div
                   style={{
@@ -147,7 +153,7 @@ export function WholesaleMarketScreen() {
                     color: '#666',
                   }}
                 >
-                  {flower.pricePerStem} 🌼/stem
+                  {item.pricePerStem} 🌼/stem
                 </div>
               </div>
             );
@@ -165,7 +171,7 @@ export function WholesaleMarketScreen() {
             }}
           >
             <h3 style={{ margin: '0 0 8px 0', fontSize: '14px' }}>
-              {selectedFlower && FLOWERS[selectedFlower]?.name}
+              {selectedFlower && getItem(selectedFlower)?.name}
             </h3>
 
             {/* Bulk options */}
@@ -178,9 +184,9 @@ export function WholesaleMarketScreen() {
               }}
             >
               {([1, 5, 10, 20] as BulkOption[]).map((bulk) => {
-                const flower = selectedFlower ? FLOWERS[selectedFlower] : null;
-                if (!flower) return null;
-                const baseCost = flower.pricePerStem * bulk;
+                const item = selectedFlower ? getItem(selectedFlower) : null;
+                if (!item) return null;
+                const baseCost = item.pricePerStem * bulk;
                 const discount = BULK_DISCOUNTS[bulk];
                 const totalCost = Math.round(baseCost * (1 - discount));
                 const isBulkSelected = selectedBulk === bulk;
@@ -213,16 +219,16 @@ export function WholesaleMarketScreen() {
             </div>
 
             {/* Buy button */}
-            {selectedFlower && FLOWERS[selectedFlower] && (
+            {selectedFlower && getItem(selectedFlower) && (
             <button
               onClick={handleBuyFlowers}
-              disabled={coins < Math.round(FLOWERS[selectedFlower]!.pricePerStem * selectedBulk * (1 - BULK_DISCOUNTS[selectedBulk]))}
+              disabled={coins < Math.round(getItem(selectedFlower)!.pricePerStem * selectedBulk * (1 - BULK_DISCOUNTS[selectedBulk]))}
               style={{
                 width: '100%',
                 padding: '12px',
                 background:
                   coins <
-                  Math.round(FLOWERS[selectedFlower]!.pricePerStem * selectedBulk * (1 - BULK_DISCOUNTS[selectedBulk]))
+                  Math.round(getItem(selectedFlower)!.pricePerStem * selectedBulk * (1 - BULK_DISCOUNTS[selectedBulk]))
                     ? '#CCC'
                     : '#6A9A50',
                 color: '#FFF',

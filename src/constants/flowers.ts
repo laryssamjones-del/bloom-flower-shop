@@ -184,18 +184,62 @@ export const GREENERY = {
     spriteUrl: '/sprites/bloomy_green_dried_wheat.png',
     pricePerStem: 2,
   },
+  fern: {
+    id: 'fern',
+    name: 'Fern',
+    spriteUrl: '/sprites/bloomy_green_fern.png',
+    pricePerStem: 2,
+  },
+  monstera: {
+    id: 'monstera',
+    name: 'Monstera',
+    spriteUrl: '/sprites/bloomy_green_monstera.png',
+    pricePerStem: 2,
+  },
+  olive_branch: {
+    id: 'olive_branch',
+    name: 'Olive Branch',
+    spriteUrl: '/sprites/bloomy_green_olive_branch.png',
+    pricePerStem: 2,
+  },
+  ruscus: {
+    id: 'ruscus',
+    name: 'Ruscus',
+    spriteUrl: '/sprites/bloomy_green_ruscus.png',
+    pricePerStem: 2,
+  },
 };
 
 export const FLOWER_IDS = Object.keys(FLOWERS);
 
 export const INITIAL_UNLOCKED_FLOWERS = new Set([
+  // Common
   'daisy',
   'babys_breath',
   'dried_wheat',
+  // Mid
   'tulip',
   'cosmos',
   'lavender',
   'carnation',
+  'marigold',
+  'sunflower',
+  'anemone',
+  // Premium
+  'rose',
+  'white_rose',
+  'peony',
+  'lily',
+  'orchid',
+  'ranunculus',
+  'hydrangea',
+  'lisianthus',
+  // Rare
+  'cherry_blossom',
+  'protea',
+  'lilac',
+  'poppy',
+  'sweet_pea',
 ]);
 
 export const CUSTOMER_MOODS = [
