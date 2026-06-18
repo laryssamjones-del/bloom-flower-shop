@@ -584,8 +584,11 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
         try {
           const parsed = JSON.parse(saved);
           const unlockedFlowers = new Set(parsed.unlockedFlowers || []);
+          // Boost coins from 500 to 650 if needed
+          const coins = parsed.coins === 500 ? 650 : parsed.coins;
           set({
             ...parsed,
+            coins,
             unlockedFlowers,
             lastUpdated: Date.now(),
           });
