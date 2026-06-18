@@ -211,7 +211,7 @@ export function ShopScreen() {
         }}
       >
         {/* Y% labels on left */}
-        {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((y) => (
+        {Array.from({ length: 21 }, (_, i) => i * 5).map((y) => (
           <div
             key={`y-${y}`}
             style={{
@@ -229,7 +229,7 @@ export function ShopScreen() {
         ))}
 
         {/* X% labels on top */}
-        {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((x) => (
+        {Array.from({ length: 21 }, (_, i) => i * 5).map((x) => (
           <div
             key={`x-${x}`}
             style={{
@@ -247,7 +247,7 @@ export function ShopScreen() {
         ))}
 
         {/* Grid lines */}
-        {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((pos) => (
+        {Array.from({ length: 21 }, (_, i) => i * 5).map((pos) => (
           <div key={`vline-${pos}`} style={{
             position: 'absolute',
             left: `${pos}%`,
@@ -257,7 +257,7 @@ export function ShopScreen() {
             background: '#FF000033',
           }} />
         ))}
-        {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((pos) => (
+        {Array.from({ length: 21 }, (_, i) => i * 5).map((pos) => (
           <div key={`hline-${pos}`} style={{
             position: 'absolute',
             top: `${pos}%`,
