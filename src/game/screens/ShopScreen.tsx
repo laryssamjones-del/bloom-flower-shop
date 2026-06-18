@@ -11,7 +11,9 @@ const BOUQUETS_PER_SHELF = 5;
 export function ShopScreen() {
   const shelfBouquets = useGameStore((s) => s.shelfBouquets);
   const sellBouquet = useGameStore((s) => s.sellBouquet);
+  const removeBouquetFromShelf = useGameStore((s) => s.removeBouquetFromShelf);
   const [purchaseNotification, setPurchaseNotification] = useState<string | null>(null);
+  const [longPressId, setLongPressId] = useState<string | null>(null);
 
   // Spawn customers periodically
   useEffect(() => {
@@ -24,16 +26,55 @@ export function ShopScreen() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleSellBouquet = (bouquet: Bouquet) => {
-    if (sellBouquet(bouquet.id)) {
-      setPurchaseNotification('A customer bought your bouquet from the shelf!');
-      setTimeout(() => setPurchaseNotification(null), 2500);
+  // Auto-purchase random bouquet every 60-120 seconds
+  useEffect(() => {
+    const purchaseRandomBouquet = () => {
+      const bouquets = useGameStore.getState().shelfBouquets;
+      if (bouquets.length > 0) {
+        const randomBouquet = bouquets[Math.floor(Math.random() * bouquets.length)];
+        if (randomBouquet && sellBouquet(randomBouquet.id)) {
+          setPurchaseNotification('A customer bought your bouquet from the shelf!');
+          setTimeout(() => setPurchaseNotification(null), 2500);
 
-      RundotGameAPI.analytics.recordCustomEvent('bouquet_sold', {
-        bouquetId: bouquet.id,
-        price: bouquet.sellPrice,
+          RundotGameAPI.analytics.recordCustomEvent('bouquet_sold', {
+            bouquetId: randomBouquet.id,
+            price: randomBouquet.sellPrice,
+          });
+        }
+      }
+    };
+
+    // Random interval between 60-120 seconds
+    const randomDelay = 60000 + Math.random() * 60000;
+    const interval = setInterval(purchaseRandomBouquet, randomDelay);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Long-press handling for delete
+  const handleTouchStart = (bouquetId: string) => {
+    const timer = setTimeout(() => {
+      setLongPressId(bouquetId);
+    }, 500); // 500ms long-press
+
+    return () => clearTimeout(timer);
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressId) {
+      removeBouquetFromShelf(longPressId);
+      setLongPressId(null);
+      RundotGameAPI.analytics.recordCustomEvent('bouquet_deleted', {
+        bouquetId: longPressId,
       });
     }
+  };
+
+  const handleDelete = (bouquetId: string) => {
+    removeBouquetFromShelf(bouquetId);
+    setLongPressId(null);
+    RundotGameAPI.analytics.recordCustomEvent('bouquet_deleted', {
+      bouquetId: bouquetId,
+    });
   };
 
   // Split bouquets into rows of 4 for shelf display
@@ -118,54 +159,88 @@ export function ShopScreen() {
               }}
             >
               {row.map((bouquet) => (
-                <button
+                <div
                   key={bouquet.id}
-                  onClick={() => handleSellBouquet(bouquet)}
-                  title={`Sell for ${bouquet.sellPrice} 🌼`}
                   style={{
-                    background: 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '0',
+                    position: 'relative',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     gap: '2px',
-                    transition: 'transform 0.15s',
                   }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.transform = 'scale(1.08)';
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
-                  }}
+                  onTouchStart={() => handleTouchStart(bouquet.id)}
+                  onTouchEnd={handleTouchEnd}
+                  onMouseDown={() => handleTouchStart(bouquet.id)}
+                  onMouseUp={handleTouchEnd}
                 >
-                  <img
-                    src={bouquet.thumbnailUrl || '/bouquets/sunshine-bunch.png'}
-                    alt="Bouquet"
+                  <div
                     style={{
-                      width: '100%',
-                      maxWidth: '80px',
-                      height: '100px',
-                      objectFit: 'contain',
-                      backgroundColor: 'transparent',
-                      filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
-                      imageRendering: 'crisp-edges',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      transition: 'transform 0.15s',
+                      cursor: 'grab',
                     }}
-                  />
-                  <span
-                    style={{
-                      fontSize: '9px',
-                      fontWeight: 'bold',
-                      color: '#5A3820',
-                      background: 'rgba(255,255,255,0.75)',
-                      borderRadius: '3px',
-                      padding: '1px 4px',
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLElement).style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
                     }}
                   >
-                    {bouquet.sellPrice} 🌼
-                  </span>
-                </button>
+                    <img
+                      src={bouquet.thumbnailUrl || '/bouquets/sunshine-bunch.png'}
+                      alt="Bouquet"
+                      style={{
+                        width: '100%',
+                        maxWidth: '75px',
+                        height: '95px',
+                        objectFit: 'contain',
+                        backgroundColor: 'transparent',
+                        filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
+                        imageRendering: 'crisp-edges',
+                        marginBottom: '4px',
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: '9px',
+                        fontWeight: 'bold',
+                        color: '#5A3820',
+                        background: 'rgba(255,255,255,0.75)',
+                        borderRadius: '3px',
+                        padding: '1px 4px',
+                      }}
+                    >
+                      {bouquet.sellPrice} 🌼
+                    </span>
+                  </div>
+
+                  {/* Delete button shown on long-press */}
+                  {longPressId === bouquet.id && (
+                    <button
+                      onClick={() => handleDelete(bouquet.id)}
+                      style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        background: '#C0392B',
+                        color: '#FFF',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '8px 12px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        zIndex: 20,
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                      }}
+                    >
+                      🗑️ Delete
+                    </button>
+                  )}
+                </div>
               ))}
             </div>
           ))}
