@@ -87,6 +87,55 @@ body {
   }
 }
 
+/* NPC slide-in from right */
+@keyframes npcSlideIn {
+  0% {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+}
+
+/* NPC slide-out to right */
+@keyframes npcSlideOut {
+  0% {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+}
+
+/* Chat bubble pop-in */
+@keyframes bubblePop {
+  0% {
+    transform: scale(0.5) translateY(10px);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.05) translateY(-2px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Sparkle dots animation for loading-style effect */
+@keyframes sparkleFloat {
+  0%, 100% { transform: translateY(0px) scale(1); opacity: 0.8; }
+  50% { transform: translateY(-4px) scale(1.2); opacity: 1; }
+}
+
 /* Magical wrapping animation */
 @keyframes magicalSparkle {
   0% {

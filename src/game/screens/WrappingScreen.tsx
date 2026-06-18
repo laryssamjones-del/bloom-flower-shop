@@ -25,6 +25,7 @@ export function WrappingScreen() {
       }, 3000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [isAnimating]);
 
   const handleAddWrapping = () => {

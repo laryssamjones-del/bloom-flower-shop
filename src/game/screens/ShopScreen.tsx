@@ -1,32 +1,87 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { CoinCounter } from '../components/CoinCounter';
 import { BottomTabNavigation } from '../components/BottomTabNavigation';
+import { CustomerNPCOverlay, NPCVisit, createNPCVisit } from '../components/CustomerNPCOverlay';
 import { Bouquet } from '../../types';
+import { BOUQUET_RECIPES } from '../../data/bouquets';
 
-const CUSTOMER_SPAWN_INTERVAL = 20000; // 20 seconds
 const BOUQUETS_PER_SHELF = 5;
+// NPC visits: a customer slides in every 45–90 seconds
+const NPC_VISIT_MIN = 45000;
+const NPC_VISIT_MAX = 90000;
+
+// Lifecycle analytics (module-scope — runs once)
+RundotGameAPI.lifecycles.onPause(() => RundotGameAPI.analytics.recordCustomEvent('game_paused'));
+RundotGameAPI.lifecycles.onResume(() => RundotGameAPI.analytics.recordCustomEvent('game_resumed'));
+RundotGameAPI.lifecycles.onSleep(() => RundotGameAPI.analytics.recordCustomEvent('game_sleep'));
+RundotGameAPI.lifecycles.onQuit(() => RundotGameAPI.analytics.recordCustomEvent('game_quit'));
 
 export function ShopScreen() {
   const shelfBouquets = useGameStore((s) => s.shelfBouquets);
   const sellBouquet = useGameStore((s) => s.sellBouquet);
   const removeBouquetFromShelf = useGameStore((s) => s.removeBouquetFromShelf);
+  const createOrder = useGameStore((s) => s.createOrder);
+
   const [purchaseNotification, setPurchaseNotification] = useState<string | null>(null);
   const [longPressId, setLongPressId] = useState<string | null>(null);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Spawn customers periodically
+  // Active NPC visit
+  const [activeVisit, setActiveVisit] = useState<NPCVisit | null>(null);
+  const npcTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Schedule next NPC visit
+  const scheduleNextVisit = () => {
+    const delay = NPC_VISIT_MIN + Math.random() * (NPC_VISIT_MAX - NPC_VISIT_MIN);
+    npcTimerRef.current = setTimeout(() => {
+      // Don't spawn a new NPC if one is already visible
+      if (useGameStore.getState().pendingOrders.length < 10) {
+        const recipe = BOUQUET_RECIPES[Math.floor(Math.random() * BOUQUET_RECIPES.length)]!;
+        const visit = createNPCVisit(recipe.id, recipe.name, recipe.sellPrice);
+        setActiveVisit(visit);
+        RundotGameAPI.analytics.recordCustomEvent('npc_customer_arrived', {
+          recipeId: recipe.id,
+          recipeName: recipe.name,
+        });
+      }
+      scheduleNextVisit();
+    }, delay);
+  };
+
   useEffect(() => {
-    const spawnCustomer = () => {
-      useGameStore.getState().addActiveCustomer();
-      RundotGameAPI.analytics.recordCustomEvent('customer_entered_shop');
+    scheduleNextVisit();
+    return () => {
+      if (npcTimerRef.current) clearTimeout(npcTimerRef.current);
     };
-
-    const interval = setInterval(spawnCustomer, CUSTOMER_SPAWN_INTERVAL);
-    return () => clearInterval(interval);
   }, []);
 
-  // Auto-purchase random bouquet every 60-120 seconds
+  // Handle NPC accept: create an order from the visit
+  const handleNPCAccept = () => {
+    if (!activeVisit) return;
+    const order = createOrder();
+    setActiveVisit(null);
+    if (order) {
+      setPurchaseNotification(`Order accepted! Check your Orders tab 📋`);
+      setTimeout(() => setPurchaseNotification(null), 3000);
+      RundotGameAPI.analytics.recordCustomEvent('npc_order_accepted', {
+        recipeId: activeVisit.recipeId,
+        recipeName: activeVisit.recipeName,
+      });
+    }
+  };
+
+  const handleNPCDecline = () => {
+    if (activeVisit) {
+      RundotGameAPI.analytics.recordCustomEvent('npc_order_declined', {
+        recipeId: activeVisit.recipeId,
+      });
+    }
+    setActiveVisit(null);
+  };
+
+  // Auto-purchase random bouquet every 60-120 seconds (passive income)
   useEffect(() => {
     const purchaseRandomBouquet = () => {
       const bouquets = useGameStore.getState().shelfBouquets;
@@ -35,7 +90,6 @@ export function ShopScreen() {
         if (randomBouquet && sellBouquet(randomBouquet.id)) {
           setPurchaseNotification('A customer bought your bouquet from the shelf!');
           setTimeout(() => setPurchaseNotification(null), 2500);
-
           RundotGameAPI.analytics.recordCustomEvent('bouquet_sold', {
             bouquetId: randomBouquet.id,
             price: randomBouquet.sellPrice,
@@ -44,40 +98,32 @@ export function ShopScreen() {
       }
     };
 
-    // Random interval between 60-120 seconds
     const randomDelay = 60000 + Math.random() * 60000;
     const interval = setInterval(purchaseRandomBouquet, randomDelay);
     return () => clearInterval(interval);
   }, []);
 
   // Long-press handling for delete
-  const handleTouchStart = (bouquetId: string) => {
-    const timer = setTimeout(() => {
+  const handlePointerDown = (bouquetId: string) => {
+    longPressTimer.current = setTimeout(() => {
       setLongPressId(bouquetId);
-    }, 500); // 500ms long-press
-
-    return () => clearTimeout(timer);
+    }, 500);
   };
 
-  const handleTouchEnd = () => {
-    if (longPressId) {
-      removeBouquetFromShelf(longPressId);
-      setLongPressId(null);
-      RundotGameAPI.analytics.recordCustomEvent('bouquet_deleted', {
-        bouquetId: longPressId,
-      });
+  const handlePointerUp = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
     }
   };
 
   const handleDelete = (bouquetId: string) => {
     removeBouquetFromShelf(bouquetId);
     setLongPressId(null);
-    RundotGameAPI.analytics.recordCustomEvent('bouquet_deleted', {
-      bouquetId: bouquetId,
-    });
+    RundotGameAPI.analytics.recordCustomEvent('bouquet_deleted', { bouquetId });
   };
 
-  // Split bouquets into rows of 4 for shelf display
+  // Split bouquets into rows of 5 for shelf display
   const shelfRows: Bouquet[][] = [];
   for (let i = 0; i < shelfBouquets.length; i += BOUQUETS_PER_SHELF) {
     shelfRows.push(shelfBouquets.slice(i, i + BOUQUETS_PER_SHELF));
@@ -110,7 +156,7 @@ export function ShopScreen() {
         <CoinCounter />
       </div>
 
-      {/* Purchase Notification */}
+      {/* Purchase / Order notification */}
       {purchaseNotification && (
         <div
           style={{
@@ -126,7 +172,8 @@ export function ShopScreen() {
             fontWeight: 'bold',
             boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
             zIndex: 15,
-            animation: 'fadeInOut 2.5s ease-in-out',
+            whiteSpace: 'nowrap',
+            animation: 'fadeInOut 3s ease-in-out',
           }}
         >
           {purchaseNotification}
@@ -168,10 +215,9 @@ export function ShopScreen() {
                     alignItems: 'center',
                     gap: '2px',
                   }}
-                  onTouchStart={() => handleTouchStart(bouquet.id)}
-                  onTouchEnd={handleTouchEnd}
-                  onMouseDown={() => handleTouchStart(bouquet.id)}
-                  onMouseUp={handleTouchEnd}
+                  onPointerDown={() => handlePointerDown(bouquet.id)}
+                  onPointerUp={handlePointerUp}
+                  onPointerLeave={handlePointerUp}
                 >
                   <div
                     style={{
@@ -245,6 +291,15 @@ export function ShopScreen() {
             </div>
           ))}
         </div>
+      )}
+
+      {/* NPC Customer Visitor */}
+      {activeVisit && (
+        <CustomerNPCOverlay
+          visit={activeVisit}
+          onAccept={handleNPCAccept}
+          onDecline={handleNPCDecline}
+        />
       )}
 
       {/* Bottom Tab Navigation */}
