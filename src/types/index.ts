@@ -65,14 +65,25 @@ export interface Order {
   createdAt: number;
 }
 
+export interface MysteryBouquetItem {
+  id: string;
+  mysteryBouquetId: string;
+  name: string;
+  imageUrl: string;
+  sellPrice: number;
+  createdAt: number;
+}
+
 export interface GameState {
   // Economy
   coins: number;
   totalEarned: number;
+  premiumCurrency: number; // Run Bucks
 
   // Inventory
   inventory: StemInInventory[];
   inventoryCapacity: number;
+  mysteryBouquets: MysteryBouquetItem[]; // Special mystery box bouquets
 
   // Shop
   shelfCapacity: number;

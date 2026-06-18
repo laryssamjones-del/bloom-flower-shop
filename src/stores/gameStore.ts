@@ -7,9 +7,11 @@ import {
   WrappingPaperType,
   StemInInventory,
   Order,
+  MysteryBouquetItem,
 } from '../types';
 import { FLOWERS, INITIAL_UNLOCKED_FLOWERS, CUSTOMER_MOODS } from '../constants/flowers';
 import { BOUQUET_RECIPES, getRecipeById } from '../data/bouquets';
+import { MYSTERY_BOX_COST_RUN_BUCKS, getRandomMysteryBouquet } from '../data/mysteryBox';
 
 const STARTING_COINS = 650;
 const MAX_INVENTORY_STEMS = 200;
@@ -25,10 +27,12 @@ const createInitialState = (): ShopState => ({
   // Economy
   coins: STARTING_COINS,
   totalEarned: 0,
+  premiumCurrency: 0,
 
   // Inventory
   inventory: [],
   inventoryCapacity: MAX_INVENTORY_STEMS,
+  mysteryBouquets: [],
 
   // Shop
   shelfCapacity: STARTING_SHELF_CAPACITY,
@@ -116,6 +120,11 @@ interface GameStoreActions {
   getPendingOrders: () => Order[];
   triggerNotification: (message: string) => void;
   clearNotification: () => void;
+
+  // Mystery box management
+  purchaseMysteryBox: () => boolean;
+  sellMysteryBouquet: (bouquetId: string) => boolean;
+  addPremiumCurrency: (amount: number) => void;
 
   // Progression
   unlockFlower: (flowerId: string) => void;
@@ -574,6 +583,55 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     set({ lastNotification: null });
   },
 
+  // Mystery box management
+  purchaseMysteryBox: () => {
+    const state = get();
+    if (state.premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS) {
+      return false;
+    }
+
+    const randomMystery = getRandomMysteryBouquet();
+    const bouquet: MysteryBouquetItem = {
+      id: `mystery-${Date.now()}-${Math.random()}`,
+      mysteryBouquetId: randomMystery.id,
+      name: randomMystery.name,
+      imageUrl: randomMystery.imageUrl,
+      sellPrice: randomMystery.sellPrice,
+      createdAt: Date.now(),
+    };
+
+    set((s) => ({
+      premiumCurrency: s.premiumCurrency - MYSTERY_BOX_COST_RUN_BUCKS,
+      mysteryBouquets: [...s.mysteryBouquets, bouquet],
+      lastUpdated: Date.now(),
+    }));
+
+    return true;
+  },
+
+  sellMysteryBouquet: (bouquetId: string) => {
+    const state = get();
+    const bouquet = state.mysteryBouquets.find((b) => b.id === bouquetId);
+
+    if (!bouquet) return false;
+
+    state.addCoins(bouquet.sellPrice);
+    set((s) => ({
+      mysteryBouquets: s.mysteryBouquets.filter((b) => b.id !== bouquetId),
+      totalCustomersServed: s.totalCustomersServed + 1,
+      lastUpdated: Date.now(),
+    }));
+
+    return true;
+  },
+
+  addPremiumCurrency: (amount: number) => {
+    set((s) => ({
+      premiumCurrency: s.premiumCurrency + amount,
+      lastUpdated: Date.now(),
+    }));
+  },
+
   // Progression
   unlockFlower: (flowerId: string) => {
     set((s) => ({
@@ -603,11 +661,13 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     const stateToPersist = {
       coins: state.coins,
       totalEarned: state.totalEarned,
+      premiumCurrency: state.premiumCurrency,
       inventory: state.inventory,
       inventoryCapacity: state.inventoryCapacity,
       shelfCapacity: state.shelfCapacity,
       shelfBouquets: state.shelfBouquets,
       displayedBouquets: state.displayedBouquets,
+      mysteryBouquets: state.mysteryBouquets,
       totalCustomersServed: state.totalCustomersServed,
       unlockedFlowers: Array.from(state.unlockedFlowers),
       unlockedRibbons: state.unlockedRibbons,
@@ -645,11 +705,13 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
         set({
           coins: boostedCoins,
           totalEarned: typeof data['totalEarned'] === 'number' ? (data['totalEarned'] as number) : 0,
+          premiumCurrency: typeof data['premiumCurrency'] === 'number' ? (data['premiumCurrency'] as number) : 0,
           inventory: Array.isArray(data['inventory']) ? (data['inventory'] as StemInInventory[]) : [],
           inventoryCapacity: typeof data['inventoryCapacity'] === 'number' ? (data['inventoryCapacity'] as number) : 200,
           shelfCapacity: typeof data['shelfCapacity'] === 'number' ? (data['shelfCapacity'] as number) : 20,
           shelfBouquets: Array.isArray(data['shelfBouquets']) ? (data['shelfBouquets'] as Bouquet[]) : [],
           displayedBouquets: Array.isArray(data['displayedBouquets']) ? (data['displayedBouquets'] as (Bouquet | null)[]) : Array(20).fill(null),
+          mysteryBouquets: Array.isArray(data['mysteryBouquets']) ? (data['mysteryBouquets'] as MysteryBouquetItem[]) : [],
           totalCustomersServed: typeof data['totalCustomersServed'] === 'number' ? (data['totalCustomersServed'] as number) : 0,
           unlockedFlowers,
           unlockedRibbons: Array.isArray(data['unlockedRibbons']) ? (data['unlockedRibbons'] as RibbonColor[]) : ['blush', 'ivory'],
@@ -670,6 +732,8 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
           set({
             ...parsed,
             coins,
+            premiumCurrency: parsed.premiumCurrency ?? 0,
+            mysteryBouquets: parsed.mysteryBouquets ?? [],
             unlockedFlowers,
             lastUpdated: Date.now(),
           });

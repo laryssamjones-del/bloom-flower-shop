@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { FLOWERS, GREENERY, INITIAL_UNLOCKED_FLOWERS } from '../../constants/flowers';
+import { MYSTERY_BOX_COST_RUN_BUCKS } from '../../data/mysteryBox';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { ScreenNavigation } from '../components/ScreenNavigation';
 
@@ -16,15 +17,18 @@ const BULK_DISCOUNTS: Record<BulkOption, number> = {
 export function WholesaleMarketScreen() {
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
   const coins = useGameStore((s) => s.coins);
+  const premiumCurrency = useGameStore((s) => s.premiumCurrency);
   const addStemsToInventory = useGameStore((s) => s.addStemsToInventory);
   const spendCoins = useGameStore((s) => s.spendCoins);
   const checkDailyLimit = useGameStore((s) => s.checkDailyLimit);
   const recordDailyPurchase = useGameStore((s) => s.recordDailyPurchase);
+  const purchaseMysteryBox = useGameStore((s) => s.purchaseMysteryBox);
   const dailyPurchases = useGameStore((s) => s.dailyPurchases);
 
   const [selectedFlower, setSelectedFlower] = useState<string | null>(null);
   const [selectedBulk, setSelectedBulk] = useState<number>(1);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [misterySuccessMessage, setMysterySuccessMessage] = useState<string | null>(null);
 
   const availableFlowers = Array.from(INITIAL_UNLOCKED_FLOWERS);
   const availableGreenery = Object.keys(GREENERY);
@@ -123,6 +127,22 @@ export function WholesaleMarketScreen() {
     }
   };
 
+  const handlePurchaseMysteryBox = () => {
+    if (premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS) {
+      return;
+    }
+
+    if (purchaseMysteryBox()) {
+      const successMsg = `✨ Mystery Box unlocked! Check your inventory 🎁`;
+      setMysterySuccessMessage(successMsg);
+      setTimeout(() => setMysterySuccessMessage(null), 3000);
+
+      RundotGameAPI.analytics.recordCustomEvent('mystery_box_purchased', {
+        cost: MYSTERY_BOX_COST_RUN_BUCKS,
+      });
+    }
+  };
+
   return (
     <div
       style={{
@@ -179,6 +199,24 @@ export function WholesaleMarketScreen() {
           }}
         >
           {successMessage}
+        </div>
+      )}
+
+      {/* Mystery Box Success Message */}
+      {misterySuccessMessage && (
+        <div
+          style={{
+            padding: '12px 16px',
+            background: 'linear-gradient(135deg, rgba(155, 89, 182, 0.2), rgba(52, 152, 219, 0.2))',
+            color: '#9B59B6',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            textAlign: 'center',
+            borderBottom: '2px solid #9B59B6',
+            transition: 'opacity 0.3s ease-in-out',
+          }}
+        >
+          {misterySuccessMessage}
         </div>
       )}
 
@@ -285,6 +323,73 @@ export function WholesaleMarketScreen() {
             </button>
           );
         })()}
+
+        {/* Mystery Box Section */}
+        <div
+          style={{
+            marginTop: '24px',
+            padding: '16px',
+            background: 'linear-gradient(135deg, rgba(155, 89, 182, 0.15), rgba(52, 152, 219, 0.15))',
+            borderRadius: '10px',
+            border: '2px solid #9B59B6',
+          }}
+        >
+          <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>
+            🎁 Deluxe Mystery Box
+          </div>
+          <div style={{ fontSize: '12px', color: '#666', marginBottom: '12px', lineHeight: 1.4 }}>
+            Unlock a random exclusive bouquet! Each mystery box contains one special, rare bouquet worth a fortune when sold.
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '12px',
+              padding: '8px',
+              background: 'rgba(255,255,255,0.6)',
+              borderRadius: '6px',
+            }}
+          >
+            <div>
+              <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>Cost</div>
+              <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#9B59B6' }}>
+                {MYSTERY_BOX_COST_RUN_BUCKS} 💎 Run Bucks
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>You have</div>
+              <div
+                style={{
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  color: premiumCurrency >= MYSTERY_BOX_COST_RUN_BUCKS ? '#6A9A50' : '#C0392B',
+                }}
+              >
+                {premiumCurrency} 💎
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={handlePurchaseMysteryBox}
+            disabled={premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS}
+            style={{
+              width: '100%',
+              padding: '12px',
+              background:
+                premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS ? '#CCC' : 'linear-gradient(135deg, #9B59B6, #3498DB)',
+              color: '#FFF',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS ? 'not-allowed' : 'pointer',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              boxShadow: premiumCurrency >= MYSTERY_BOX_COST_RUN_BUCKS ? '0 4px 12px rgba(155, 89, 182, 0.3)' : 'none',
+            }}
+          >
+            {premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS ? '❌ Not enough Run Bucks' : '🎲 Unlock Mystery Box'}
+          </button>
+        </div>
       </div>
 
       {/* Fixed Purchase Details Panel */}
