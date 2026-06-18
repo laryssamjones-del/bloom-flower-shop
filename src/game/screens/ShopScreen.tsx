@@ -281,10 +281,10 @@ export function ShopScreen() {
             zIndex: 5,
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
+            justifyContent: 'flex-start',
             alignItems: 'center',
             gap: '60px',
-            paddingTop: '40px',
+            paddingTop: '80px',
           }}
         >
           {shelfRows.map((row) => (
