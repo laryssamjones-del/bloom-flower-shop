@@ -136,6 +136,16 @@ body {
   50% { transform: translateY(-4px) scale(1.2); opacity: 1; }
 }
 
+/* Ready to make recipe glow/flash animation */
+@keyframes readyGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(106, 154, 80, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 12px 4px rgba(106, 154, 80, 0.6);
+  }
+}
+
 /* Magical wrapping animation */
 @keyframes magicalSparkle {
   0% {

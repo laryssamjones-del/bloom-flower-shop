@@ -195,6 +195,7 @@ export function BouquetArrangementScreen() {
                     alignItems: 'center',
                     gap: '4px',
                     textAlign: 'center',
+                    animation: canMakeThis ? 'readyGlow 2s ease-in-out infinite' : 'none',
                   }}
                 >
                   <img
