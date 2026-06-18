@@ -1,6 +1,7 @@
 import { useGameStore } from '../../stores/gameStore';
 import { FLOWERS } from '../../constants/flowers';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
+import { ScreenNavigation } from '../components/ScreenNavigation';
 
 export function OrdersScreen() {
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
@@ -59,6 +60,9 @@ export function OrdersScreen() {
           Back to Shop
         </button>
       </div>
+
+      {/* Quick Navigation */}
+      <ScreenNavigation currentScreen="orders" />
 
       {/* Orders List */}
       <div

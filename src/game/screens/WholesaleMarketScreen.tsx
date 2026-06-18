@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { FLOWERS, GREENERY, INITIAL_UNLOCKED_FLOWERS } from '../../constants/flowers';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
+import { ScreenNavigation } from '../components/ScreenNavigation';
 
 type BulkOption = 1 | 5 | 10 | 20;
 
@@ -118,6 +119,9 @@ export function WholesaleMarketScreen() {
           Back to Shop
         </button>
       </div>
+
+      {/* Quick Navigation */}
+      <ScreenNavigation currentScreen="wholesale" />
 
       {/* Success message */}
       {successMessage && (

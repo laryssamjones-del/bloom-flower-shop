@@ -1,5 +1,6 @@
 import { useGameStore } from '../../stores/gameStore';
 import { FLOWERS, GREENERY } from '../../constants/flowers';
+import { ScreenNavigation } from '../components/ScreenNavigation';
 
 export function InventoryScreen() {
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
@@ -46,6 +47,9 @@ export function InventoryScreen() {
           Back to Shop
         </button>
       </div>
+
+      {/* Quick Navigation */}
+      <ScreenNavigation currentScreen="inventory" />
 
       {/* Inventory List */}
       <div
