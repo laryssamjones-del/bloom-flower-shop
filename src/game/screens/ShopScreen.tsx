@@ -183,13 +183,12 @@ export function ShopScreen() {
         <div
           style={{
             position: 'absolute',
-            top: '18%',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '90%',
+            top: '22%',
+            left: '15%',
+            right: '15%',
             display: 'flex',
             flexDirection: 'column',
-            gap: '13%',
+            gap: '10%',
             zIndex: 5,
           }}
         >
