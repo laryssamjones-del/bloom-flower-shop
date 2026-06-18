@@ -91,9 +91,10 @@ export function ShopScreen() {
     const delay = 60000 + Math.random() * 60000;
     shelfPurchaseTimerRef.current = setTimeout(() => {
       const bouquets = useGameStore.getState().shelfBouquets;
-      if (bouquets.length > 0) {
+      // Don't spawn if another NPC is already visible
+      if (bouquets.length > 0 && !shelfPurchaseNPC && !activeVisit) {
         const randomBouquet = bouquets[Math.floor(Math.random() * bouquets.length)];
-        if (randomBouquet && !shelfPurchaseNPC) {
+        if (randomBouquet) {
           const NPC_IMAGES = [
             '/npcs/npc-young-woman-01.png',
             '/npcs/npc-young-woman-02.png',

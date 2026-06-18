@@ -12710,11 +12710,60 @@
       "timestamp": 1781821719874,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1781821943992",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "I noticed that two NPCs popped up at the same time. Can you make sure this doesn't happen?",
+      "timestamp": 1781821943992,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781821951938-z1b0jwmkm",
+      "role": "assistant",
+      "content": "Good catch! Let me fix that by preventing the shelf purchase NPC from spawning if a customer order NPC is already visible:",
+      "isShownToUser": true,
+      "timestamp": 1781821952205,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781821954784-weckoc0px",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1781821954784,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1781821956959-12o5rhv9g",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1781821956959,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1781821964628-ylsjly2v1",
+      "role": "assistant",
+      "content": "Done! ✅ Now NPCs won't overlap. The system checks if an order request NPC is already visible before spawning a shelf purchase NPC, so only one NPC will appear at a time. 🌸",
+      "isShownToUser": true,
+      "timestamp": 1781821965048,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781821719921,
-  "tokenUsage": 70825,
+  "updatedAt": 1781821965088,
+  "tokenUsage": 71794,
   "script": "default",
   "claudeSessionId": "21cab1fd-d6cd-46b4-ad7e-db52414c5572"
 }
