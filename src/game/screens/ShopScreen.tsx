@@ -198,6 +198,77 @@ export function ShopScreen() {
         <CoinCounter />
       </div>
 
+      {/* Grid overlay for positioning (debug) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          pointerEvents: 'none',
+          zIndex: 1,
+        }}
+      >
+        {/* Y% labels on left */}
+        {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((y) => (
+          <div
+            key={`y-${y}`}
+            style={{
+              position: 'absolute',
+              left: '2px',
+              top: `${y}%`,
+              transform: 'translateY(-50%)',
+              fontSize: '10px',
+              color: '#FF0000',
+              fontWeight: 'bold',
+            }}
+          >
+            Y{y}%
+          </div>
+        ))}
+
+        {/* X% labels on top */}
+        {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((x) => (
+          <div
+            key={`x-${x}`}
+            style={{
+              position: 'absolute',
+              top: '2px',
+              left: `${x}%`,
+              transform: 'translateX(-50%)',
+              fontSize: '10px',
+              color: '#FF0000',
+              fontWeight: 'bold',
+            }}
+          >
+            X{x}%
+          </div>
+        ))}
+
+        {/* Grid lines */}
+        {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((pos) => (
+          <div key={`vline-${pos}`} style={{
+            position: 'absolute',
+            left: `${pos}%`,
+            top: 0,
+            bottom: 0,
+            width: '1px',
+            background: '#FF000033',
+          }} />
+        ))}
+        {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((pos) => (
+          <div key={`hline-${pos}`} style={{
+            position: 'absolute',
+            top: `${pos}%`,
+            left: 0,
+            right: 0,
+            height: '1px',
+            background: '#FF000033',
+          }} />
+        ))}
+      </div>
+
       {/* Shelf bouquet display — overlaid on the background shelves */}
       {shelfBouquets.length > 0 && (
         <div
