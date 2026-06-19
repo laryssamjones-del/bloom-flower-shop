@@ -61,8 +61,11 @@ export function ShopScreen() {
   // Truck customizer
   const [customizingTruck, setCustomizingTruck] = useState(false);
 
-  // Special delivery truck
-  const [activeDelivery, setActiveDelivery] = useState<SpecialDelivery | null>(null);
+  // Special delivery truck - restore from localStorage if available
+  const [activeDelivery, setActiveDelivery] = useState<SpecialDelivery | null>(() => {
+    const saved = localStorage.getItem('activeDelivery');
+    return saved ? JSON.parse(saved) : null;
+  });
   const deliveryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Schedule next NPC visit
@@ -188,6 +191,15 @@ export function ShopScreen() {
       scheduleNextDelivery();
     }, delay);
   };
+
+  // Sync activeDelivery to localStorage
+  useEffect(() => {
+    if (activeDelivery) {
+      localStorage.setItem('activeDelivery', JSON.stringify(activeDelivery));
+    } else {
+      localStorage.removeItem('activeDelivery');
+    }
+  }, [activeDelivery]);
 
   useEffect(() => {
     scheduleNextDelivery();
