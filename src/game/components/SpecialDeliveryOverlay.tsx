@@ -100,7 +100,7 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'rgba(0,0,0,0.3)',
+          background: 'transparent',
           pointerEvents: 'all',
         }}
       />
