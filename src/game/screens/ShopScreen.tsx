@@ -423,24 +423,21 @@ export function ShopScreen() {
           top: '12px',
           left: '12px',
           zIndex: 10,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          fontSize: '18px',
+          fontWeight: 'bold',
+          color: '#C09840',
           background: '#F5F1E8',
           border: '2px solid #C09840',
           borderRadius: '50px',
           padding: '10px 18px',
-          fontSize: '14px',
-          fontWeight: 'bold',
-          color: '#333',
           boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-          minWidth: '160px',
-          textAlign: 'center',
         }}
       >
-        <div style={{ fontSize: '16px', marginBottom: '2px' }}>
-          Level {getCurrentLevel(cumulativeBouquetsSold)}
-        </div>
-        <div style={{ fontSize: '12px', color: '#666' }}>
-          {getLevelProgress(cumulativeBouquetsSold)[0]}/{getLevelProgress(cumulativeBouquetsSold)[1]} Bouquets Sold
-        </div>
+        <span style={{ fontSize: '24px' }}>⭐</span>
+        <span>Level {getCurrentLevel(cumulativeBouquetsSold)} ({getLevelProgress(cumulativeBouquetsSold)[0]}/{getLevelProgress(cumulativeBouquetsSold)[1]})</span>
       </div>
 
       {/* Top bar with coin counter */}
