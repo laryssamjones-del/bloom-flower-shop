@@ -393,12 +393,12 @@ export function WholesaleMarketScreen() {
                 style={{
                   padding: '8px',
                   background: isLocked
-                    ? 'rgba(0,0,0,0.1)'
+                    ? 'rgba(0,0,0,0.25)'
                     : isSelected
                     ? 'rgba(100,150,100,0.3)'
                     : 'rgba(255,255,255,0.5)',
                   border: isLocked
-                    ? '2px solid #CCC'
+                    ? '2px solid #999'
                     : isSelected
                     ? '2px solid #6A9A50'
                     : '2px solid #DDD',
@@ -408,9 +408,9 @@ export function WholesaleMarketScreen() {
                   flexDirection: 'column',
                   alignItems: 'center',
                   gap: '4px',
-                  opacity: isLocked ? 0.6 : isGreenery ? 0.9 : 1,
+                  opacity: isLocked ? 0.5 : isGreenery ? 0.9 : 1,
                   position: 'relative',
-                  filter: isLocked ? 'grayscale(100%)' : 'none',
+                  filter: isLocked ? 'grayscale(100%) brightness(0.8)' : 'none',
                 }}
               >
                 {isLocked && (
@@ -419,20 +419,20 @@ export function WholesaleMarketScreen() {
                       position: 'absolute',
                       top: '4px',
                       right: '4px',
-                      background: '#FF69B4',
+                      background: '#666',
                       color: 'white',
-                      width: '24px',
-                      height: '24px',
+                      width: '28px',
+                      height: '28px',
                       borderRadius: '50%',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: '14px',
                       fontWeight: 'bold',
-                      border: '2px solid white',
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                      border: '2px solid #333',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
                     }}
-                    title={nextUnlock ? `Unlock at ${nextUnlock.unlockedAt} bouquets` : 'Locked'}
+                    title={nextUnlock ? `Unlock at ${nextUnlock.unlockedAt} bouquets sold` : 'Tier Locked'}
                   >
                     🔒
                   </div>
@@ -475,16 +475,22 @@ export function WholesaleMarketScreen() {
                 >
                   {item.name}
                 </div>
-                {isLocked && nextUnlock ? (
+                {isLocked ? (
                   <div
                     style={{
-                      fontSize: '10px',
-                      color: '#FF69B4',
+                      fontSize: '9px',
+                      color: '#666',
                       fontWeight: 'bold',
                       textAlign: 'center',
+                      lineHeight: '1.2',
                     }}
                   >
-                    {nextUnlock.unlockedAt} sales
+                    <div>🔒 LOCKED</div>
+                    {nextUnlock && (
+                      <div style={{ fontSize: '8px', marginTop: '2px', fontWeight: 'normal' }}>
+                        @ {nextUnlock.unlockedAt} sales
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div
