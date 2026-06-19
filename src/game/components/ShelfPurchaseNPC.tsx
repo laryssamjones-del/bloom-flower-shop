@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Bouquet } from '../../types';
+import { loadNPCCustomizationConfig } from './NPCCustomizer';
 
 const COMPLIMENT_TEMPLATES = [
   (name: string) => `I love this ${name}! 🌸`,
@@ -18,6 +19,7 @@ interface ShelfPurchaseNPCProps {
 
 export function ShelfPurchaseNPC({ npcImage, bouquet, onComplete }: ShelfPurchaseNPCProps) {
   const [phase, setPhase] = useState<'entering' | 'visible' | 'sold' | 'leaving'>('entering');
+  const npcConfig = useMemo(() => loadNPCCustomizationConfig(), []);
 
   // Animation sequence
   useEffect(() => {
@@ -52,8 +54,8 @@ export function ShelfPurchaseNPC({ npcImage, bouquet, onComplete }: ShelfPurchas
     <div
       style={{
         position: 'absolute',
-        bottom: '70px',
-        right: 0,
+        bottom: npcConfig.bottomOffset,
+        right: npcConfig.rightOffset,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-end',
@@ -162,7 +164,7 @@ export function ShelfPurchaseNPC({ npcImage, bouquet, onComplete }: ShelfPurchas
         src={npcImage}
         alt="Customer"
         style={{
-          height: '420px',
+          height: npcConfig.height,
           width: 'auto',
           objectFit: 'contain',
           filter: 'drop-shadow(-4px 0 8px rgba(0,0,0,0.25))',

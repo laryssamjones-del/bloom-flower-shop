@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { loadNPCCustomizationConfig } from './NPCCustomizer';
 
 const NPC_IMAGES = [
   // Young women
@@ -69,6 +70,7 @@ interface CustomerNPCOverlayProps {
 export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOverlayProps) {
   const [phase, setPhase] = useState<'entering' | 'visible' | 'leaving'>('entering');
   const [showDeclineLine, setShowDeclineLine] = useState<string | null>(null);
+  const npcConfig = useMemo(() => loadNPCCustomizationConfig(), []);
 
   // After entering animation completes, switch to visible
   useEffect(() => {
@@ -96,8 +98,8 @@ export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOv
     <div
       style={{
         position: 'absolute',
-        bottom: '70px', // just above tab bar
-        right: 0,
+        bottom: npcConfig.bottomOffset,
+        right: npcConfig.rightOffset,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-end',
@@ -210,7 +212,7 @@ export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOv
         src={visit.npcImage}
         alt="Customer"
         style={{
-          height: '420px',
+          height: npcConfig.height,
           width: 'auto',
           objectFit: 'contain',
           filter: 'drop-shadow(-4px 0 8px rgba(0,0,0,0.25))',

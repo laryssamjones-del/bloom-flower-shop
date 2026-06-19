@@ -16,6 +16,7 @@ import {
   generateSpecialDelivery,
   type SpecialDelivery,
 } from '../components/SpecialDeliveryOverlay';
+import { NPCCustomizer } from '../components/NPCCustomizer';
 import { Bouquet } from '../../types';
 import { BOUQUET_RECIPES } from '../../data/bouquets';
 
@@ -52,6 +53,9 @@ export function ShopScreen() {
   // Layout editor
   const [editingLayout, setEditingLayout] = useState(false);
   const [shelfConfig, setShelfConfig] = useState<ShelfLayoutConfig>(() => loadShelfLayoutConfig());
+
+  // NPC customizer
+  const [customizingNPC, setCustomizingNPC] = useState(false);
 
   // Special delivery truck
   const [activeDelivery, setActiveDelivery] = useState<SpecialDelivery | null>(null);
@@ -272,6 +276,10 @@ export function ShopScreen() {
     setEditingLayout(false);
   };
 
+  const handleNPCCustomizerClose = () => {
+    setCustomizingNPC(false);
+  };
+
   // Split bouquets into rows of BOUQUETS_PER_SHELF for shelf display
   const shelfRows: Bouquet[][] = [];
   for (let i = 0; i < shelfBouquets.length; i += BOUQUETS_PER_SHELF) {
@@ -308,30 +316,48 @@ export function ShopScreen() {
 
       {/* Edit Layout button — top-left (dev only) */}
       {import.meta.env.DEV && (
-        <button
-          onClick={() => {
-            setEditingLayout(true);
-            RundotGameAPI.analytics.recordCustomEvent('shelf_layout_editor_opened');
-          }}
-          style={{
-            position: 'absolute',
-            top: '12px',
-            left: '12px',
-            zIndex: 10,
-            background: 'rgba(255,255,255,0.85)',
-            border: '1px solid rgba(0,0,0,0.15)',
-            borderRadius: '8px',
-            padding: '6px 10px',
-            fontSize: '13px',
-            cursor: 'pointer',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-          }}
-        >
-          ⚙️ Layout
-        </button>
+        <div style={{ position: 'absolute', top: '12px', left: '12px', display: 'flex', gap: '8px', zIndex: 10 }}>
+          <button
+            onClick={() => {
+              setEditingLayout(true);
+              RundotGameAPI.analytics.recordCustomEvent('shelf_layout_editor_opened');
+            }}
+            style={{
+              background: 'rgba(255,255,255,0.85)',
+              border: '1px solid rgba(0,0,0,0.15)',
+              borderRadius: '8px',
+              padding: '6px 10px',
+              fontSize: '13px',
+              cursor: 'pointer',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+          >
+            ⚙️ Layout
+          </button>
+          <button
+            onClick={() => {
+              setCustomizingNPC(true);
+              RundotGameAPI.analytics.recordCustomEvent('npc_customizer_opened');
+            }}
+            style={{
+              background: 'rgba(255,255,255,0.85)',
+              border: '1px solid rgba(0,0,0,0.15)',
+              borderRadius: '8px',
+              padding: '6px 10px',
+              fontSize: '13px',
+              cursor: 'pointer',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+          >
+            👤 NPC
+          </button>
+        </div>
       )}
 
       {/* Shelf bouquet display — positioned via saved layout config */}
@@ -468,6 +494,9 @@ export function ShopScreen() {
 
       {/* Shelf Layout Editor overlay */}
       {editingLayout && <ShelfLayoutEditor onClose={handleEditorClose} />}
+
+      {/* NPC Customizer overlay */}
+      {customizingNPC && <NPCCustomizer onClose={handleNPCCustomizerClose} />}
     </div>
   );
 }
