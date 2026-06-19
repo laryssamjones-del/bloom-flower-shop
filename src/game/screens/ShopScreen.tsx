@@ -212,31 +212,33 @@ export function ShopScreen() {
         <CoinCounter />
       </div>
 
-      {/* Edit Layout button — top-left */}
-      <button
-        onClick={() => {
-          setEditingLayout(true);
-          RundotGameAPI.analytics.recordCustomEvent('shelf_layout_editor_opened');
-        }}
-        style={{
-          position: 'absolute',
-          top: '12px',
-          left: '12px',
-          zIndex: 10,
-          background: 'rgba(255,255,255,0.85)',
-          border: '1px solid rgba(0,0,0,0.15)',
-          borderRadius: '8px',
-          padding: '6px 10px',
-          fontSize: '13px',
-          cursor: 'pointer',
-          boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px',
-        }}
-      >
-        ⚙️ Layout
-      </button>
+      {/* Edit Layout button — top-left (dev only) */}
+      {import.meta.env.DEV && (
+        <button
+          onClick={() => {
+            setEditingLayout(true);
+            RundotGameAPI.analytics.recordCustomEvent('shelf_layout_editor_opened');
+          }}
+          style={{
+            position: 'absolute',
+            top: '12px',
+            left: '12px',
+            zIndex: 10,
+            background: 'rgba(255,255,255,0.85)',
+            border: '1px solid rgba(0,0,0,0.15)',
+            borderRadius: '8px',
+            padding: '6px 10px',
+            fontSize: '13px',
+            cursor: 'pointer',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+          }}
+        >
+          ⚙️ Layout
+        </button>
+      )}
 
       {/* Shelf bouquet display — positioned via saved layout config */}
       {shelfRows.map((row, rowIdx) => {
