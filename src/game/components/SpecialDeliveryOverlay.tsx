@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FLOWERS, GREENERY } from '../../constants/flowers';
-import { BOUQUET_RECIPES } from '../../data/bouquets';
+import { BOUQUET_RECIPES, type BouquetTier } from '../../data/bouquets';
 import { loadTruckCustomizationConfig } from './TruckCustomizer';
 
 const DELIVERY_COST = 65;
@@ -12,7 +12,7 @@ export interface SpecialDelivery {
   createdAt: number;
 }
 
-function generateSpecialDelivery(flowerCount: number = 15, bouquetCount: number = 2): SpecialDelivery {
+function generateSpecialDelivery(flowerCount: number = 15, bouquetCount: number = 2, bouquetTier?: BouquetTier): SpecialDelivery {
   // Get all available flowers (both FLOWERS and GREENERY)
   const allFlowerIds = [
     ...Object.keys(FLOWERS),
@@ -36,8 +36,11 @@ function generateSpecialDelivery(flowerCount: number = 15, bouquetCount: number 
     flowers[flowers.length - 1]!.quantity += remainingCount;
   }
 
-  // Pick N random bouquet recipes
-  const shuffled = [...BOUQUET_RECIPES].sort(() => 0.5 - Math.random());
+  // Pick N random bouquet recipes (filtered by tier if specified)
+  const bouquetPool = bouquetTier
+    ? BOUQUET_RECIPES.filter((r) => r.tier === bouquetTier)
+    : BOUQUET_RECIPES;
+  const shuffled = [...bouquetPool].sort(() => 0.5 - Math.random());
   const bouquets = shuffled.slice(0, bouquetCount).filter((b) => b !== undefined) as Array<(typeof BOUQUET_RECIPES)[0]>;
 
   if (bouquets.length === 0) {
