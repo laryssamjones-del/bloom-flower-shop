@@ -438,7 +438,7 @@ export function ShopScreen() {
         }}
       >
         <span style={{ fontSize: '18px' }}>⭐</span>
-        <span>Level {getCurrentLevel(cumulativeBouquetsSold)} ({getLevelProgress(cumulativeBouquetsSold)[0]}/{getLevelProgress(cumulativeBouquetsSold)[1]} bouquets sold)</span>
+        <span>Level {getCurrentLevel(cumulativeBouquetsSold)} ({getLevelProgress(cumulativeBouquetsSold)[0]}/{getLevelProgress(cumulativeBouquetsSold)[1]})</span>
       </div>
 
       {/* Top bar with coin counter */}
