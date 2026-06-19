@@ -12,6 +12,10 @@ const NPC_IMAGES = [
   '/npcs/npc-elder-woman-white-hair.png',
   '/npcs/npc-elder-woman-grey-curly.png',
   '/npcs/npc-woman-auburn-curly.png',
+  '/npcs/npc-woman-auburn-curly-yellow-blouse.png',
+  '/npcs/npc-woman-black-braid-cream-sweater.png',
+  '/npcs/npc-woman-black-coily-denim-jacket.png',
+  '/npcs/npc-woman-silver-hair-sage-cardigan.png',
   '/npcs/npc-woman-curly-afro.png',
   '/npcs/npc-woman-dark-updo.png',
   // Men
