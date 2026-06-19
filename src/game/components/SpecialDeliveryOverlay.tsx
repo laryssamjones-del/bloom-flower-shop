@@ -149,8 +149,8 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '8px',
-            padding: '12px',
+            gap: '6px',
+            padding: '8px',
           }}
         >
           {/* Truck - clickable to show contents */}
@@ -192,13 +192,13 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
               style={{
                 background: 'rgba(255,255,255,0.95)',
                 borderRadius: '12px',
-                padding: '12px',
+                padding: '8px',
                 maxWidth: '200px',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
               }}
             >
             {/* Flowers in shipment */}
-            <div style={{ marginBottom: '8px' }}>
+            <div style={{ marginBottom: '4px' }}>
               <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#666', marginBottom: '6px' }}>
                 📦 Flowers:
               </div>
