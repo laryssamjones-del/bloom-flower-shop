@@ -385,29 +385,6 @@ export function WholesaleMarketScreen() {
                   <div
                     style={{
                       position: 'absolute',
-                      top: '4px',
-                      right: '4px',
-                      background: '#E74C3C',
-                      color: 'white',
-                      borderRadius: '50%',
-                      width: '24px',
-                      height: '24px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      border: '2px solid white',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                    }}
-                  >
-                    ❌
-                  </div>
-                )}
-                {neededQuantity !== undefined && (
-                  <div
-                    style={{
-                      position: 'absolute',
                       bottom: '4px',
                       right: '4px',
                       background: '#E74C3C',
