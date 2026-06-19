@@ -192,25 +192,25 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
               style={{
                 background: 'rgba(255,255,255,0.95)',
                 borderRadius: '12px',
-                padding: '8px',
+                padding: '4px',
                 maxWidth: '200px',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
               }}
             >
             {/* Flowers in shipment */}
-            <div style={{ marginBottom: '4px' }}>
-              <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#666', marginBottom: '6px' }}>
+            <div style={{ marginBottom: '2px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#666', marginBottom: '3px' }}>
                 📦 Flowers:
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                 {flowers.map((flower, idx) => (
                   <div
                     key={idx}
                     style={{
-                      fontSize: '11px',
+                      fontSize: '10px',
                       color: '#555',
                       display: 'flex',
-                      gap: '4px',
+                      gap: '3px',
                       alignItems: 'center',
                     }}
                   >
@@ -223,17 +223,17 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
             </div>
 
             {/* Bouquet */}
-            <div style={{ marginBottom: '8px', paddingTop: '8px', borderTop: '1px solid rgba(0,0,0,0.1)' }}>
-              <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>
+            <div style={{ marginBottom: '3px', paddingTop: '3px', borderTop: '1px solid rgba(0,0,0,0.1)' }}>
+              <div style={{ fontSize: '10px', fontWeight: 'bold', color: '#666', marginBottom: '2px' }}>
                 💐 Bonus Bouquet:
               </div>
-              <div style={{ fontSize: '11px', color: '#555' }}>
+              <div style={{ fontSize: '10px', color: '#555' }}>
                 {delivery.bouquet.name}
               </div>
             </div>
 
               {/* Cost */}
-              <div style={{ paddingTop: '8px', borderTop: '1px solid rgba(0,0,0,0.1)', fontSize: '13px', fontWeight: 'bold', color: '#FF6B9D' }}>
+              <div style={{ paddingTop: '3px', borderTop: '1px solid rgba(0,0,0,0.1)', fontSize: '12px', fontWeight: 'bold', color: '#FF6B9D' }}>
                 💰 {DELIVERY_COST} Petal Coins
               </div>
             </div>
@@ -241,18 +241,18 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
 
           {/* Buttons - only show when contents are open */}
           {showContents && (
-            <div style={{ display: 'flex', gap: '8px', width: '100%', marginTop: '4px' }}>
+            <div style={{ display: 'flex', gap: '6px', width: '100%', marginTop: '2px' }}>
               {!isAccepted ? (
                 <>
                   <button
                     onClick={onDeny}
                     style={{
                       flex: 1,
-                      padding: '8px 12px',
+                      padding: '6px 10px',
                       background: '#EEE',
                       border: 'none',
-                      borderRadius: '8px',
-                      fontSize: '12px',
+                      borderRadius: '6px',
+                      fontSize: '11px',
                       fontWeight: 'bold',
                       cursor: 'pointer',
                       color: '#666',
@@ -267,11 +267,11 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
                     }}
                     style={{
                       flex: 1,
-                      padding: '8px 12px',
+                      padding: '6px 10px',
                       background: '#FF6B9D',
                       border: 'none',
-                      borderRadius: '8px',
-                      fontSize: '12px',
+                      borderRadius: '6px',
+                      fontSize: '11px',
                       fontWeight: 'bold',
                       cursor: 'pointer',
                       color: '#FFF',
@@ -285,11 +285,11 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
                   onClick={onDeny}
                   style={{
                     width: '100%',
-                    padding: '8px 12px',
+                    padding: '6px 10px',
                     background: '#6A9A50',
                     border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '12px',
+                    borderRadius: '6px',
+                    fontSize: '11px',
                     fontWeight: 'bold',
                     cursor: 'pointer',
                     color: '#FFF',
