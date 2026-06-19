@@ -8,7 +8,11 @@ export function InventoryScreen() {
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
   const inventory = useGameStore((s) => s.inventory);
   const mysteryBouquets = useGameStore((s) => s.mysteryBouquets);
+  const exclusiveBouquets = useGameStore((s) => s.exclusiveBouquets);
   const sellMysteryBouquet = useGameStore((s) => s.sellMysteryBouquet);
+  const sellExclusiveBouquet = useGameStore((s) => s.sellExclusiveBouquet);
+  const displayExclusiveBouquetOnShelf = useGameStore((s) => s.displayExclusiveBouquetOnShelf);
+  const displayedBouquets = useGameStore((s) => s.displayedBouquets);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const getItem = (id: string) => FLOWERS[id] || (GREENERY as Record<string, any>)[id];
@@ -24,6 +28,46 @@ export function InventoryScreen() {
       RundotGameAPI.analytics.recordCustomEvent('mystery_bouquet_sold', {
         bouquetId,
         price,
+      });
+    }
+  };
+
+  const handleSellExclusiveBouquet = (bouquetId: string, bouquetName: string, price: number) => {
+    if (sellExclusiveBouquet(bouquetId)) {
+      const msg = `✨ Sold ${bouquetName} for ${price} 🌼`;
+      setSuccessMessage(msg);
+      setTimeout(() => setSuccessMessage(null), 2000);
+
+      RundotGameAPI.analytics.recordCustomEvent('exclusive_bouquet_sold', {
+        bouquetId,
+        bouquetName,
+        price,
+      });
+    }
+  };
+
+  const handleDisplayOnShelf = (bouquetId: string, bouquetName: string) => {
+    const emptySlots = displayedBouquets.filter((b) => b === null).length;
+    if (emptySlots === 0) {
+      const msg = '❌ Your shelf is full! Remove a bouquet to make space.';
+      setSuccessMessage(msg);
+      setTimeout(() => setSuccessMessage(null), 3000);
+
+      RundotGameAPI.analytics.recordCustomEvent('exclusive_bouquet_inventory_full', {
+        bouquetId,
+        bouquetName,
+      });
+      return;
+    }
+
+    if (displayExclusiveBouquetOnShelf(bouquetId)) {
+      const msg = `✨ ${bouquetName} displayed on shelf!`;
+      setSuccessMessage(msg);
+      setTimeout(() => setSuccessMessage(null), 2000);
+
+      RundotGameAPI.analytics.recordCustomEvent('exclusive_bouquet_displayed_on_shelf', {
+        bouquetId,
+        bouquetName,
       });
     }
   };
@@ -175,6 +219,125 @@ export function InventoryScreen() {
               })}
             </div>
           </>
+        )}
+
+        {/* Exclusive Bouquets Section */}
+        {exclusiveBouquets.length > 0 && (
+          <div style={{ marginTop: '24px' }}>
+            <div
+              style={{
+                fontSize: '16px',
+                fontWeight: 'bold',
+                marginBottom: '12px',
+                color: '#FF8C00',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              ✨ Exclusive Bouquets
+            </div>
+            <div
+              style={{
+                display: 'grid',
+                gap: '10px',
+              }}
+            >
+              {exclusiveBouquets.map((bouquet) => {
+                const emptySlots = displayedBouquets.filter((b) => b === null).length;
+                const canDisplay = emptySlots > 0;
+
+                return (
+                  <div
+                    key={bouquet.id}
+                    style={{
+                      padding: '12px',
+                      background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.1))',
+                      border: '2px solid #FFB300',
+                      borderRadius: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                    }}
+                  >
+                    <img
+                      src={bouquet.imageUrl}
+                      alt={bouquet.name}
+                      style={{
+                        width: '60px',
+                        height: '60px',
+                        objectFit: 'contain',
+                      }}
+                    />
+                    <div style={{ flex: 1, textAlign: 'left' }}>
+                      <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#333' }}>
+                        {bouquet.name}
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#FF8C00', marginTop: '4px' }}>
+                        Sells for {bouquet.sellPrice} 🌼
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '6px',
+                        minWidth: '90px',
+                      }}
+                    >
+                      <button
+                        onClick={() => handleDisplayOnShelf(bouquet.id, bouquet.name)}
+                        disabled={!canDisplay}
+                        style={{
+                          padding: '6px 10px',
+                          background: canDisplay ? '#FFB300' : '#CCC',
+                          color: '#FFF',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: canDisplay ? 'pointer' : 'not-allowed',
+                          fontSize: '10px',
+                          fontWeight: 'bold',
+                          transition: 'all 0.2s',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (canDisplay) {
+                            (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.05)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
+                        }}
+                      >
+                        📊 Display
+                      </button>
+                      <button
+                        onClick={() => handleSellExclusiveBouquet(bouquet.id, bouquet.name, bouquet.sellPrice)}
+                        style={{
+                          padding: '6px 10px',
+                          background: '#FF6B6B',
+                          color: '#FFF',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '10px',
+                          fontWeight: 'bold',
+                          transition: 'all 0.2s',
+                        }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
+                        }}
+                      >
+                        💚 Sell
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         )}
 
         {/* Mystery Bouquets Section */}

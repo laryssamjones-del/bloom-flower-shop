@@ -13,6 +13,8 @@ import {
 import { FLOWERS, INITIAL_UNLOCKED_FLOWERS, CUSTOMER_MOODS } from '../constants/flowers';
 import { BOUQUET_RECIPES, getRecipeById } from '../data/bouquets';
 import { MYSTERY_BOX_COST_RUN_BUCKS, getRandomMysteryBouquet } from '../data/mysteryBox';
+import { EXCLUSIVE_BOX_COSTS } from '../data/exclusiveBouquets';
+import { generateExclusiveBoxContents } from '../data/mysteryBoxContents';
 import { getUnlockedFlowersAt } from '../data/progression';
 
 const STARTING_COINS = 300;
@@ -35,6 +37,7 @@ const createInitialState = (): ShopState => ({
   inventory: [],
   inventoryCapacity: MAX_INVENTORY_STEMS,
   mysteryBouquets: [],
+  exclusiveBouquets: [],
 
   // Shop
   shelfCapacity: STARTING_SHELF_CAPACITY,
@@ -74,6 +77,7 @@ const createInitialState = (): ShopState => ({
   neededFlowerQuantity: 0,
   orderJustCompleted: false,
   completedOrderCustomerImage: undefined,
+  pendingBoxReveal: undefined,
 });
 
 interface GameStoreActions {
@@ -137,6 +141,14 @@ interface GameStoreActions {
   // Mystery box management
   purchaseMysteryBox: () => boolean;
   sellMysteryBouquet: (bouquetId: string) => boolean;
+
+  // Exclusive mystery box management
+  purchaseExclusiveBox: (quantity: 1 | 2 | 3) => boolean;
+  addExclusiveBouquetToShelf: (bouquetId: string) => boolean;
+  displayExclusiveBouquetOnShelf: (bouquetId: string) => boolean;
+  sellExclusiveBouquet: (bouquetId: string) => boolean;
+  setPendingBoxReveal: (contents: any[] | undefined) => void;
+
   addPremiumCurrency: (amount: number) => void;
 
   // Progression
@@ -716,6 +728,105 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     }));
 
     return true;
+  },
+
+  purchaseExclusiveBox: (quantity: 1 | 2 | 3) => {
+    const state = get();
+    const cost = EXCLUSIVE_BOX_COSTS[quantity];
+
+    if (state.premiumCurrency < cost) {
+      return false;
+    }
+
+    // Generate contents for each box
+    const allContents = Array(quantity)
+      .fill(null)
+      .map(() => generateExclusiveBoxContents());
+
+    // Set pending reveal and deduct Run Bucks
+    set((s) => ({
+      premiumCurrency: s.premiumCurrency - cost,
+      pendingBoxReveal: allContents,
+      lastUpdated: Date.now(),
+    }));
+
+    return true;
+  },
+
+  addExclusiveBouquetToShelf: (bouquetId: string) => {
+    const state = get();
+    const bouquet = state.exclusiveBouquets.find((b) => b.id === bouquetId);
+
+    if (!bouquet) return false;
+
+    // Check if shelf has space
+    const emptySlots = state.displayedBouquets.filter((b) => b === null).length;
+    if (emptySlots === 0) {
+      return false;
+    }
+
+    // Find first empty slot and place bouquet
+    const emptyIndex = state.displayedBouquets.findIndex((b) => b === null);
+
+    // Create a regular Bouquet from exclusive bouquet item
+    const newBouquet: Bouquet = {
+      id: `exclusive-display-${bouquetId}`,
+      stems: [],
+      wrappingPaper: 'plain-white',
+      ribbonColor: 'ivory',
+      sellPrice: bouquet.sellPrice,
+      thumbnailUrl: bouquet.imageUrl,
+      createdAt: bouquet.createdAt,
+      fromExclusiveBox: true,
+    };
+
+    set((s) => ({
+      displayedBouquets: s.displayedBouquets.map((b, i) => (i === emptyIndex ? newBouquet : b)),
+      shelfBouquets: [...s.shelfBouquets, newBouquet],
+      exclusiveBouquets: s.exclusiveBouquets.filter((b) => b.id !== bouquetId),
+      lastUpdated: Date.now(),
+    }));
+
+    return true;
+  },
+
+  displayExclusiveBouquetOnShelf: (bouquetId: string) => {
+    const state = get();
+    const bouquet = state.exclusiveBouquets.find((b) => b.id === bouquetId);
+
+    if (!bouquet) return false;
+
+    return state.addExclusiveBouquetToShelf(bouquetId);
+  },
+
+  sellExclusiveBouquet: (bouquetId: string) => {
+    const state = get();
+    const bouquetInInventory = state.exclusiveBouquets.find((b) => b.id === bouquetId);
+    const bouquetOnShelf = state.shelfBouquets.find((b) => b.id === `exclusive-display-${bouquetId}`);
+
+    if (!bouquetInInventory && !bouquetOnShelf) return false;
+
+    const sellPrice = bouquetInInventory?.sellPrice || bouquetOnShelf?.sellPrice || 0;
+    state.addCoins(sellPrice);
+
+    set((s) => ({
+      exclusiveBouquets: s.exclusiveBouquets.filter((b) => b.id !== bouquetId),
+      shelfBouquets: s.shelfBouquets.filter((b) => b.id !== `exclusive-display-${bouquetId}`),
+      displayedBouquets: s.displayedBouquets.map((b) =>
+        b?.id === `exclusive-display-${bouquetId}` ? null : b
+      ),
+      totalCustomersServed: s.totalCustomersServed + 1,
+      lastUpdated: Date.now(),
+    }));
+
+    return true;
+  },
+
+  setPendingBoxReveal: (contents: any[] | undefined) => {
+    set(() => ({
+      pendingBoxReveal: contents,
+      lastUpdated: Date.now(),
+    }));
   },
 
   addPremiumCurrency: (amount: number) => {

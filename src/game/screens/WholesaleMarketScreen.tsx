@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { FLOWERS, GREENERY } from '../../constants/flowers';
-import { MYSTERY_BOX_COST_RUN_BUCKS } from '../../data/mysteryBox';
 import { PETAL_COINS_PACKAGES } from '../../data/petalCoinsPackages';
+import { EXCLUSIVE_BOX_COSTS } from '../../data/exclusiveBouquets';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { ScreenNavigation } from '../components/ScreenNavigation';
 import { generateSpecialDelivery } from '../components/SpecialDeliveryOverlay';
 import { openPlatformStore, getRunbucksBalance } from '../../services/iap';
+import ExclusiveBoxRevealOverlay from './ExclusiveBoxRevealOverlay';
 
 type BulkOption = 1 | 5 | 10 | 20;
 
@@ -25,7 +26,9 @@ export function WholesaleMarketScreen() {
   const spendCoins = useGameStore((s) => s.spendCoins);
   const checkDailyLimit = useGameStore((s) => s.checkDailyLimit);
   const recordDailyPurchase = useGameStore((s) => s.recordDailyPurchase);
-  const purchaseMysteryBox = useGameStore((s) => s.purchaseMysteryBox);
+  const purchaseExclusiveBox = useGameStore((s) => s.purchaseExclusiveBox);
+  const setPendingBoxReveal = useGameStore((s) => s.setPendingBoxReveal);
+  const pendingBoxReveal = useGameStore((s) => s.pendingBoxReveal);
   const dailyPurchases = useGameStore((s) => s.dailyPurchases);
   const shoppingForOrderId = useGameStore((s) => s.shoppingForOrderId);
   const getOrderForShopping = useGameStore((s) => s.getOrderForShopping);
@@ -38,11 +41,11 @@ export function WholesaleMarketScreen() {
   const [selectedFlower, setSelectedFlower] = useState<string | null>(null);
   const [selectedBulk, setSelectedBulk] = useState<number>(1);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [misterySuccessMessage, setMysterySuccessMessage] = useState<string | null>(null);
   const [deliverySuccessMessage, setDeliverySuccessMessage] = useState<string | null>(null);
   const [countdownDisplay, setCountdownDisplay] = useState<string>('8:00:00');
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [storeError, setStoreError] = useState<string | null>(null);
+  const [showBoxReveal, setShowBoxReveal] = useState(false);
   const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Countdown timer effect
@@ -215,22 +218,6 @@ export function WholesaleMarketScreen() {
     }
   };
 
-  const handlePurchaseMysteryBox = () => {
-    if (premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS) {
-      return;
-    }
-
-    if (purchaseMysteryBox()) {
-      const successMsg = `✨ Mystery Box unlocked! Check your inventory 🎁`;
-      setMysterySuccessMessage(successMsg);
-      setTimeout(() => setMysterySuccessMessage(null), 3000);
-
-      RundotGameAPI.analytics.recordCustomEvent('mystery_box_purchased', {
-        cost: MYSTERY_BOX_COST_RUN_BUCKS,
-      });
-    }
-  };
-
   const INSTANT_DELIVERY_COST = 75;
   const DELUXE_DELIVERY_COST = 150;
 
@@ -339,6 +326,29 @@ export function WholesaleMarketScreen() {
         cost: pkg.cost,
       });
     }
+  };
+
+  const handleBuyExclusiveBox = (quantity: 1 | 2 | 3) => {
+    if (purchaseExclusiveBox(quantity)) {
+      RundotGameAPI.analytics.recordCustomEvent('exclusive_box_purchased', {
+        quantity: quantity,
+        cost: EXCLUSIVE_BOX_COSTS[quantity],
+        remainingRunBucks: premiumCurrency - EXCLUSIVE_BOX_COSTS[quantity],
+      });
+      setShowBoxReveal(true);
+    }
+  };
+
+  // Show reveal overlay when pending box reveal is set
+  useEffect(() => {
+    if (pendingBoxReveal && pendingBoxReveal.length > 0) {
+      setShowBoxReveal(true);
+    }
+  }, [pendingBoxReveal]);
+
+  const handleRevealComplete = () => {
+    setShowBoxReveal(false);
+    setPendingBoxReveal(undefined);
   };
 
   return (
@@ -477,23 +487,6 @@ export function WholesaleMarketScreen() {
       )}
 
       {/* Mystery Box Success Message */}
-      {misterySuccessMessage && (
-        <div
-          style={{
-            padding: '12px 16px',
-            background: 'linear-gradient(135deg, rgba(155, 89, 182, 0.2), rgba(52, 152, 219, 0.2))',
-            color: '#9B59B6',
-            fontSize: '14px',
-            fontWeight: 'bold',
-            textAlign: 'center',
-            borderBottom: '2px solid #9B59B6',
-            transition: 'opacity 0.3s ease-in-out',
-          }}
-        >
-          {misterySuccessMessage}
-        </div>
-      )}
-
       {/* Delivery Success Message */}
       {deliverySuccessMessage && (
         <div
@@ -851,68 +844,92 @@ export function WholesaleMarketScreen() {
                 </button>
               </div>
 
-              {/* Mystery Box Section */}
-              <div
-                style={{
-                  padding: '12px',
-                  background: 'linear-gradient(135deg, rgba(155, 89, 182, 0.15), rgba(52, 152, 219, 0.15))',
-                  borderRadius: '8px',
-                  border: '2px solid #9B59B6',
-                }}
-              >
-                <div style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '6px', color: '#333' }}>
-                  🎁 Deluxe Mystery Box
+              {/* Exclusive Mystery Box Section */}
+              <div style={{ marginBottom: '12px' }}>
+                <h3 style={{ margin: '0 0 12px 0', fontSize: '15px', color: '#333', fontWeight: 'bold' }}>
+                  ✨ Exclusive Mystery Boxes
+                </h3>
+                <div style={{ fontSize: '11px', color: '#666', marginBottom: '12px', lineHeight: 1.4 }}>
+                  Get random exclusive bouquets, petal coins, and flower stems!
                 </div>
-                <div style={{ fontSize: '11px', color: '#666', marginBottom: '10px', lineHeight: 1.3 }}>
-                  Unlock a random exclusive bouquet worth a fortune!
-                </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: '10px',
-                    padding: '8px',
-                    background: 'rgba(255,255,255,0.6)',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                  }}
-                >
-                  <div>
-                    <div style={{ fontWeight: 'bold', color: '#333' }}>Cost</div>
-                    <div style={{ fontWeight: 'bold', color: '#9B59B6' }}>
-                      {MYSTERY_BOX_COST_RUN_BUCKS} 💎
-                    </div>
+
+                {/* 1 Box - 500 💎 */}
+                <div style={{ marginBottom: '10px', padding: '12px', background: 'linear-gradient(135deg, rgba(218, 165, 32, 0.15), rgba(255, 215, 0, 0.1))', borderRadius: '8px', border: '2px solid #DAA520' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#333' }}>🎁 Buy 1 Box</div>
+                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#DAA520' }}>{EXCLUSIVE_BOX_COSTS[1]} 💎</div>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontWeight: 'bold', color: '#333' }}>Have</div>
-                    <div
-                      style={{
-                        fontWeight: 'bold',
-                        color: premiumCurrency >= MYSTERY_BOX_COST_RUN_BUCKS ? '#6A9A50' : '#C0392B',
-                      }}
-                    >
-                      {premiumCurrency} 💎
-                    </div>
-                  </div>
+                  <div style={{ fontSize: '10px', color: '#666', marginBottom: '8px' }}>5-8 exclusive bouquets + flowers + coins</div>
+                  <button
+                    onClick={() => handleBuyExclusiveBox(1)}
+                    disabled={premiumCurrency < EXCLUSIVE_BOX_COSTS[1]}
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      background: premiumCurrency < EXCLUSIVE_BOX_COSTS[1] ? '#CCC' : '#DAA520',
+                      color: '#FFF',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: premiumCurrency < EXCLUSIVE_BOX_COSTS[1] ? 'not-allowed' : 'pointer',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {premiumCurrency < EXCLUSIVE_BOX_COSTS[1] ? `❌ Need ${EXCLUSIVE_BOX_COSTS[1] - premiumCurrency}` : '✨ Buy'}
+                  </button>
                 </div>
-                <button
-                  onClick={handlePurchaseMysteryBox}
-                  disabled={premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    background: premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS ? '#CCC' : 'linear-gradient(135deg, #9B59B6, #3498DB)',
-                    color: '#FFF',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS ? 'not-allowed' : 'pointer',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  {premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS ? '❌ Not enough' : '🎲 Unlock'}
-                </button>
+
+                {/* 2 Boxes - 750 💎 (Better Value) */}
+                <div style={{ marginBottom: '10px', padding: '12px', background: 'linear-gradient(135deg, rgba(218, 112, 214, 0.15), rgba(255, 165, 0, 0.1))', borderRadius: '8px', border: '2px solid #DA70D6' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#333' }}>🎁🎁 Buy 2 Boxes</div>
+                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#DA70D6' }}>{EXCLUSIVE_BOX_COSTS[2]} 💎</div>
+                  </div>
+                  <div style={{ fontSize: '9px', color: '#888', marginBottom: '8px', fontStyle: 'italic' }}>Better value!</div>
+                  <button
+                    onClick={() => handleBuyExclusiveBox(2)}
+                    disabled={premiumCurrency < EXCLUSIVE_BOX_COSTS[2]}
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      background: premiumCurrency < EXCLUSIVE_BOX_COSTS[2] ? '#CCC' : '#DA70D6',
+                      color: '#FFF',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: premiumCurrency < EXCLUSIVE_BOX_COSTS[2] ? 'not-allowed' : 'pointer',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {premiumCurrency < EXCLUSIVE_BOX_COSTS[2] ? `❌ Need ${EXCLUSIVE_BOX_COSTS[2] - premiumCurrency}` : '✨ Buy'}
+                  </button>
+                </div>
+
+                {/* 3 Boxes - 1000 💎 (Best Value) */}
+                <div style={{ padding: '12px', background: 'linear-gradient(135deg, rgba(255, 105, 180, 0.15), rgba(220, 20, 60, 0.1))', borderRadius: '8px', border: '2px solid #FF69B4' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#333' }}>🎁🎁🎁 Buy 3 Boxes</div>
+                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#FF69B4' }}>{EXCLUSIVE_BOX_COSTS[3]} 💎</div>
+                  </div>
+                  <div style={{ fontSize: '9px', color: '#888', marginBottom: '8px', fontStyle: 'italic' }}>Best value!</div>
+                  <button
+                    onClick={() => handleBuyExclusiveBox(3)}
+                    disabled={premiumCurrency < EXCLUSIVE_BOX_COSTS[3]}
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      background: premiumCurrency < EXCLUSIVE_BOX_COSTS[3] ? '#CCC' : '#FF69B4',
+                      color: '#FFF',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: premiumCurrency < EXCLUSIVE_BOX_COSTS[3] ? 'not-allowed' : 'pointer',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {premiumCurrency < EXCLUSIVE_BOX_COSTS[3] ? `❌ Need ${EXCLUSIVE_BOX_COSTS[3] - premiumCurrency}` : '✨ Buy'}
+                  </button>
+                </div>
               </div>
 
               {/* Petal Coins Packages */}
@@ -1224,6 +1241,11 @@ export function WholesaleMarketScreen() {
             )}
           </div>
         </div>
+      )}
+
+      {/* Exclusive Box Reveal Overlay */}
+      {showBoxReveal && pendingBoxReveal && (
+        <ExclusiveBoxRevealOverlay contents={pendingBoxReveal} onComplete={handleRevealComplete} />
       )}
     </div>
   );

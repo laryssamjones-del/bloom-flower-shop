@@ -40,6 +40,7 @@ export interface Bouquet {
   createdAt: number;
   fromSpecialBox?: boolean;
   fromPremiumDelivery?: boolean;
+  fromExclusiveBox?: boolean;
   recipeName?: string;
 }
 
@@ -77,6 +78,17 @@ export interface MysteryBouquetItem {
   createdAt: number;
 }
 
+export interface ExclusiveBouquetItem extends MysteryBouquetItem {
+  fromExclusiveBox: true;
+  baseSellPrice: number;
+}
+
+export interface ExclusiveBoxContents {
+  petalCoins: number;
+  flowers: { flowerId: string; quantity: number }[];
+  exclusiveBouquets: ExclusiveBouquetItem[];
+}
+
 export interface GameState {
   // Economy
   coins: number;
@@ -87,6 +99,7 @@ export interface GameState {
   inventory: StemInInventory[];
   inventoryCapacity: number;
   mysteryBouquets: MysteryBouquetItem[]; // Special mystery box bouquets
+  exclusiveBouquets: ExclusiveBouquetItem[]; // Exclusive mystery box bouquets
 
   // Shop
   shelfCapacity: number;
@@ -137,6 +150,8 @@ export interface ShopState extends GameState {
   neededFlowerQuantity?: number; // quantity needed for that flower
   orderJustCompleted?: boolean; // flag to show order thank you animation
   completedOrderCustomerImage?: string; // NPC image for thank you animation
+  // Exclusive mystery box reveal animation
+  pendingBoxReveal?: ExclusiveBoxContents[]; // Contents waiting to be revealed in animation
 }
 
 export interface SpecialBox {
