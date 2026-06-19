@@ -1,6 +1,11 @@
 import { useGameStore } from '../../stores/gameStore';
+import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
-export function BottomTabNavigation() {
+interface BottomTabNavigationProps {
+  onSettingsClick: () => void;
+}
+
+export function BottomTabNavigation({ onSettingsClick }: BottomTabNavigationProps) {
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
   const pendingOrders = useGameStore((s) => s.pendingOrders);
   const hasOrders = pendingOrders.length > 0;
@@ -22,6 +27,7 @@ export function BottomTabNavigation() {
         background: 'rgba(255,255,255,0.3)',
         borderTop: '2px solid rgba(0,0,0,0.1)',
         backdropFilter: 'blur(10px)',
+        position: 'relative',
       }}
     >
       {navItems.map((item) => (
@@ -76,6 +82,42 @@ export function BottomTabNavigation() {
           )}
         </button>
       ))}
+
+      {/* Settings button in top-right corner */}
+      <button
+        onClick={() => {
+          onSettingsClick();
+          RundotGameAPI.analytics.recordCustomEvent('settings_opened');
+        }}
+        style={{
+          position: 'absolute',
+          top: '6px',
+          right: '6px',
+          width: '32px',
+          height: '32px',
+          background: '#F5F0E8',
+          border: '2px solid #D4AF37',
+          borderRadius: '6px',
+          cursor: 'pointer',
+          fontSize: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 0,
+          transition: 'all 0.2s',
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLElement).style.background = '#FFFBF5';
+          (e.currentTarget as HTMLElement).style.transform = 'scale(1.1)';
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLElement).style.background = '#F5F0E8';
+          (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
+        }}
+        title="Settings"
+      >
+        ⚙️
+      </button>
     </div>
   );
 }

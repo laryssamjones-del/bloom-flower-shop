@@ -455,49 +455,15 @@ export function ShopScreen() {
         <span>Level {getCurrentLevel(cumulativeBouquetsSold)} ({getLevelProgress(cumulativeBouquetsSold)[0]}/{getLevelProgress(cumulativeBouquetsSold)[1]})</span>
       </div>
 
-      {/* Top bar with coin counter and settings */}
+      {/* Top bar with coin counter */}
       <div
         style={{
           position: 'absolute',
           top: '12px',
           right: '12px',
           zIndex: 10,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
         }}
       >
-        <button
-          onClick={() => {
-            setIsSettingsOpen(true);
-            RundotGameAPI.analytics.recordCustomEvent('settings_opened');
-          }}
-          style={{
-            background: '#F5F1E8',
-            border: '2px solid #C09840',
-            borderRadius: '50%',
-            width: '44px',
-            height: '44px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            fontSize: '20px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.transform = 'scale(1.1)';
-            (e.currentTarget as HTMLElement).style.background = '#EEE5D8';
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
-            (e.currentTarget as HTMLElement).style.background = '#F5F1E8';
-          }}
-          title="Settings"
-        >
-          ⚙️
-        </button>
         <CoinCounter />
       </div>
 
@@ -716,7 +682,7 @@ export function ShopScreen() {
           zIndex: 10,
         }}
       >
-        <BottomTabNavigation />
+        <BottomTabNavigation onSettingsClick={() => setIsSettingsOpen(true)} />
       </div>
 
       {/* Shelf Layout Editor overlay */}
