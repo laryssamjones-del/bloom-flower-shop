@@ -178,7 +178,7 @@ export function ShopScreen() {
     localStorage.setItem('nextDeliveryTime', nextTime.toString());
 
     deliveryTimerRef.current = setTimeout(() => {
-      if (!activeDelivery) {
+      if (!activeDelivery && !customizingTruck) {
         const newDelivery = generateSpecialDelivery();
         setActiveDelivery(newDelivery);
         RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
