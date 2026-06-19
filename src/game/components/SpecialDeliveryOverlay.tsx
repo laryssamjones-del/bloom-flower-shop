@@ -3,7 +3,7 @@ import { FLOWERS, GREENERY } from '../../constants/flowers';
 import { BOUQUET_RECIPES } from '../../data/bouquets';
 import { loadTruckCustomizationConfig } from './TruckCustomizer';
 
-const DELIVERY_COST = 25;
+const DELIVERY_COST = 65;
 
 export interface SpecialDelivery {
   id: string;
