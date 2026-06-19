@@ -293,7 +293,7 @@ export function ShopScreen() {
     // Create bouquets and add to shelf or pending based on available space
     let shelfSpaceLeft = shelfCapacity - shelfBouquets.length;
     const isPremium = delivery.isPremiumDelivery ?? false;
-    const priceMultiplier = isPremium ? 3 : 1;
+    const priceMultiplier = delivery.priceMultiplier ?? (isPremium ? 3 : 1);
 
     for (const bouquetRecipe of delivery.bouquets) {
       const bouquetToAdd: Bouquet = {
