@@ -55,7 +55,10 @@ export function ShopScreen() {
 
   // Special delivery truck
   const [activeDelivery, setActiveDelivery] = useState<SpecialDelivery | null>(null);
+  const [nextDeliveryTime, setNextDeliveryTime] = useState<number | null>(null);
+  const [countdownDisplay, setCountdownDisplay] = useState<string>('');
   const deliveryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Schedule next NPC visit
   const scheduleNextVisit = () => {
@@ -163,9 +166,12 @@ export function ShopScreen() {
     setShelfPurchaseNPC(null);
   };
 
-  // Schedule special deliveries every 15 minutes
+  // Schedule special deliveries (30 sec for dev, 15 min for production)
   const scheduleNextDelivery = () => {
-    const delay = 15 * 60 * 1000; // 15 minutes
+    const delay = import.meta.env.DEV ? 30 * 1000 : 15 * 60 * 1000; // 30 sec (dev) or 15 min (prod)
+    const nextTime = Date.now() + delay;
+    setNextDeliveryTime(nextTime);
+
     deliveryTimerRef.current = setTimeout(() => {
       if (!activeDelivery) {
         const newDelivery = generateSpecialDelivery();
@@ -184,6 +190,23 @@ export function ShopScreen() {
       if (deliveryTimerRef.current) clearTimeout(deliveryTimerRef.current);
     };
   }, []);
+
+  // Countdown timer for next delivery
+  useEffect(() => {
+    countdownIntervalRef.current = setInterval(() => {
+      if (nextDeliveryTime) {
+        const now = Date.now();
+        const remaining = Math.max(0, nextDeliveryTime - now);
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+        setCountdownDisplay(`${minutes}:${String(seconds).padStart(2, '0')}`);
+      }
+    }, 1000);
+
+    return () => {
+      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    };
+  }, [nextDeliveryTime]);
 
   const handleDeliveryAccept = (delivery: SpecialDelivery) => {
     const spendCoins = useGameStore.getState().spendCoins;
@@ -301,6 +324,30 @@ export function ShopScreen() {
       >
         <CoinCounter />
       </div>
+
+      {/* Special delivery countdown */}
+      {nextDeliveryTime && !activeDelivery && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: 'rgba(255, 107, 157, 0.95)',
+            color: '#FFF',
+            padding: '12px 24px',
+            borderRadius: '20px',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            zIndex: 9,
+            boxShadow: '0 4px 12px rgba(255, 107, 157, 0.4)',
+            pointerEvents: 'none',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          🚚 Special delivery truck in: {countdownDisplay}
+        </div>
+      )}
 
       {/* Edit Layout button — top-left (dev only) */}
       {import.meta.env.DEV && (
