@@ -153,29 +153,6 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
             padding: '12px',
           }}
         >
-          {/* "Special Delivery!" label */}
-          {!showContents && (
-            <div
-              style={{
-                position: 'absolute',
-                top: '-16px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                background: '#FF6B9D',
-                color: '#FFF',
-                padding: '2px 8px',
-                borderRadius: '12px',
-                fontSize: '9px',
-                fontWeight: 'bold',
-                whiteSpace: 'nowrap',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-                zIndex: 10,
-              }}
-            >
-              ✨ Special Delivery!
-            </div>
-          )}
-
           {/* Truck - clickable to show contents */}
           {!showContents && !isAccepted && (
             <div
@@ -206,17 +183,6 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
                   userSelect: 'none',
                 }}
               />
-              <div
-                style={{
-                  textAlign: 'center',
-                  fontSize: '10px',
-                  color: '#999',
-                  marginTop: '4px',
-                  fontWeight: 'bold',
-                }}
-              >
-                Tap to open
-              </div>
             </div>
           )}
 
