@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { loadNPCCustomizationConfig } from './NPCCustomizer';
 
 const NPC_IMAGES = [
@@ -70,7 +70,10 @@ interface CustomerNPCOverlayProps {
 export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOverlayProps) {
   const [phase, setPhase] = useState<'entering' | 'visible' | 'leaving'>('entering');
   const [showDeclineLine, setShowDeclineLine] = useState<string | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState(10);
   const npcConfig = useMemo(() => loadNPCCustomizationConfig(), []);
+  const autoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // After entering animation completes, switch to visible
   useEffect(() => {
@@ -78,12 +81,44 @@ export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOv
     return () => clearTimeout(t);
   }, []);
 
+  // Handle 10-second countdown and auto-dismiss
+  useEffect(() => {
+    if (phase === 'visible' && !showDeclineLine) {
+      // Start countdown
+      countdownIntervalRef.current = setInterval(() => {
+        setTimeRemaining((prev) => {
+          if (prev <= 1) {
+            // Time's up - auto-dismiss
+            if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+            setPhase('leaving');
+            if (autoTimeoutRef.current) clearTimeout(autoTimeoutRef.current);
+            autoTimeoutRef.current = setTimeout(() => onDecline(), 500);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => {
+        if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+      };
+    }
+  }, [phase, showDeclineLine, onDecline]);
+
   const handleAccept = () => {
+    // Clear timers
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    if (autoTimeoutRef.current) clearTimeout(autoTimeoutRef.current);
+
     setPhase('leaving');
     setTimeout(() => onAccept(), 500);
   };
 
   const handleDecline = () => {
+    // Clear timers
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    if (autoTimeoutRef.current) clearTimeout(autoTimeoutRef.current);
+
     const line = DECLINE_LINES[Math.floor(Math.random() * DECLINE_LINES.length)]!;
     setShowDeclineLine(line);
     setTimeout(() => {
@@ -131,9 +166,31 @@ export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOv
               lineHeight: 1.3,
               boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
               position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px',
             }}
           >
-            {showDeclineLine ?? visit.message}
+            <div>{showDeclineLine ?? visit.message}</div>
+
+            {/* Timer display */}
+            {!showDeclineLine && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  fontSize: '11px',
+                  color: timeRemaining <= 3 ? '#C85A3A' : '#999',
+                  fontWeight: 'bold',
+                  opacity: 0.8,
+                }}
+              >
+                <span>⏱️</span>
+                <span>{timeRemaining}s</span>
+              </div>
+            )}
+
             {/* Chat bubble tail pointing right-down */}
             <div
               style={{
