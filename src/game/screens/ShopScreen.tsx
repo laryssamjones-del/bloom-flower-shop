@@ -167,9 +167,9 @@ export function ShopScreen() {
     setShelfPurchaseNPC(null);
   };
 
-  // Schedule special deliveries (30 sec for dev, 15 min for production)
+  // Schedule special deliveries (30 sec for testing, 15 min for production)
   const scheduleNextDelivery = () => {
-    const delay = import.meta.env.DEV ? 30 * 1000 : 15 * 60 * 1000; // 30 sec (dev) or 15 min (prod)
+    const delay = 30 * 1000; // 30 sec for testing
     const nextTime = Date.now() + delay;
     localStorage.setItem('nextDeliveryTime', nextTime.toString());
 
