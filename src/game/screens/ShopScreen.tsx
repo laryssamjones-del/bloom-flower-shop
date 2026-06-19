@@ -315,7 +315,8 @@ export function ShopScreen() {
 
 
       {/* Edit Layout button — top-left (dev only) */}
-      <div style={{ position: 'fixed', top: '20px', left: '20px', display: 'flex', gap: '12px', zIndex: 10000 }}>
+      {import.meta.env.DEV && (
+        <div style={{ position: 'fixed', top: '20px', left: '20px', display: 'flex', gap: '12px', zIndex: 10000 }}>
           <button
             onClick={() => {
               setEditingLayout(true);
@@ -359,6 +360,7 @@ export function ShopScreen() {
             👤 NPC
           </button>
         </div>
+      )}
 
       {/* Shelf bouquet display — positioned via saved layout config */}
       {shelfRows.map((row, rowIdx) => {
