@@ -101,7 +101,7 @@ export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOv
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-end',
-        zIndex: 30,
+        zIndex: 8,
         animation: isLeaving
           ? 'npcSlideOut 0.5s ease-in forwards'
           : 'npcSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
@@ -210,7 +210,7 @@ export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOv
         src={visit.npcImage}
         alt="Customer"
         style={{
-          height: '300px',
+          height: '420px',
           width: 'auto',
           objectFit: 'contain',
           filter: 'drop-shadow(-4px 0 8px rgba(0,0,0,0.25))',
