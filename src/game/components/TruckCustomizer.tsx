@@ -1,5 +1,11 @@
 import { useState, useRef, useCallback } from 'react';
 
+// Mobile ratio constraints (9:16)
+const MOBILE_RATIO = 9 / 16; // 0.5625
+const MOBILE_SAFE_AREA_WIDTH = MOBILE_RATIO * 100; // ~56.25% of viewport width
+const MOBILE_MIN_LEFT = (100 - MOBILE_SAFE_AREA_WIDTH) / 2; // ~21.875%
+const MOBILE_MAX_LEFT = MOBILE_MIN_LEFT + MOBILE_SAFE_AREA_WIDTH; // ~78.125%
+
 export interface TruckCustomizationConfig {
   width: number; // px
   topOffset: number; // px from top
@@ -9,7 +15,7 @@ export interface TruckCustomizationConfig {
 const DEFAULT_CONFIG: TruckCustomizationConfig = {
   width: 80,
   topOffset: 0,
-  leftOffset: 50, // center
+  leftOffset: 50, // center (within safe area)
 };
 
 const STORAGE_KEY = 'bloomy_truck_customization';
@@ -71,7 +77,11 @@ export function TruckCustomizer({ onClose }: Props) {
 
       // Use viewport width for percentage calculation to match delivery overlay positioning
       const viewportWidth = window.innerWidth;
-      const newLeftOffset = Math.max(0, Math.min(100, truckDragStartRef.current.offsetX + (dx / viewportWidth) * 100));
+      const percentageChange = (dx / viewportWidth) * 100;
+      const newLeftOffset = Math.max(
+        MOBILE_MIN_LEFT,
+        Math.min(MOBILE_MAX_LEFT, truckDragStartRef.current.offsetX + percentageChange)
+      );
       const newTopOffset = Math.max(0, truckDragStartRef.current.offsetY + dy);
 
       setConfig((prev) => ({
@@ -262,8 +272,11 @@ export function TruckCustomizer({ onClose }: Props) {
         </div>
 
         {/* Position info */}
-        <div style={{ fontSize: '10px', color: '#999', textAlign: 'center' }}>
-          Position: {Math.round(config.leftOffset)}% from left
+        <div style={{ fontSize: '10px', color: '#999', textAlign: 'center', lineHeight: 1.4 }}>
+          <div>Position: {Math.round(config.leftOffset)}% from left</div>
+          <div style={{ fontSize: '9px', color: '#BBB', marginTop: '4px' }}>
+            Mobile safe area: {Math.round(MOBILE_MIN_LEFT)}% — {Math.round(MOBILE_MAX_LEFT)}%
+          </div>
         </div>
 
         {/* Buttons */}
