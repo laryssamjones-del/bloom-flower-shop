@@ -391,33 +391,6 @@ export function ShopScreen() {
         </div>
       )}
 
-      {/* Dev truck customizer - always visible for testing */}
-      <button
-        onClick={() => {
-          setCustomizingTruck(true);
-          RundotGameAPI.analytics.recordCustomEvent('truck_customizer_opened');
-        }}
-        style={{
-          position: 'fixed',
-          top: '20px',
-          left: '180px',
-          background: '#FFD700',
-          border: '3px solid #000',
-          borderRadius: '8px',
-          padding: '10px 16px',
-          fontSize: '16px',
-          fontWeight: 'bold',
-          cursor: 'pointer',
-          boxShadow: '0 6px 16px rgba(0,0,0,0.4)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          zIndex: 10000,
-        }}
-      >
-        🚚 Truck
-      </button>
-
       {/* Shelf bouquet display — positioned via saved layout config */}
       {shelfRows.map((row, rowIdx) => {
         const shelfPos = shelfConfig.shelves[rowIdx];
