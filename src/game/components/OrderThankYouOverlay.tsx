@@ -33,8 +33,8 @@ export function OrderThankYouOverlay({ customerImage, onComplete }: OrderThankYo
   }, [phase, onComplete]);
 
   const getTransform = () => {
-    if (phase === 'entering') return 'translateX(-120%)';
-    if (phase === 'leaving') return 'translateX(120%)';
+    if (phase === 'entering') return 'translateX(120%)';
+    if (phase === 'leaving') return 'translateX(-120%)';
     return 'translateX(0)';
   };
 
