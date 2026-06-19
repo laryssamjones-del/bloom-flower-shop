@@ -12,6 +12,7 @@ import {
 import { FLOWERS, INITIAL_UNLOCKED_FLOWERS, CUSTOMER_MOODS } from '../constants/flowers';
 import { BOUQUET_RECIPES, getRecipeById } from '../data/bouquets';
 import { MYSTERY_BOX_COST_RUN_BUCKS, getRandomMysteryBouquet } from '../data/mysteryBox';
+import { FlowerTier, getUnlockedFlowersAt } from '../data/progression';
 
 const STARTING_COINS = 1250;
 const MAX_INVENTORY_STEMS = 200;
@@ -52,6 +53,8 @@ const createInitialState = (): ShopState => ({
   unlockedFlowers: new Set(INITIAL_UNLOCKED_FLOWERS),
   unlockedRibbons: ['blush', 'ivory'],
   unlockedWrappings: ['plain-white', 'kraft'],
+  cumulativeBouquetsSold: 0,
+  unlockedTiers: new Set<FlowerTier>(['budget']),
 
   // Daily limits
   dailyPurchases: {},
@@ -133,6 +136,10 @@ interface GameStoreActions {
   unlockFlower: (flowerId: string) => void;
   unlockRibbon: (ribbon: RibbonColor) => void;
   unlockWrapping: (wrapping: WrappingPaperType) => void;
+  unlockTier: (tier: FlowerTier) => void;
+  isFlowerUnlocked: (flowerId: string) => boolean;
+  isTierUnlocked: (tier: FlowerTier) => boolean;
+  getCumulativeBouquetsSold: () => number;
 
   // Save/load
   saveGameState: () => void;
@@ -494,8 +501,20 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     const price = priceOverride || bouquet.sellPrice;
     state.addCoins(price);
     state.removeBouquetFromShelf(bouquetId);
+
+    const newCumulativeSales = state.cumulativeBouquetsSold + 1;
+    const newUnlockedFlowers = new Set(state.unlockedFlowers);
+    const newUnlockedTiers = new Set(state.unlockedTiers);
+
+    // Check for flower unlocks at new sales count
+    const availableFlowers = getUnlockedFlowersAt(newCumulativeSales);
+    availableFlowers.forEach((flowerId) => newUnlockedFlowers.add(flowerId));
+
     set((s) => ({
       totalCustomersServed: s.totalCustomersServed + 1,
+      cumulativeBouquetsSold: newCumulativeSales,
+      unlockedFlowers: newUnlockedFlowers,
+      unlockedTiers: newUnlockedTiers,
       lastUpdated: Date.now(),
     }));
 
@@ -558,10 +577,21 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
 
     if (!order) return;
 
+    const newCumulativeSales = state.cumulativeBouquetsSold + 1;
+    const newUnlockedFlowers = new Set(state.unlockedFlowers);
+    const newUnlockedTiers = new Set(state.unlockedTiers);
+
+    // Check for flower unlocks at new sales count
+    const availableFlowers = getUnlockedFlowersAt(newCumulativeSales);
+    availableFlowers.forEach((flowerId) => newUnlockedFlowers.add(flowerId));
+
     set((s) => ({
       pendingOrders: s.pendingOrders.filter((o) => o.id !== orderId),
       completedOrders: [...s.completedOrders, { ...order, status: 'completed' }],
       totalCustomersServed: s.totalCustomersServed + 1,
+      cumulativeBouquetsSold: newCumulativeSales,
+      unlockedFlowers: newUnlockedFlowers,
+      unlockedTiers: newUnlockedTiers,
       lastUpdated: Date.now(),
     }));
 
@@ -667,6 +697,24 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     }));
   },
 
+  unlockTier: (tier: FlowerTier) => {
+    set((s) => ({
+      unlockedTiers: new Set([...s.unlockedTiers, tier]),
+    }));
+  },
+
+  isFlowerUnlocked: (flowerId: string) => {
+    return get().unlockedFlowers.has(flowerId);
+  },
+
+  isTierUnlocked: (tier: FlowerTier) => {
+    return get().unlockedTiers.has(tier);
+  },
+
+  getCumulativeBouquetsSold: () => {
+    return get().cumulativeBouquetsSold;
+  },
+
   // Save/load - uses both localStorage for quick access and SDK storage for persistence
   saveGameState: async () => {
     const state = get();
@@ -684,6 +732,8 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       unlockedFlowers: Array.from(state.unlockedFlowers),
       unlockedRibbons: state.unlockedRibbons,
       unlockedWrappings: state.unlockedWrappings,
+      cumulativeBouquetsSold: state.cumulativeBouquetsSold,
+      unlockedTiers: Array.from(state.unlockedTiers),
     };
 
     // Save to localStorage first for quick access
@@ -711,6 +761,9 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
         const unlockedFlowers = new Set(
           Array.isArray(data['unlockedFlowers']) ? (data['unlockedFlowers'] as string[]) : []
         );
+        const unlockedTiers = new Set(
+          Array.isArray(data['unlockedTiers']) ? (data['unlockedTiers'] as FlowerTier[]) : ['budget']
+        );
         // Boost coins to 650 if needed
         const coins = typeof data['coins'] === 'number' ? (data['coins'] as number) : 50;
         const boostedCoins = coins < 650 ? 650 : coins;
@@ -728,6 +781,8 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
           unlockedFlowers,
           unlockedRibbons: Array.isArray(data['unlockedRibbons']) ? (data['unlockedRibbons'] as RibbonColor[]) : ['blush', 'ivory'],
           unlockedWrappings: Array.isArray(data['unlockedWrappings']) ? (data['unlockedWrappings'] as WrappingPaperType[]) : ['plain-white', 'kraft'],
+          cumulativeBouquetsSold: typeof data['cumulativeBouquetsSold'] === 'number' ? (data['cumulativeBouquetsSold'] as number) : 0,
+          unlockedTiers,
           lastUpdated: Date.now(),
         });
       }
@@ -739,6 +794,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
         try {
           const parsed = JSON.parse(saved);
           const unlockedFlowers = new Set(parsed.unlockedFlowers || []);
+          const unlockedTiers = new Set(parsed.unlockedTiers || ['budget']);
           // Boost coins to 650 if needed
           const coins = parsed.coins < 650 ? 650 : parsed.coins;
           set({
@@ -747,6 +803,8 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
             premiumCurrency: parsed.premiumCurrency ?? 0,
             mysteryBouquets: parsed.mysteryBouquets ?? [],
             unlockedFlowers,
+            unlockedTiers,
+            cumulativeBouquetsSold: parsed.cumulativeBouquetsSold ?? 0,
             lastUpdated: Date.now(),
           });
         } catch {

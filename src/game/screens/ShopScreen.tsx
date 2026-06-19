@@ -18,6 +18,7 @@ import {
 } from '../components/SpecialDeliveryOverlay';
 import { NPCCustomizer } from '../components/NPCCustomizer';
 import { TruckCustomizer } from '../components/TruckCustomizer';
+import { FlowerUnlockNotification } from '../components/FlowerUnlockNotification';
 import { Bouquet } from '../../types';
 import { BOUQUET_RECIPES } from '../../data/bouquets';
 
@@ -36,9 +37,46 @@ export function ShopScreen() {
   const sellBouquet = useGameStore((s) => s.sellBouquet);
   const removeBouquetFromShelf = useGameStore((s) => s.removeBouquetFromShelf);
   const createOrder = useGameStore((s) => s.createOrder);
+  const unlockedFlowers = useGameStore((s) => s.unlockedFlowers);
 
   const [longPressId, setLongPressId] = useState<string | null>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Track flower unlocks for notifications
+  const [pendingUnlockNotifications, setPendingUnlockNotifications] = useState<string[]>([]);
+  const [currentUnlock, setCurrentUnlock] = useState<string | null>(null);
+  const previousUnlockedFlowers = useRef<Set<string>>(new Set(unlockedFlowers));
+
+  // Detect new flower unlocks
+  useEffect(() => {
+    const newFlowers: string[] = [];
+    for (const flowerId of unlockedFlowers) {
+      if (!previousUnlockedFlowers.current.has(flowerId)) {
+        newFlowers.push(flowerId);
+      }
+    }
+
+    if (newFlowers.length > 0) {
+      setPendingUnlockNotifications((prev) => [...prev, ...newFlowers]);
+      previousUnlockedFlowers.current = new Set(unlockedFlowers);
+    }
+  }, [unlockedFlowers]);
+
+  // Show unlock notifications one at a time
+  useEffect(() => {
+    if (currentUnlock === null && pendingUnlockNotifications.length > 0) {
+      const nextUnlock = pendingUnlockNotifications[0];
+      setCurrentUnlock(nextUnlock);
+      RundotGameAPI.analytics.recordCustomEvent('flower_unlocked', {
+        flowerId: nextUnlock,
+      });
+    }
+  }, [currentUnlock, pendingUnlockNotifications]);
+
+  const handleUnlockNotificationComplete = () => {
+    setPendingUnlockNotifications((prev) => prev.slice(1));
+    setCurrentUnlock(null);
+  };
 
   // Active NPC visit (order requests)
   const [activeVisit, setActiveVisit] = useState<NPCVisit | null>(null);
@@ -543,6 +581,14 @@ export function ShopScreen() {
 
       {/* Truck Customizer overlay */}
       {customizingTruck && <TruckCustomizer onClose={handleTruckCustomizerClose} />}
+
+      {/* Flower Unlock Notification */}
+      {currentUnlock && (
+        <FlowerUnlockNotification
+          flowerId={currentUnlock}
+          onComplete={handleUnlockNotificationComplete}
+        />
+      )}
     </div>
   );
 }

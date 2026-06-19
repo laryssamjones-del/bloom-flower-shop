@@ -4,6 +4,7 @@ import { FLOWERS, GREENERY, INITIAL_UNLOCKED_FLOWERS } from '../../constants/flo
 import { MYSTERY_BOX_COST_RUN_BUCKS } from '../../data/mysteryBox';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { ScreenNavigation } from '../components/ScreenNavigation';
+import { getNextFlowerUnlock, isFlowerUnlockedAt } from '../../data/progression';
 
 type BulkOption = 1 | 5 | 10 | 20;
 
@@ -28,6 +29,8 @@ export function WholesaleMarketScreen() {
   const getOrderForShopping = useGameStore((s) => s.getOrderForShopping);
   const setShoppingForOrderId = useGameStore((s) => s.setShoppingForOrderId);
   const inventory = useGameStore((s) => s.inventory);
+  const unlockedFlowers = useGameStore((s) => s.unlockedFlowers);
+  const cumulativeBouquetsSold = useGameStore((s) => s.cumulativeBouquetsSold);
 
   const [selectedFlower, setSelectedFlower] = useState<string | null>(null);
   const [selectedBulk, setSelectedBulk] = useState<number>(1);
@@ -76,13 +79,20 @@ export function WholesaleMarketScreen() {
     };
   }, []);
 
-  const availableFlowers = Array.from(INITIAL_UNLOCKED_FLOWERS);
+  // Use player's unlocked flowers instead of initial set
+  const availableFlowers = Array.from(unlockedFlowers).filter((id) => FLOWERS[id]);
   const availableGreenery = Object.keys(GREENERY);
+  const allFlowerIds = Object.keys(FLOWERS);
 
   const getItem = (id: string) => FLOWERS[id] || (GREENERY as Record<string, any>)[id];
 
   // Sort all items alphabetically by name
-  const allAvailable = [...availableFlowers, ...availableGreenery].sort((a, b) => {
+  // Include both unlocked flowers and greenery, plus locked flowers
+  const allAvailable = [
+    ...availableFlowers,
+    ...availableGreenery,
+    ...allFlowerIds.filter((id) => !unlockedFlowers.has(id)), // Locked flowers
+  ].sort((a, b) => {
     const itemA = getItem(a);
     const itemB = getItem(b);
     if (!itemA || !itemB) return 0;
@@ -146,8 +156,10 @@ export function WholesaleMarketScreen() {
     let itemsBought = 0;
     const purchases: { itemId: string; cost: number }[] = [];
 
-    // Try to buy 1 of each item
+    // Try to buy 1 of each item (skip locked flowers)
     for (const itemId of allAvailable) {
+      if (!unlockedFlowers.has(itemId)) continue; // Skip locked flowers
+
       const item = getItem(itemId);
       if (!item) continue;
 
@@ -355,16 +367,21 @@ export function WholesaleMarketScreen() {
 
             const isSelected = selectedFlower === itemId;
             const isGreenery = availableGreenery.includes(itemId);
+            const isLocked = !unlockedFlowers.has(itemId);
             const neededQuantity = neededFlowersMap.get(itemId);
 
             // Calculate remaining needed after inventory
             const inventoryQuantity = inventory.find((stem) => stem.flowerId === itemId)?.quantity || 0;
             const remainingNeeded = neededQuantity !== undefined ? Math.max(0, neededQuantity - inventoryQuantity) : undefined;
 
+            // Get next unlock milestone for locked flowers
+            const nextUnlock = isLocked ? getNextFlowerUnlock(cumulativeBouquetsSold) : null;
+
             return (
               <div
                 key={itemId}
                 onClick={() => {
+                  if (isLocked) return; // Can't select locked flowers
                   if (isSelected) {
                     setSelectedFlower(null);
                   } else {
@@ -372,21 +389,56 @@ export function WholesaleMarketScreen() {
                     setSelectedBulk(1);
                   }
                 }}
+                title={isLocked && nextUnlock ? `Unlock at ${nextUnlock.unlockedAt} bouquets sold` : item.name}
                 style={{
                   padding: '8px',
-                  background: isSelected ? 'rgba(100,150,100,0.3)' : 'rgba(255,255,255,0.5)',
-                  border: isSelected ? '2px solid #6A9A50' : '2px solid #DDD',
+                  background: isLocked
+                    ? 'rgba(0,0,0,0.1)'
+                    : isSelected
+                    ? 'rgba(100,150,100,0.3)'
+                    : 'rgba(255,255,255,0.5)',
+                  border: isLocked
+                    ? '2px solid #CCC'
+                    : isSelected
+                    ? '2px solid #6A9A50'
+                    : '2px solid #DDD',
                   borderRadius: '6px',
-                  cursor: 'pointer',
+                  cursor: isLocked ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   gap: '4px',
-                  opacity: isGreenery ? 0.9 : 1,
+                  opacity: isLocked ? 0.6 : isGreenery ? 0.9 : 1,
                   position: 'relative',
+                  filter: isLocked ? 'grayscale(100%)' : 'none',
                 }}
               >
-                {remainingNeeded !== undefined && remainingNeeded > 0 && (
+                {isLocked && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '4px',
+                      right: '4px',
+                      background: '#FF69B4',
+                      color: 'white',
+                      width: '24px',
+                      height: '24px',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      border: '2px solid white',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                    }}
+                    title={nextUnlock ? `Unlock at ${nextUnlock.unlockedAt} bouquets` : 'Locked'}
+                  >
+                    🔒
+                  </div>
+                )}
+
+                {remainingNeeded !== undefined && remainingNeeded > 0 && !isLocked && (
                   <div
                     style={{
                       position: 'absolute',
@@ -404,6 +456,7 @@ export function WholesaleMarketScreen() {
                     {remainingNeeded}
                   </div>
                 )}
+
                 <img
                   src={item.spriteUrl}
                   alt={item.name}
@@ -422,14 +475,27 @@ export function WholesaleMarketScreen() {
                 >
                   {item.name}
                 </div>
-                <div
-                  style={{
-                    fontSize: '11px',
-                    color: '#666',
-                  }}
-                >
-                  {item.pricePerStem} 🌼/stem
-                </div>
+                {isLocked && nextUnlock ? (
+                  <div
+                    style={{
+                      fontSize: '10px',
+                      color: '#FF69B4',
+                      fontWeight: 'bold',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {nextUnlock.unlockedAt} sales
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      fontSize: '11px',
+                      color: '#666',
+                    }}
+                  >
+                    {item.pricePerStem} 🌼/stem
+                  </div>
+                )}
               </div>
             );
           })}
@@ -438,10 +504,13 @@ export function WholesaleMarketScreen() {
         {/* Buy All Items Button */}
         {(() => {
           let totalCostForAll = 0;
+          let unlockedCount = 0;
           for (const itemId of allAvailable) {
+            if (!unlockedFlowers.has(itemId)) continue; // Skip locked flowers
             const item = getItem(itemId);
             if (item) {
               totalCostForAll += item.pricePerStem;
+              unlockedCount++;
             }
           }
 
@@ -461,7 +530,7 @@ export function WholesaleMarketScreen() {
                 marginTop: '12px',
               }}
             >
-              🌸 Buy 1 of Each ({totalCostForAll} 🌼)
+              🌸 Buy 1 of Each ({unlockedCount} unlocked, {totalCostForAll} 🌼)
             </button>
           );
         })()}
