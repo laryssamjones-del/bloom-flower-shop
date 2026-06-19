@@ -3,6 +3,7 @@ import { useGameStore } from '../../stores/gameStore';
 import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { CoinCounter } from '../components/CoinCounter';
+import { RunBucksCounter } from '../components/RunBucksCounter';
 import { BottomTabNavigation } from '../components/BottomTabNavigation';
 import { CustomerNPCOverlay, NPCVisit, createNPCVisit } from '../components/CustomerNPCOverlay';
 import { ShelfPurchaseNPC } from '../components/ShelfPurchaseNPC';
@@ -455,16 +456,21 @@ export function ShopScreen() {
         <span>Level {getCurrentLevel(cumulativeBouquetsSold)} ({getLevelProgress(cumulativeBouquetsSold)[0]}/{getLevelProgress(cumulativeBouquetsSold)[1]})</span>
       </div>
 
-      {/* Top bar with coin counter */}
+      {/* Top bar with coin and RunBucks counters */}
       <div
         style={{
           position: 'absolute',
           top: '12px',
           right: '12px',
           zIndex: 10,
+          display: 'flex',
+          gap: '12px',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
         }}
       >
         <CoinCounter />
+        <RunBucksCounter />
       </div>
 
 

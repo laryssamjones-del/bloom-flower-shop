@@ -5,6 +5,7 @@ import { MYSTERY_BOX_COST_RUN_BUCKS } from '../../data/mysteryBox';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { ScreenNavigation } from '../components/ScreenNavigation';
 import { generateSpecialDelivery } from '../components/SpecialDeliveryOverlay';
+import { openPlatformStore } from '../../services/iap';
 
 type BulkOption = 1 | 5 | 10 | 20;
 
@@ -36,6 +37,7 @@ export function WholesaleMarketScreen() {
   const [misterySuccessMessage, setMysterySuccessMessage] = useState<string | null>(null);
   const [deliverySuccessMessage, setDeliverySuccessMessage] = useState<string | null>(null);
   const [countdownDisplay, setCountdownDisplay] = useState<string>('8:00:00');
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
   const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Countdown timer effect
@@ -78,6 +80,15 @@ export function WholesaleMarketScreen() {
       }
     };
   }, []);
+
+  // Track premium modal open
+  useEffect(() => {
+    if (showPremiumModal) {
+      RundotGameAPI.analytics.recordCustomEvent('premium_modal_opened', {
+        currentBalance: premiumCurrency,
+      });
+    }
+  }, [showPremiumModal]);
 
   // All flowers and greenery are available for purchase in the shop
   const availableFlowers = Object.keys(FLOWERS);
@@ -301,23 +312,41 @@ export function WholesaleMarketScreen() {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
+          gap: '12px',
         }}
       >
         <h1 style={{ margin: 0, fontSize: '18px' }}>🛍️ Shop</h1>
-        <button
-          onClick={() => setCurrentScreen('shop')}
-          style={{
-            padding: '8px 12px',
-            background: '#B8A890',
-            color: '#F5E6D3',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '12px',
-          }}
-        >
-          Back to Shop
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            onClick={() => setShowPremiumModal(true)}
+            style={{
+              padding: '8px 12px',
+              background: '#DA70D6',
+              color: '#FFF',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '12px',
+              fontWeight: 'bold',
+            }}
+          >
+            💎 Premium
+          </button>
+          <button
+            onClick={() => setCurrentScreen('shop')}
+            style={{
+              padding: '8px 12px',
+              background: '#B8A890',
+              color: '#F5E6D3',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '12px',
+            }}
+          >
+            Back to Shop
+          </button>
+        </div>
       </div>
 
       {/* Quick Navigation */}
@@ -700,8 +729,8 @@ export function WholesaleMarketScreen() {
           </button>
         </div>
 
-        {/* Mystery Box Section — hidden until ready */}
-        {false && <div
+        {/* Mystery Box Section */}
+        <div
           style={{
             marginTop: '24px',
             padding: '16px',
@@ -765,8 +794,95 @@ export function WholesaleMarketScreen() {
           >
             {premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS ? '❌ Not enough Run Bucks' : '🎲 Unlock Mystery Box'}
           </button>
-        </div>}
+        </div>
       </div>
+
+      {/* Premium Modal */}
+      {showPremiumModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.6)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 100,
+          }}
+          onClick={() => setShowPremiumModal(false)}
+        >
+          <div
+            style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '24px',
+              maxWidth: '400px',
+              width: '90%',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#333' }}>💎 Premium RunBucks</h2>
+            <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#666', lineHeight: 1.5 }}>
+              You currently have <strong>{premiumCurrency} 💎 Run Bucks</strong>
+            </p>
+            <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: '#888', lineHeight: 1.5 }}>
+              Use Run Bucks to unlock premium content like special deliveries and exclusive items!
+            </p>
+            <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
+              <button
+                onClick={async () => {
+                  RundotGameAPI.analytics.recordCustomEvent('premium_get_runbucks_clicked', {
+                    currentBalance: premiumCurrency,
+                  });
+                  try {
+                    const result = await openPlatformStore();
+                    if (result.purchased && result.newBalance !== undefined) {
+                      useGameStore.setState({ premiumCurrency: result.newBalance });
+                      RundotGameAPI.analytics.recordCustomEvent('runbucks_purchased', {
+                        newBalance: result.newBalance,
+                      });
+                    }
+                  } catch (err) {
+                    console.error('Failed to open platform store:', err);
+                  }
+                  setShowPremiumModal(false);
+                }}
+                style={{
+                  padding: '12px',
+                  background: '#DA70D6',
+                  color: '#FFF',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                }}
+              >
+                ✨ Get Run Bucks
+              </button>
+              <button
+                onClick={() => setShowPremiumModal(false)}
+                style={{
+                  padding: '12px',
+                  background: '#DDD',
+                  color: '#333',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Fixed Purchase Details Panel */}
       {selectedFlower && (
