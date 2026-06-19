@@ -24,6 +24,9 @@ export function WholesaleMarketScreen() {
   const recordDailyPurchase = useGameStore((s) => s.recordDailyPurchase);
   const purchaseMysteryBox = useGameStore((s) => s.purchaseMysteryBox);
   const dailyPurchases = useGameStore((s) => s.dailyPurchases);
+  const shoppingForOrderId = useGameStore((s) => s.shoppingForOrderId);
+  const getOrderForShopping = useGameStore((s) => s.getOrderForShopping);
+  const setShoppingForOrderId = useGameStore((s) => s.setShoppingForOrderId);
 
   const [selectedFlower, setSelectedFlower] = useState<string | null>(null);
   const [selectedBulk, setSelectedBulk] = useState<number>(1);
@@ -47,6 +50,28 @@ export function WholesaleMarketScreen() {
 
     return () => {
       if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    };
+  }, []);
+
+  // Build map of needed flowers when shopping for an order
+  const neededFlowersMap = (() => {
+    if (!shoppingForOrderId) return new Map<string, number>();
+    const order = getOrderForShopping(shoppingForOrderId);
+    if (!order) return new Map<string, number>();
+
+    const map = new Map<string, number>();
+    order.requiredStems.forEach((stem) => {
+      map.set(stem.flowerId, (map.get(stem.flowerId) || 0) + 1);
+    });
+    return map;
+  })();
+
+  // Clear shopping context on unmount
+  useEffect(() => {
+    return () => {
+      if (shoppingForOrderId) {
+        setShoppingForOrderId(undefined);
+      }
     };
   }, []);
 
@@ -226,6 +251,49 @@ export function WholesaleMarketScreen() {
         🚚 Special delivery truck in: {countdownDisplay}
       </div>
 
+      {/* Order context header */}
+      {shoppingForOrderId && (() => {
+        const order = getOrderForShopping(shoppingForOrderId);
+        if (!order) return null;
+        return (
+          <div
+            style={{
+              padding: '12px 16px',
+              background: 'linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(149, 165, 166, 0.2))',
+              borderBottom: '2px solid #3498DB',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: '12px',
+            }}
+          >
+            <div>
+              <div style={{ fontSize: '12px', color: '#555', fontWeight: 'bold' }}>
+                📋 Shopping for order:
+              </div>
+              <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#2C3E50', marginTop: '2px' }}>
+                {order.recipeName} ({order.customerMood})
+              </div>
+            </div>
+            <button
+              onClick={() => setShoppingForOrderId(undefined)}
+              style={{
+                padding: '6px 10px',
+                background: '#E74C3C',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontWeight: 'bold',
+              }}
+            >
+              ✕ Done
+            </button>
+          </div>
+        );
+      })()}
+
       {/* Success message */}
       {successMessage && (
         <div
@@ -286,6 +354,7 @@ export function WholesaleMarketScreen() {
 
             const isSelected = selectedFlower === itemId;
             const isGreenery = availableGreenery.includes(itemId);
+            const neededQuantity = neededFlowersMap.get(itemId);
 
             return (
               <div
@@ -309,8 +378,50 @@ export function WholesaleMarketScreen() {
                   alignItems: 'center',
                   gap: '4px',
                   opacity: isGreenery ? 0.9 : 1,
+                  position: 'relative',
                 }}
               >
+                {neededQuantity !== undefined && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '4px',
+                      right: '4px',
+                      background: '#E74C3C',
+                      color: 'white',
+                      borderRadius: '50%',
+                      width: '24px',
+                      height: '24px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      border: '2px solid white',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                    }}
+                  >
+                    ❌
+                  </div>
+                )}
+                {neededQuantity !== undefined && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: '4px',
+                      right: '4px',
+                      background: '#E74C3C',
+                      color: 'white',
+                      padding: '2px 6px',
+                      borderRadius: '3px',
+                      fontSize: '10px',
+                      fontWeight: 'bold',
+                      border: '1px solid white',
+                    }}
+                  >
+                    {neededQuantity}
+                  </div>
+                )}
                 <img
                   src={item.spriteUrl}
                   alt={item.name}

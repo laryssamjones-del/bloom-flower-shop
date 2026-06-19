@@ -127,6 +127,7 @@ export interface ShopState extends GameState {
   // Recipe system
   selectedRecipeId?: string;    // which recipe the player is currently making
   fulfillOrderId?: string;      // if making a bouquet to fulfill a specific order
+  shoppingForOrderId?: string;  // if shopping for flowers to fulfill a specific order
 }
 
 export interface SpecialBox {

@@ -64,6 +64,7 @@ const createInitialState = (): ShopState => ({
   // UI state
   currentScreen: 'shop',
   stemsInArrangement: [],
+  shoppingForOrderId: undefined,
 });
 
 interface GameStoreActions {
@@ -120,6 +121,8 @@ interface GameStoreActions {
   getPendingOrders: () => Order[];
   triggerNotification: (message: string) => void;
   clearNotification: () => void;
+  setShoppingForOrderId: (orderId?: string) => void;
+  getOrderForShopping: (orderId: string) => Order | undefined;
 
   // Mystery box management
   purchaseMysteryBox: () => boolean;
@@ -582,6 +585,14 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
 
   clearNotification: () => {
     set({ lastNotification: null });
+  },
+
+  setShoppingForOrderId: (orderId?: string) => {
+    set({ shoppingForOrderId: orderId });
+  },
+
+  getOrderForShopping: (orderId: string) => {
+    return get().pendingOrders.find((o) => o.id === orderId);
   },
 
   // Mystery box management

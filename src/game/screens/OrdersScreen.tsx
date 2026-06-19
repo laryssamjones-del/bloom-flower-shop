@@ -27,6 +27,7 @@ export function OrdersScreen() {
   const inventory = useGameStore((s) => s.inventory);
   const canMakeRecipe = useGameStore((s) => s.canMakeRecipe);
   const removeOrder = useGameStore((s) => s.removeOrder);
+  const setShoppingForOrderId = useGameStore((s) => s.setShoppingForOrderId);
 
   const handleFulfillOrder = (orderId: string, recipeId: string) => {
     selectRecipe(recipeId, orderId);
@@ -40,6 +41,12 @@ export function OrdersScreen() {
   const handleDeclineOrder = (orderId: string) => {
     removeOrder(orderId);
     RundotGameAPI.analytics.recordCustomEvent('order_declined', { orderId });
+  };
+
+  const handleBuyFlowersForOrder = (orderId: string) => {
+    setShoppingForOrderId(orderId);
+    setCurrentScreen('wholesale');
+    RundotGameAPI.analytics.recordCustomEvent('order_shopping_started', { orderId });
   };
 
   return (
@@ -204,6 +211,7 @@ export function OrdersScreen() {
                           return (
                             <div
                               key={item.flowerId}
+                              onClick={() => handleBuyFlowersForOrder(order.id)}
                               style={{
                                 display: 'flex',
                                 alignItems: 'center',
@@ -214,6 +222,17 @@ export function OrdersScreen() {
                                   : 'rgba(255,100,100,0.08)',
                                 borderRadius: '4px',
                                 border: `1px solid ${item.ok ? '#6A9A50' : '#E74C3C'}`,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                                transform: 'scale(1)',
+                              }}
+                              onMouseEnter={(e) => {
+                                (e.currentTarget as HTMLElement).style.transform = 'scale(1.05)';
+                                (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+                              }}
+                              onMouseLeave={(e) => {
+                                (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
+                                (e.currentTarget as HTMLElement).style.boxShadow = 'none';
                               }}
                             >
                               {sprite && (
