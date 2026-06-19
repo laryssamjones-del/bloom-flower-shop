@@ -21,11 +21,9 @@ export function BottomTabNavigation({ onSettingsClick }: BottomTabNavigationProp
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(5, 1fr)',
         gap: '6px',
         padding: '8px',
-        paddingLeft: '50px',
-        paddingRight: '50px',
         background: 'rgba(255,255,255,0.3)',
         borderTop: '2px solid rgba(0,0,0,0.1)',
         backdropFilter: 'blur(10px)',
@@ -85,33 +83,31 @@ export function BottomTabNavigation({ onSettingsClick }: BottomTabNavigationProp
         </button>
       ))}
 
-      {/* Settings button in top-right corner */}
+      {/* Settings button */}
       <button
         onClick={() => {
           onSettingsClick();
           RundotGameAPI.analytics.recordCustomEvent('settings_opened');
         }}
         style={{
-          position: 'absolute',
-          top: '50%',
-          right: '8px',
-          transform: 'translateY(-50%)',
-          width: '32px',
-          height: '32px',
+          padding: '8px 6px',
           background: '#F5F0E8',
+          color: '#2A1408',
           border: '2px solid #D4AF37',
           borderRadius: '6px',
           cursor: 'pointer',
-          fontSize: '16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 0,
+          fontSize: '12px',
+          fontWeight: '600',
           transition: 'all 0.2s',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '2px',
+          position: 'relative',
         }}
         onMouseEnter={(e) => {
           (e.currentTarget as HTMLElement).style.background = '#FFFBF5';
-          (e.currentTarget as HTMLElement).style.transform = 'scale(1.1)';
+          (e.currentTarget as HTMLElement).style.transform = 'scale(1.05)';
         }}
         onMouseLeave={(e) => {
           (e.currentTarget as HTMLElement).style.background = '#F5F0E8';
@@ -119,7 +115,8 @@ export function BottomTabNavigation({ onSettingsClick }: BottomTabNavigationProp
         }}
         title="Settings"
       >
-        ⚙️
+        <div style={{ fontSize: '18px' }}>⚙️</div>
+        <div style={{ fontSize: '10px' }}>Settings</div>
       </button>
     </div>
   );
