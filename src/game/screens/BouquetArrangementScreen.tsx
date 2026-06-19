@@ -3,12 +3,26 @@ import { useGameStore } from '../../stores/gameStore';
 import { FLOWERS } from '../../constants/flowers';
 import { GREENERY } from '../../constants/flowers';
 import { BOUQUET_RECIPES, getRecipeById, TIER_LABELS, TIER_COLORS, BouquetTier } from '../../data/bouquets';
+import { FLOWER_TIERS } from '../../data/progression';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { ScreenNavigation } from '../components/ScreenNavigation';
 
 type Phase = 'pick-recipe' | 'check-ingredients';
 
 const TIER_ORDER: BouquetTier[] = ['budget', 'standard', 'premium', 'deluxe'];
+
+// Determine if a tier is unlocked based on cumulative bouquets sold
+function isTierUnlocked(tier: BouquetTier, cumulativeSold: number): boolean {
+  const tierDef = FLOWER_TIERS.find((t) => t.tier === tier);
+  if (!tierDef) return false;
+  return cumulativeSold >= tierDef.unlockedAt;
+}
+
+// Get the unlock requirement for a tier
+function getTierUnlockRequirement(tier: BouquetTier): number {
+  const tierDef = FLOWER_TIERS.find((t) => t.tier === tier);
+  return tierDef?.unlockedAt ?? 0;
+}
 
 function getFlowerOrGreeneryName(flowerId: string): string {
   const flower = FLOWERS[flowerId];
@@ -35,6 +49,7 @@ export function BouquetArrangementScreen() {
   const selectRecipe = useGameStore((s) => s.selectRecipe);
   const clearSelectedRecipe = useGameStore((s) => s.clearSelectedRecipe);
   const inventory = useGameStore((s) => s.inventory);
+  const cumulativeBouquetsSold = useGameStore((s) => s.cumulativeBouquetsSold);
 
   // If a recipe is already selected (e.g. from orders screen), start in ingredient check phase
   const [phase, setPhase] = useState<Phase>(selectedRecipeId ? 'check-ingredients' : 'pick-recipe');
@@ -168,27 +183,32 @@ export function BouquetArrangementScreen() {
             }}
           >
             {filteredRecipes.map((recipe) => {
-              const canMakeThis = canMakeRecipe(recipe.id);
+              const tierUnlocked = isTierUnlocked(recipe.tier, cumulativeBouquetsSold);
+              const canMakeThis = tierUnlocked && canMakeRecipe(recipe.id);
               const invCount = recipe.ingredients.reduce((sum, ing) => {
                 const inv = inventory.find((i) => i.flowerId === ing.flowerId);
                 return sum + Math.min(inv ? inv.quantity : 0, ing.quantity);
               }, 0);
               const totalNeeded = recipe.ingredients.reduce((s, i) => s + i.quantity, 0);
-              const hasPartial = invCount > 0 && !canMakeThis;
+              const hasPartial = tierUnlocked && invCount > 0 && !canMakeThis;
+              const unlockRequirement = getTierUnlockRequirement(recipe.tier);
 
               return (
                 <button
                   key={recipe.id}
-                  onClick={() => handlePickRecipe(recipe.id)}
+                  onClick={() => tierUnlocked && handlePickRecipe(recipe.id)}
+                  disabled={!tierUnlocked}
                   style={{
-                    background: canMakeThis
+                    background: !tierUnlocked
+                      ? 'rgba(0,0,0,0.25)'
+                      : canMakeThis
                       ? 'rgba(255,255,255,0.9)'
                       : hasPartial
                       ? 'rgba(255,255,255,0.6)'
                       : 'rgba(255,255,255,0.4)',
-                    border: `2px solid ${TIER_COLORS[recipe.tier]}`,
+                    border: `2px solid ${!tierUnlocked ? '#999' : TIER_COLORS[recipe.tier]}`,
                     borderRadius: '8px',
-                    cursor: 'pointer',
+                    cursor: tierUnlocked ? 'pointer' : 'not-allowed',
                     padding: '8px',
                     display: 'flex',
                     flexDirection: 'column',
@@ -196,8 +216,26 @@ export function BouquetArrangementScreen() {
                     gap: '4px',
                     textAlign: 'center',
                     animation: canMakeThis ? 'readyGlow 2s ease-in-out infinite' : 'none',
+                    opacity: tierUnlocked ? 1 : 0.5,
+                    filter: tierUnlocked ? 'none' : 'grayscale(100%) brightness(0.8)',
+                    position: 'relative',
                   }}
                 >
+                  {!tierUnlocked && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '32px',
+                        zIndex: 10,
+                      }}
+                    >
+                      🔒
+                    </div>
+                  )}
                   <img
                     src={recipe.imageUrl}
                     alt={recipe.name}
@@ -225,7 +263,12 @@ export function BouquetArrangementScreen() {
                   <div style={{ fontSize: '11px', color: '#6A9A50', fontWeight: 'bold' }}>
                     {recipe.sellPrice} 🌼
                   </div>
-                  {canMakeThis && (
+                  {!tierUnlocked && (
+                    <div style={{ fontSize: '9px', color: '#666', fontWeight: 'bold' }}>
+                      Unlock @ {unlockRequirement} sales
+                    </div>
+                  )}
+                  {tierUnlocked && canMakeThis && (
                     <div style={{ fontSize: '10px', color: '#6A9A50' }}>✅ Ready to make!</div>
                   )}
                   {hasPartial && (

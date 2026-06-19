@@ -82,19 +82,16 @@ export function WholesaleMarketScreen() {
     };
   }, []);
 
-  // Use player's unlocked flowers instead of initial set
-  const availableFlowers = Array.from(unlockedFlowers).filter((id) => FLOWERS[id]);
+  // All flowers and greenery are available for purchase in the shop
+  const availableFlowers = Object.keys(FLOWERS);
   const availableGreenery = Object.keys(GREENERY);
-  const allFlowerIds = Object.keys(FLOWERS);
 
   const getItem = (id: string) => FLOWERS[id] || (GREENERY as Record<string, any>)[id];
 
   // Sort all items alphabetically by name
-  // Include both unlocked flowers and greenery, plus locked flowers
   const allAvailable = [
     ...availableFlowers,
     ...availableGreenery,
-    ...allFlowerIds.filter((id) => !unlockedFlowers.has(id)), // Locked flowers
   ].sort((a, b) => {
     const itemA = getItem(a);
     const itemB = getItem(b);
@@ -159,10 +156,8 @@ export function WholesaleMarketScreen() {
     let itemsBought = 0;
     const purchases: { itemId: string; cost: number }[] = [];
 
-    // Try to buy 1 of each item (skip locked flowers)
+    // Try to buy 1 of each item
     for (const itemId of allAvailable) {
-      if (!unlockedFlowers.has(itemId)) continue; // Skip locked flowers
-
       const item = getItem(itemId);
       if (!item) continue;
 
@@ -467,21 +462,16 @@ export function WholesaleMarketScreen() {
 
             const isSelected = selectedFlower === itemId;
             const isGreenery = availableGreenery.includes(itemId);
-            const isLocked = !unlockedFlowers.has(itemId);
             const neededQuantity = neededFlowersMap.get(itemId);
 
             // Calculate remaining needed after inventory
             const inventoryQuantity = inventory.find((stem) => stem.flowerId === itemId)?.quantity || 0;
             const remainingNeeded = neededQuantity !== undefined ? Math.max(0, neededQuantity - inventoryQuantity) : undefined;
 
-            // Get next unlock milestone for locked flowers
-            const nextUnlock = isLocked ? getNextFlowerUnlock(cumulativeBouquetsSold) : null;
-
             return (
               <div
                 key={itemId}
                 onClick={() => {
-                  if (isLocked) return; // Can't select locked flowers
                   if (isSelected) {
                     setSelectedFlower(null);
                   } else {
@@ -489,56 +479,26 @@ export function WholesaleMarketScreen() {
                     setSelectedBulk(1);
                   }
                 }}
-                title={isLocked && nextUnlock ? `Unlock at ${nextUnlock.unlockedAt} bouquets sold` : item.name}
+                title={item.name}
                 style={{
                   padding: '8px',
-                  background: isLocked
-                    ? 'rgba(0,0,0,0.25)'
-                    : isSelected
+                  background: isSelected
                     ? 'rgba(100,150,100,0.3)'
                     : 'rgba(255,255,255,0.5)',
-                  border: isLocked
-                    ? '2px solid #999'
-                    : isSelected
+                  border: isSelected
                     ? '2px solid #6A9A50'
                     : '2px solid #DDD',
                   borderRadius: '6px',
-                  cursor: isLocked ? 'not-allowed' : 'pointer',
+                  cursor: 'pointer',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   gap: '4px',
-                  opacity: isLocked ? 0.5 : isGreenery ? 0.9 : 1,
+                  opacity: isGreenery ? 0.9 : 1,
                   position: 'relative',
-                  filter: isLocked ? 'grayscale(100%) brightness(0.8)' : 'none',
                 }}
               >
-                {isLocked && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: '4px',
-                      right: '4px',
-                      background: '#666',
-                      color: 'white',
-                      width: '28px',
-                      height: '28px',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '14px',
-                      fontWeight: 'bold',
-                      border: '2px solid #333',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
-                    }}
-                    title={nextUnlock ? `Unlock at ${nextUnlock.unlockedAt} bouquets sold` : 'Tier Locked'}
-                  >
-                    🔒
-                  </div>
-                )}
-
-                {remainingNeeded !== undefined && remainingNeeded > 0 && !isLocked && (
+                {remainingNeeded !== undefined && remainingNeeded > 0 && (
                   <div
                     style={{
                       position: 'absolute',
@@ -575,33 +535,14 @@ export function WholesaleMarketScreen() {
                 >
                   {item.name}
                 </div>
-                {isLocked ? (
-                  <div
-                    style={{
-                      fontSize: '9px',
-                      color: '#666',
-                      fontWeight: 'bold',
-                      textAlign: 'center',
-                      lineHeight: '1.2',
-                    }}
-                  >
-                    <div>🔒 LOCKED</div>
-                    {nextUnlock && (
-                      <div style={{ fontSize: '8px', marginTop: '2px', fontWeight: 'normal' }}>
-                        @ {nextUnlock.unlockedAt} sales
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div
-                    style={{
-                      fontSize: '11px',
-                      color: '#666',
-                    }}
-                  >
-                    {item.pricePerStem} 🌼/stem
-                  </div>
-                )}
+                <div
+                  style={{
+                    fontSize: '11px',
+                    color: '#666',
+                  }}
+                >
+                  {item.pricePerStem} 🌼/stem
+                </div>
               </div>
             );
           })}
@@ -610,13 +551,12 @@ export function WholesaleMarketScreen() {
         {/* Buy All Items Button */}
         {(() => {
           let totalCostForAll = 0;
-          let unlockedCount = 0;
+          let itemCount = 0;
           for (const itemId of allAvailable) {
-            if (!unlockedFlowers.has(itemId)) continue; // Skip locked flowers
             const item = getItem(itemId);
             if (item) {
               totalCostForAll += item.pricePerStem;
-              unlockedCount++;
+              itemCount++;
             }
           }
 
@@ -636,7 +576,7 @@ export function WholesaleMarketScreen() {
                 marginTop: '12px',
               }}
             >
-              🌸 Buy 1 of Each ({unlockedCount} unlocked, {totalCostForAll} 🌼)
+              🌸 Buy 1 of Each ({itemCount} items, {totalCostForAll} 🌼)
             </button>
           );
         })()}
