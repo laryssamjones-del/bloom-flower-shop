@@ -8,6 +8,7 @@ export function CoinCounter() {
       style={{
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'center',
         gap: '8px',
         fontSize: '14px',
         fontWeight: 'bold',
@@ -16,6 +17,7 @@ export function CoinCounter() {
         border: '2px solid #C09840',
         borderRadius: '50px',
         padding: '8px 14px',
+        minWidth: '180px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
         whiteSpace: 'nowrap',
       }}
