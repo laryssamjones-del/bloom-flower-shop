@@ -70,6 +70,8 @@ const createInitialState = (): ShopState => ({
   currentScreen: 'shop',
   stemsInArrangement: [],
   shoppingForOrderId: undefined,
+  neededFlowerId: undefined,
+  neededFlowerQuantity: 0,
   orderJustCompleted: false,
   completedOrderCustomerImage: undefined,
 });
@@ -130,6 +132,7 @@ interface GameStoreActions {
   clearNotification: () => void;
   setShoppingForOrderId: (orderId?: string) => void;
   getOrderForShopping: (orderId: string) => Order | undefined;
+  setNeededFlower: (flowerId?: string, quantity?: number) => void;
 
   // Mystery box management
   purchaseMysteryBox: () => boolean;
@@ -663,6 +666,10 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
 
   setShoppingForOrderId: (orderId?: string) => {
     set({ shoppingForOrderId: orderId });
+  },
+
+  setNeededFlower: (flowerId?: string, quantity?: number) => {
+    set({ neededFlowerId: flowerId, neededFlowerQuantity: quantity ?? 0 });
   },
 
   getOrderForShopping: (orderId: string) => {

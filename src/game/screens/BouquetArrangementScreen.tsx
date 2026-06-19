@@ -42,6 +42,7 @@ function getFlowerOrGreenerySprite(flowerId: string): string {
 
 export function BouquetArrangementScreen() {
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
+  const setNeededFlower = useGameStore((s) => s.setNeededFlower);
   const selectedRecipeId = useGameStore((s) => s.selectedRecipeId);
   const fulfillOrderId = useGameStore((s) => s.fulfillOrderId);
   const canMakeRecipe = useGameStore((s) => s.canMakeRecipe);
@@ -353,9 +354,21 @@ export function BouquetArrangementScreen() {
                   const ok = item.have >= item.needed;
                   const sprite = getFlowerOrGreenerySprite(item.flowerId);
                   const name = getFlowerOrGreeneryName(item.flowerId);
+                  const handleMissingIngredientClick = () => {
+                    if (!ok) {
+                      const neededAmount = item.needed - item.have;
+                      setNeededFlower(item.flowerId, neededAmount);
+                      RundotGameAPI.analytics.recordCustomEvent('missing_ingredient_shop_navigation', {
+                        flowerId: item.flowerId,
+                        neededQuantity: neededAmount,
+                      });
+                      setCurrentScreen('wholesale');
+                    }
+                  };
                   return (
                     <div
                       key={item.flowerId}
+                      onClick={handleMissingIngredientClick}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -364,6 +377,18 @@ export function BouquetArrangementScreen() {
                         background: ok ? 'rgba(106,154,80,0.1)' : 'rgba(255,100,100,0.08)',
                         borderRadius: '6px',
                         border: `1px solid ${ok ? '#6A9A50' : '#E74C3C'}`,
+                        cursor: ok ? 'default' : 'pointer',
+                        transition: ok ? 'none' : 'background-color 0.2s',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!ok) {
+                          (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,100,100,0.15)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!ok) {
+                          (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,100,100,0.08)';
+                        }
                       }}
                     >
                       {sprite && (

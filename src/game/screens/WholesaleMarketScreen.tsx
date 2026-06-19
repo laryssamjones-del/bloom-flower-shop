@@ -29,6 +29,9 @@ export function WholesaleMarketScreen() {
   const shoppingForOrderId = useGameStore((s) => s.shoppingForOrderId);
   const getOrderForShopping = useGameStore((s) => s.getOrderForShopping);
   const setShoppingForOrderId = useGameStore((s) => s.setShoppingForOrderId);
+  const neededFlowerId = useGameStore((s) => s.neededFlowerId);
+  const neededFlowerQuantity = useGameStore((s) => s.neededFlowerQuantity);
+  const setNeededFlower = useGameStore((s) => s.setNeededFlower);
   const inventory = useGameStore((s) => s.inventory);
 
   const [selectedFlower, setSelectedFlower] = useState<string | null>(null);
@@ -60,16 +63,25 @@ export function WholesaleMarketScreen() {
     };
   }, []);
 
-  // Build map of needed flowers when shopping for an order
+  // Build map of needed flowers when shopping for an order or arrangement
   const neededFlowersMap = (() => {
-    if (!shoppingForOrderId) return new Map<string, number>();
-    const order = getOrderForShopping(shoppingForOrderId);
-    if (!order) return new Map<string, number>();
-
     const map = new Map<string, number>();
-    order.requiredStems.forEach((stem) => {
-      map.set(stem.flowerId, (map.get(stem.flowerId) || 0) + 1);
-    });
+
+    // From order shopping
+    if (shoppingForOrderId) {
+      const order = getOrderForShopping(shoppingForOrderId);
+      if (order) {
+        order.requiredStems.forEach((stem) => {
+          map.set(stem.flowerId, (map.get(stem.flowerId) || 0) + 1);
+        });
+      }
+    }
+
+    // From arrangement shopping
+    if (neededFlowerId && neededFlowerQuantity) {
+      map.set(neededFlowerId, neededFlowerQuantity);
+    }
+
     return map;
   })();
 
@@ -78,6 +90,9 @@ export function WholesaleMarketScreen() {
     return () => {
       if (shoppingForOrderId) {
         setShoppingForOrderId(undefined);
+      }
+      if (neededFlowerId) {
+        setNeededFlower(undefined, 0);
       }
     };
   }, []);

@@ -133,6 +133,8 @@ export interface ShopState extends GameState {
   selectedRecipeId?: string;    // which recipe the player is currently making
   fulfillOrderId?: string;      // if making a bouquet to fulfill a specific order
   shoppingForOrderId?: string;  // if shopping for flowers to fulfill a specific order
+  neededFlowerId?: string;      // if shopping for a specific flower for arrangement
+  neededFlowerQuantity?: number; // quantity needed for that flower
   orderJustCompleted?: boolean; // flag to show order thank you animation
   completedOrderCustomerImage?: string; // NPC image for thank you animation
 }
