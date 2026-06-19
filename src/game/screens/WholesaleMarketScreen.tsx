@@ -601,28 +601,66 @@ export function WholesaleMarketScreen() {
           );
         })()}
 
-        {/* Buy Instant Delivery Button */}
-        <button
-          onClick={handleBuyInstantDelivery}
-          disabled={premiumCurrency < INSTANT_DELIVERY_COST}
+        {/* Buy Instant Special Delivery Button */}
+        <div
           style={{
-            width: '100%',
-            padding: '14px',
-            background: premiumCurrency < INSTANT_DELIVERY_COST ? '#CCC' : '#FF6B9D',
-            color: '#FFF',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: premiumCurrency < INSTANT_DELIVERY_COST ? 'not-allowed' : 'pointer',
-            fontSize: '14px',
-            fontWeight: 'bold',
-            marginTop: '12px',
-            boxShadow: premiumCurrency >= INSTANT_DELIVERY_COST ? '0 4px 12px rgba(255, 107, 157, 0.3)' : 'none',
+            marginTop: '16px',
+            padding: '12px',
+            background: premiumCurrency < INSTANT_DELIVERY_COST
+              ? 'rgba(200, 200, 200, 0.3)'
+              : 'linear-gradient(135deg, rgba(255, 107, 157, 0.15), rgba(255, 180, 200, 0.15))',
+            borderRadius: '8px',
+            border: `2px solid ${premiumCurrency < INSTANT_DELIVERY_COST ? '#999' : '#FF6B9D'}`,
           }}
         >
-          {premiumCurrency < INSTANT_DELIVERY_COST
-            ? `❌ Not enough Run Bucks (${INSTANT_DELIVERY_COST - premiumCurrency} more needed)`
-            : `🚚 Buy Instant Delivery (${INSTANT_DELIVERY_COST} 💎)`}
-        </button>
+          <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '8px', textAlign: 'center' }}>
+            🚚 Special Delivery (Premium)
+          </div>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '10px' }}>
+            <img
+              src="/delivery-truck.png"
+              alt="Delivery Truck"
+              style={{
+                width: '60px',
+                height: 'auto',
+                objectFit: 'contain',
+                filter: premiumCurrency < INSTANT_DELIVERY_COST ? 'grayscale(100%) brightness(0.7)' : 'none',
+                opacity: premiumCurrency < INSTANT_DELIVERY_COST ? 0.6 : 1,
+              }}
+            />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '11px', color: '#666', marginBottom: '2px' }}>
+                Get instant delivery! 15 flowers + 2 bouquets
+              </div>
+              <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#FF6B9D' }}>
+                Cost: {INSTANT_DELIVERY_COST} 💎 Run Bucks
+              </div>
+              <div style={{ fontSize: '11px', color: '#999', marginTop: '2px' }}>
+                You have: {premiumCurrency} 💎
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={handleBuyInstantDelivery}
+            disabled={premiumCurrency < INSTANT_DELIVERY_COST}
+            style={{
+              width: '100%',
+              padding: '12px',
+              background: premiumCurrency < INSTANT_DELIVERY_COST ? '#CCC' : '#FF6B9D',
+              color: '#FFF',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: premiumCurrency < INSTANT_DELIVERY_COST ? 'not-allowed' : 'pointer',
+              fontSize: '13px',
+              fontWeight: 'bold',
+              boxShadow: premiumCurrency >= INSTANT_DELIVERY_COST ? '0 4px 12px rgba(255, 107, 157, 0.3)' : 'none',
+            }}
+          >
+            {premiumCurrency < INSTANT_DELIVERY_COST
+              ? `❌ Need ${INSTANT_DELIVERY_COST - premiumCurrency} more Run Bucks`
+              : '🚚 Buy Special Delivery'}
+          </button>
+        </div>
 
         {/* Mystery Box Section — hidden until ready */}
         {false && <div
