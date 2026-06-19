@@ -3,7 +3,6 @@ import { useGameStore } from '../../stores/gameStore';
 import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { CoinCounter } from '../components/CoinCounter';
-import { RunBucksCounter } from '../components/RunBucksCounter';
 import { BottomTabNavigation } from '../components/BottomTabNavigation';
 import { CustomerNPCOverlay, NPCVisit, createNPCVisit } from '../components/CustomerNPCOverlay';
 import { ShelfPurchaseNPC } from '../components/ShelfPurchaseNPC';
@@ -470,7 +469,6 @@ export function ShopScreen() {
         }}
       >
         <CoinCounter />
-        <RunBucksCounter />
       </div>
 
 
