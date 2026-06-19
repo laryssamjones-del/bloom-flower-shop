@@ -316,21 +316,21 @@ export function ShopScreen() {
 
       {/* Edit Layout button — top-left (dev only) */}
       {import.meta.env.DEV && (
-        <div style={{ position: 'absolute', top: '16px', left: '16px', display: 'flex', gap: '12px', zIndex: 100 }}>
+        <div style={{ position: 'fixed', top: '20px', left: '20px', display: 'flex', gap: '12px', zIndex: 10000 }}>
           <button
             onClick={() => {
               setEditingLayout(true);
               RundotGameAPI.analytics.recordCustomEvent('shelf_layout_editor_opened');
             }}
             style={{
-              background: 'rgba(255,255,255,0.95)',
-              border: '2px solid rgba(0,0,0,0.2)',
+              background: '#FFD700',
+              border: '3px solid #000',
               borderRadius: '8px',
-              padding: '8px 14px',
-              fontSize: '14px',
-              fontWeight: '500',
+              padding: '10px 16px',
+              fontSize: '16px',
+              fontWeight: 'bold',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+              boxShadow: '0 6px 16px rgba(0,0,0,0.4)',
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
@@ -344,14 +344,14 @@ export function ShopScreen() {
               RundotGameAPI.analytics.recordCustomEvent('npc_customizer_opened');
             }}
             style={{
-              background: 'rgba(255,255,255,0.95)',
-              border: '2px solid rgba(0,0,0,0.2)',
+              background: '#FFD700',
+              border: '3px solid #000',
               borderRadius: '8px',
-              padding: '8px 14px',
-              fontSize: '14px',
-              fontWeight: '500',
+              padding: '10px 16px',
+              fontSize: '16px',
+              fontWeight: 'bold',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+              boxShadow: '0 6px 16px rgba(0,0,0,0.4)',
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
