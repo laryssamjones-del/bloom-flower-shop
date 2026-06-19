@@ -53,8 +53,11 @@ const btnBase = {
 export function TruckCustomizer({ onClose }: Props) {
   const [config, setConfig] = useState<TruckCustomizationConfig>(() => loadTruckCustomizationConfig());
   const [draggingTruck, setDraggingTruck] = useState(false);
+  const [draggingPanel, setDraggingPanel] = useState(false);
+  const [panelPosition, setPanelPosition] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const truckDragStartRef = useRef({ x: 0, y: 0, offsetX: 0, offsetY: 0 });
+  const panelDragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
 
   const handleTruckDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -69,32 +72,54 @@ export function TruckCustomizer({ onClose }: Props) {
     setDraggingTruck(true);
   };
 
+  const handlePanelDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    panelDragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      posX: panelPosition.x,
+      posY: panelPosition.y,
+    };
+    setDraggingPanel(true);
+  };
+
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      if (!draggingTruck) return;
-      const dx = e.clientX - truckDragStartRef.current.x;
-      const dy = e.clientY - truckDragStartRef.current.y;
+      if (draggingPanel) {
+        const dx = e.clientX - panelDragStartRef.current.x;
+        const dy = e.clientY - panelDragStartRef.current.y;
+        setPanelPosition({
+          x: panelDragStartRef.current.posX + dx,
+          y: panelDragStartRef.current.posY + dy,
+        });
+      } else if (draggingTruck) {
+        const dx = e.clientX - truckDragStartRef.current.x;
+        const dy = e.clientY - truckDragStartRef.current.y;
 
-      // Use viewport width for percentage calculation to match delivery overlay positioning
-      const viewportWidth = window.innerWidth;
-      const percentageChange = (dx / viewportWidth) * 100;
-      const newLeftOffset = Math.max(
-        MOBILE_MIN_LEFT,
-        Math.min(MOBILE_MAX_LEFT, truckDragStartRef.current.offsetX + percentageChange)
-      );
-      const newTopOffset = Math.max(0, truckDragStartRef.current.offsetY + dy);
+        // Use viewport width for percentage calculation to match delivery overlay positioning
+        const viewportWidth = window.innerWidth;
+        const percentageChange = (dx / viewportWidth) * 100;
+        const newLeftOffset = Math.max(
+          MOBILE_MIN_LEFT,
+          Math.min(MOBILE_MAX_LEFT, truckDragStartRef.current.offsetX + percentageChange)
+        );
+        const newTopOffset = Math.max(0, truckDragStartRef.current.offsetY + dy);
 
-      setConfig((prev) => ({
-        ...prev,
-        leftOffset: newLeftOffset,
-        topOffset: newTopOffset,
-      }));
+        setConfig((prev) => ({
+          ...prev,
+          leftOffset: newLeftOffset,
+          topOffset: newTopOffset,
+        }));
+      }
     },
-    [draggingTruck],
+    [draggingTruck, draggingPanel],
   );
 
   const handlePointerUp = useCallback(() => {
     setDraggingTruck(false);
+    setDraggingPanel(false);
   }, []);
 
   const handleSave = () => {
@@ -206,10 +231,10 @@ export function TruckCustomizer({ onClose }: Props) {
       {/* ── Control panel ── */}
       <div
         style={{
-          position: 'absolute',
-          bottom: '80px',
+          position: 'fixed',
+          top: '50%',
           left: '50%',
-          transform: 'translateX(-50%)',
+          transform: `translate(calc(-50% + ${panelPosition.x}px), calc(-50% + ${panelPosition.y}px))`,
           background: 'rgba(255,255,255,0.97)',
           borderRadius: '14px',
           padding: '14px 16px',
@@ -217,12 +242,24 @@ export function TruckCustomizer({ onClose }: Props) {
           flexDirection: 'column',
           gap: '10px',
           alignItems: 'center',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
           minWidth: '280px',
-          zIndex: 10,
+          zIndex: 1000,
         }}
       >
-        <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>
+        <div
+          style={{
+            fontSize: '13px',
+            fontWeight: 'bold',
+            color: '#333',
+            cursor: draggingPanel ? 'grabbing' : 'grab',
+            padding: '4px 8px',
+            borderRadius: '6px',
+            transition: 'background 0.2s',
+            userSelect: 'none',
+          }}
+          onPointerDown={handlePanelDragStart}
+        >
           🚚 Truck Customizer
         </div>
         <div style={{ fontSize: '10px', color: '#777', textAlign: 'center' }}>
