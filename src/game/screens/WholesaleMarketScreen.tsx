@@ -279,7 +279,7 @@ export function WholesaleMarketScreen() {
               onClick={() => setShoppingForOrderId(undefined)}
               style={{
                 padding: '6px 10px',
-                background: '#E74C3C',
+                background: '#6A9A50',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
@@ -288,7 +288,7 @@ export function WholesaleMarketScreen() {
                 fontWeight: 'bold',
               }}
             >
-              ✕ Done
+              ✓ Done
             </button>
           </div>
         );
