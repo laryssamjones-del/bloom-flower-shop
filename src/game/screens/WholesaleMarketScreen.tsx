@@ -623,194 +623,6 @@ export function WholesaleMarketScreen() {
           );
         })()}
 
-        {/* Buy Instant Special Delivery Button */}
-        <div
-          style={{
-            marginTop: '16px',
-            padding: '12px',
-            background: premiumCurrency < INSTANT_DELIVERY_COST
-              ? 'rgba(200, 200, 200, 0.3)'
-              : 'linear-gradient(135deg, rgba(255, 107, 157, 0.15), rgba(255, 180, 200, 0.15))',
-            borderRadius: '8px',
-            border: `2px solid ${premiumCurrency < INSTANT_DELIVERY_COST ? '#999' : '#FF6B9D'}`,
-          }}
-        >
-          <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '8px', textAlign: 'center' }}>
-            🚚 Special Delivery (Premium)
-          </div>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '10px' }}>
-            <img
-              src="/delivery-truck.png"
-              alt="Delivery Truck"
-              style={{
-                width: '60px',
-                height: 'auto',
-                objectFit: 'contain',
-                filter: premiumCurrency < INSTANT_DELIVERY_COST ? 'grayscale(100%) brightness(0.7)' : 'none',
-                opacity: premiumCurrency < INSTANT_DELIVERY_COST ? 0.6 : 1,
-              }}
-            />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '11px', color: '#666', marginBottom: '2px' }}>
-                Get instant delivery! 15 flowers + 2 Deluxe bouquets (worth 3x 💰 each)
-              </div>
-              <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#FF6B9D' }}>
-                Cost: {INSTANT_DELIVERY_COST} 💎 Run Bucks
-              </div>
-              <div style={{ fontSize: '11px', color: '#999', marginTop: '2px' }}>
-                You have: {premiumCurrency} 💎
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={handleBuyInstantDelivery}
-            disabled={premiumCurrency < INSTANT_DELIVERY_COST}
-            style={{
-              width: '100%',
-              padding: '12px',
-              background: premiumCurrency < INSTANT_DELIVERY_COST ? '#CCC' : '#FF6B9D',
-              color: '#FFF',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: premiumCurrency < INSTANT_DELIVERY_COST ? 'not-allowed' : 'pointer',
-              fontSize: '13px',
-              fontWeight: 'bold',
-              boxShadow: premiumCurrency >= INSTANT_DELIVERY_COST ? '0 4px 12px rgba(255, 107, 157, 0.3)' : 'none',
-            }}
-          >
-            {premiumCurrency < INSTANT_DELIVERY_COST
-              ? `❌ Need ${INSTANT_DELIVERY_COST - premiumCurrency} more Run Bucks`
-              : '🚚 Buy Special Delivery'}
-          </button>
-        </div>
-
-        {/* Buy Deluxe Special Delivery Button */}
-        <div
-          style={{
-            marginTop: '12px',
-            padding: '12px',
-            background: premiumCurrency < DELUXE_DELIVERY_COST
-              ? 'rgba(200, 200, 200, 0.3)'
-              : 'linear-gradient(135deg, rgba(218, 112, 214, 0.15), rgba(230, 140, 200, 0.15))',
-            borderRadius: '8px',
-            border: `2px solid ${premiumCurrency < DELUXE_DELIVERY_COST ? '#999' : '#DA70D6'}`,
-          }}
-        >
-          <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '8px', textAlign: 'center' }}>
-            👑 Special Delivery (Deluxe)
-          </div>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '10px' }}>
-            <img
-              src="/delivery-truck.png"
-              alt="Deluxe Delivery Truck"
-              style={{
-                width: '60px',
-                height: 'auto',
-                objectFit: 'contain',
-                filter: premiumCurrency < DELUXE_DELIVERY_COST ? 'grayscale(100%) brightness(0.7)' : 'drop-shadow(0 0 8px rgba(218, 112, 214, 0.4))',
-                opacity: premiumCurrency < DELUXE_DELIVERY_COST ? 0.6 : 1,
-              }}
-            />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '11px', color: '#666', marginBottom: '2px' }}>
-                ✨ Get massive delivery! 50 flowers + 10 Deluxe bouquets (worth 5x 💰 each!)
-              </div>
-              <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#DA70D6' }}>
-                Cost: {DELUXE_DELIVERY_COST} 💎 Run Bucks
-              </div>
-              <div style={{ fontSize: '11px', color: '#999', marginTop: '2px' }}>
-                You have: {premiumCurrency} 💎
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={handleBuyDeluxeDelivery}
-            disabled={premiumCurrency < DELUXE_DELIVERY_COST}
-            style={{
-              width: '100%',
-              padding: '12px',
-              background: premiumCurrency < DELUXE_DELIVERY_COST ? '#CCC' : '#DA70D6',
-              color: '#FFF',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: premiumCurrency < DELUXE_DELIVERY_COST ? 'not-allowed' : 'pointer',
-              fontSize: '13px',
-              fontWeight: 'bold',
-              boxShadow: premiumCurrency >= DELUXE_DELIVERY_COST ? '0 4px 12px rgba(218, 112, 214, 0.3)' : 'none',
-            }}
-          >
-            {premiumCurrency < DELUXE_DELIVERY_COST
-              ? `❌ Need ${DELUXE_DELIVERY_COST - premiumCurrency} more Run Bucks`
-              : '👑 Buy Deluxe Delivery'}
-          </button>
-        </div>
-
-        {/* Mystery Box Section */}
-        <div
-          style={{
-            marginTop: '24px',
-            padding: '16px',
-            background: 'linear-gradient(135deg, rgba(155, 89, 182, 0.15), rgba(52, 152, 219, 0.15))',
-            borderRadius: '10px',
-            border: '2px solid #9B59B6',
-          }}
-        >
-          <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>
-            🎁 Deluxe Mystery Box
-          </div>
-          <div style={{ fontSize: '12px', color: '#666', marginBottom: '12px', lineHeight: 1.4 }}>
-            Unlock a random exclusive bouquet! Each mystery box contains one special, rare bouquet worth a fortune when sold.
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '12px',
-              padding: '8px',
-              background: 'rgba(255,255,255,0.6)',
-              borderRadius: '6px',
-            }}
-          >
-            <div>
-              <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>Cost</div>
-              <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#9B59B6' }}>
-                {MYSTERY_BOX_COST_RUN_BUCKS} 💎 Run Bucks
-              </div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>You have</div>
-              <div
-                style={{
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  color: premiumCurrency >= MYSTERY_BOX_COST_RUN_BUCKS ? '#6A9A50' : '#C0392B',
-                }}
-              >
-                {premiumCurrency} 💎
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={handlePurchaseMysteryBox}
-            disabled={premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS}
-            style={{
-              width: '100%',
-              padding: '12px',
-              background:
-                premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS ? '#CCC' : 'linear-gradient(135deg, #9B59B6, #3498DB)',
-              color: '#FFF',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS ? 'not-allowed' : 'pointer',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              boxShadow: premiumCurrency >= MYSTERY_BOX_COST_RUN_BUCKS ? '0 4px 12px rgba(155, 89, 182, 0.3)' : 'none',
-            }}
-          >
-            {premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS ? '❌ Not enough Run Bucks' : '🎲 Unlock Mystery Box'}
-          </button>
-        </div>
       </div>
 
       {/* Premium Modal */}
@@ -834,26 +646,26 @@ export function WholesaleMarketScreen() {
             style={{
               background: 'white',
               borderRadius: '12px',
-              padding: '24px',
-              maxWidth: '400px',
+              maxWidth: '500px',
               width: '90%',
               boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+              display: 'flex',
+              flexDirection: 'column',
+              maxHeight: '90vh',
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#333' }}>💎 Premium RunBucks</h2>
-            <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#666', lineHeight: 1.5 }}>
-              You currently have <strong>{premiumCurrency} 💎 Run Bucks</strong>
-            </p>
-            <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: '#888', lineHeight: 1.5 }}>
-              Use Run Bucks to unlock premium content like special deliveries and exclusive items!
-            </p>
-            {storeError && (
-              <div style={{ margin: '0 0 16px 0', padding: '12px', background: '#FFE6E6', border: '2px solid #FF6B6B', borderRadius: '6px', fontSize: '12px', color: '#C92A2A', fontWeight: 'bold' }}>
-                {storeError}
-              </div>
-            )}
-            <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
+            {/* Header */}
+            <div style={{ padding: '20px', borderBottom: '1px solid #EEE' }}>
+              <h2 style={{ margin: '0 0 8px 0', fontSize: '20px', color: '#333' }}>💎 Premium Shop</h2>
+              <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#666' }}>
+                You have <strong>{premiumCurrency} 💎 Run Bucks</strong>
+              </p>
+              {storeError && (
+                <div style={{ margin: '0 0 12px 0', padding: '10px', background: '#FFE6E6', border: '2px solid #FF6B6B', borderRadius: '6px', fontSize: '11px', color: '#C92A2A', fontWeight: 'bold' }}>
+                  {storeError}
+                </div>
+              )}
               <button
                 onClick={async () => {
                   setStoreError(null);
@@ -862,7 +674,6 @@ export function WholesaleMarketScreen() {
                   });
                   try {
                     await openPlatformStore();
-                    // Refresh RunBucks balance after returning from store
                     try {
                       const newBalance = await getRunbucksBalance();
                       if (newBalance > premiumCurrency) {
@@ -874,7 +685,6 @@ export function WholesaleMarketScreen() {
                     } catch {
                       // Balance fetch failed, but store might have worked
                     }
-                    setShowPremiumModal(false);
                   } catch (err) {
                     const errorMsg = err instanceof Error ? err.message : String(err);
                     console.error('Failed to open platform store:', errorMsg);
@@ -882,28 +692,211 @@ export function WholesaleMarketScreen() {
                   }
                 }}
                 style={{
-                  padding: '12px',
+                  width: '100%',
+                  padding: '10px',
                   background: '#DA70D6',
                   color: '#FFF',
                   border: 'none',
                   borderRadius: '6px',
                   cursor: 'pointer',
-                  fontSize: '14px',
+                  fontSize: '13px',
                   fontWeight: 'bold',
                 }}
               >
                 ✨ Get Run Bucks
               </button>
+            </div>
+
+            {/* Scrollable Premium Items */}
+            <div style={{ flex: 1, overflow: 'auto', padding: '16px' }}>
+              {/* Buy Instant Special Delivery Button */}
+              <div
+                style={{
+                  marginBottom: '12px',
+                  padding: '12px',
+                  background: premiumCurrency < INSTANT_DELIVERY_COST
+                    ? 'rgba(200, 200, 200, 0.3)'
+                    : 'linear-gradient(135deg, rgba(255, 107, 157, 0.15), rgba(255, 180, 200, 0.15))',
+                  borderRadius: '8px',
+                  border: `2px solid ${premiumCurrency < INSTANT_DELIVERY_COST ? '#999' : '#FF6B9D'}`,
+                }}
+              >
+                <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '8px', textAlign: 'center' }}>
+                  🚚 Special Delivery (Premium)
+                </div>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '10px' }}>
+                  <img
+                    src="/delivery-truck.png"
+                    alt="Delivery Truck"
+                    style={{
+                      width: '50px',
+                      height: 'auto',
+                      objectFit: 'contain',
+                      filter: premiumCurrency < INSTANT_DELIVERY_COST ? 'grayscale(100%) brightness(0.7)' : 'none',
+                      opacity: premiumCurrency < INSTANT_DELIVERY_COST ? 0.6 : 1,
+                    }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '10px', color: '#666', marginBottom: '2px' }}>
+                      15 flowers + 2 Deluxe bouquets (worth 3x 💰)
+                    </div>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#FF6B9D' }}>
+                      Cost: {INSTANT_DELIVERY_COST} 💎
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={handleBuyInstantDelivery}
+                  disabled={premiumCurrency < INSTANT_DELIVERY_COST}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    background: premiumCurrency < INSTANT_DELIVERY_COST ? '#CCC' : '#FF6B9D',
+                    color: '#FFF',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: premiumCurrency < INSTANT_DELIVERY_COST ? 'not-allowed' : 'pointer',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {premiumCurrency < INSTANT_DELIVERY_COST ? `❌ Need ${INSTANT_DELIVERY_COST - premiumCurrency}` : '🚚 Buy'}
+                </button>
+              </div>
+
+              {/* Buy Deluxe Special Delivery Button */}
+              <div
+                style={{
+                  marginBottom: '12px',
+                  padding: '12px',
+                  background: premiumCurrency < DELUXE_DELIVERY_COST
+                    ? 'rgba(200, 200, 200, 0.3)'
+                    : 'linear-gradient(135deg, rgba(218, 112, 214, 0.15), rgba(230, 140, 200, 0.15))',
+                  borderRadius: '8px',
+                  border: `2px solid ${premiumCurrency < DELUXE_DELIVERY_COST ? '#999' : '#DA70D6'}`,
+                }}
+              >
+                <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '8px', textAlign: 'center' }}>
+                  👑 Special Delivery (Deluxe)
+                </div>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '10px' }}>
+                  <img
+                    src="/delivery-truck.png"
+                    alt="Deluxe Delivery Truck"
+                    style={{
+                      width: '50px',
+                      height: 'auto',
+                      objectFit: 'contain',
+                      filter: premiumCurrency < DELUXE_DELIVERY_COST ? 'grayscale(100%) brightness(0.7)' : 'drop-shadow(0 0 8px rgba(218, 112, 214, 0.4))',
+                      opacity: premiumCurrency < DELUXE_DELIVERY_COST ? 0.6 : 1,
+                    }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '10px', color: '#666', marginBottom: '2px' }}>
+                      50 flowers + 10 Deluxe bouquets (worth 5x 💰)
+                    </div>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#DA70D6' }}>
+                      Cost: {DELUXE_DELIVERY_COST} 💎
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={handleBuyDeluxeDelivery}
+                  disabled={premiumCurrency < DELUXE_DELIVERY_COST}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    background: premiumCurrency < DELUXE_DELIVERY_COST ? '#CCC' : '#DA70D6',
+                    color: '#FFF',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: premiumCurrency < DELUXE_DELIVERY_COST ? 'not-allowed' : 'pointer',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {premiumCurrency < DELUXE_DELIVERY_COST ? `❌ Need ${DELUXE_DELIVERY_COST - premiumCurrency}` : '👑 Buy'}
+                </button>
+              </div>
+
+              {/* Mystery Box Section */}
+              <div
+                style={{
+                  padding: '12px',
+                  background: 'linear-gradient(135deg, rgba(155, 89, 182, 0.15), rgba(52, 152, 219, 0.15))',
+                  borderRadius: '8px',
+                  border: '2px solid #9B59B6',
+                }}
+              >
+                <div style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '6px', color: '#333' }}>
+                  🎁 Deluxe Mystery Box
+                </div>
+                <div style={{ fontSize: '11px', color: '#666', marginBottom: '10px', lineHeight: 1.3 }}>
+                  Unlock a random exclusive bouquet worth a fortune!
+                </div>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '10px',
+                    padding: '8px',
+                    background: 'rgba(255,255,255,0.6)',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                  }}
+                >
+                  <div>
+                    <div style={{ fontWeight: 'bold', color: '#333' }}>Cost</div>
+                    <div style={{ fontWeight: 'bold', color: '#9B59B6' }}>
+                      {MYSTERY_BOX_COST_RUN_BUCKS} 💎
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontWeight: 'bold', color: '#333' }}>Have</div>
+                    <div
+                      style={{
+                        fontWeight: 'bold',
+                        color: premiumCurrency >= MYSTERY_BOX_COST_RUN_BUCKS ? '#6A9A50' : '#C0392B',
+                      }}
+                    >
+                      {premiumCurrency} 💎
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={handlePurchaseMysteryBox}
+                  disabled={premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    background: premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS ? '#CCC' : 'linear-gradient(135deg, #9B59B6, #3498DB)',
+                    color: '#FFF',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS ? 'not-allowed' : 'pointer',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS ? '❌ Not enough' : '🎲 Unlock'}
+                </button>
+              </div>
+            </div>
+
+            {/* Footer with Close Button */}
+            <div style={{ padding: '12px', borderTop: '1px solid #EEE' }}>
               <button
                 onClick={() => setShowPremiumModal(false)}
                 style={{
-                  padding: '12px',
+                  width: '100%',
+                  padding: '10px',
                   background: '#DDD',
                   color: '#333',
                   border: 'none',
                   borderRadius: '6px',
                   cursor: 'pointer',
-                  fontSize: '14px',
+                  fontSize: '13px',
                   fontWeight: 'bold',
                 }}
               >
