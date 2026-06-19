@@ -16,7 +16,7 @@ export function InventoryDrawer() {
           textAlign: 'center',
         }}
       >
-        Empty - buy flowers from the Wholesale Market!
+        Empty - buy flowers from the Nursery!
       </div>
     );
   }

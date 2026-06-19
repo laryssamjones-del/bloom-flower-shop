@@ -104,7 +104,7 @@ export function InventoryScreen() {
             }}
           >
             <p style={{ fontSize: '14px', marginBottom: '8px' }}>Your inventory is empty</p>
-            <p style={{ fontSize: '12px', opacity: 0.7 }}>Visit the wholesale market to buy stems!</p>
+            <p style={{ fontSize: '12px', opacity: 0.7 }}>Visit the Nursery to buy stems!</p>
           </div>
         ) : (
           <>
