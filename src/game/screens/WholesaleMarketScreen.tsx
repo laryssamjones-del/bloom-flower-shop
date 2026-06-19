@@ -212,6 +212,7 @@ export function WholesaleMarketScreen() {
   };
 
   const INSTANT_DELIVERY_COST = 50;
+  const DELUXE_DELIVERY_COST = 75;
 
   const handleBuyInstantDelivery = () => {
     if (premiumCurrency < INSTANT_DELIVERY_COST) {
@@ -221,8 +222,8 @@ export function WholesaleMarketScreen() {
     // Deduct run bucks
     const state = useGameStore.getState();
     if (state.premiumCurrency >= INSTANT_DELIVERY_COST) {
-      // Generate delivery and save to localStorage
-      const delivery = generateSpecialDelivery();
+      // Generate delivery and save to localStorage (15 flowers + 2 bouquets)
+      const delivery = generateSpecialDelivery(15, 2);
       localStorage.setItem('activeDelivery', JSON.stringify(delivery));
 
       // Deduct the cost directly via Zustand
@@ -241,6 +242,45 @@ export function WholesaleMarketScreen() {
 
       RundotGameAPI.analytics.recordCustomEvent('instant_delivery_purchased', {
         cost: INSTANT_DELIVERY_COST,
+        type: 'premium',
+      });
+
+      // Navigate back to shop after a short delay so they can see the message
+      setTimeout(() => {
+        setCurrentScreen('shop');
+      }, 500);
+    }
+  };
+
+  const handleBuyDeluxeDelivery = () => {
+    if (premiumCurrency < DELUXE_DELIVERY_COST) {
+      return;
+    }
+
+    // Deduct run bucks
+    const state = useGameStore.getState();
+    if (state.premiumCurrency >= DELUXE_DELIVERY_COST) {
+      // Generate delivery and save to localStorage (50 flowers + 10 bouquets)
+      const delivery = generateSpecialDelivery(50, 10);
+      localStorage.setItem('activeDelivery', JSON.stringify(delivery));
+
+      // Deduct the cost directly via Zustand
+      useGameStore.setState((s) => ({
+        premiumCurrency: s.premiumCurrency - DELUXE_DELIVERY_COST,
+        lastUpdated: Date.now(),
+      }));
+
+      // Schedule next delivery timer
+      const nextDeliveryTime = Date.now() + 8 * 60 * 60 * 1000;
+      localStorage.setItem('nextDeliveryTime', nextDeliveryTime.toString());
+
+      const successMsg = `🚚 DELUXE delivery truck incoming! ${DELUXE_DELIVERY_COST} 💎 Run Bucks spent`;
+      setDeliverySuccessMessage(successMsg);
+      setTimeout(() => setDeliverySuccessMessage(null), 3000);
+
+      RundotGameAPI.analytics.recordCustomEvent('instant_delivery_purchased', {
+        cost: DELUXE_DELIVERY_COST,
+        type: 'deluxe',
       });
 
       // Navigate back to shop after a short delay so they can see the message
@@ -659,6 +699,67 @@ export function WholesaleMarketScreen() {
             {premiumCurrency < INSTANT_DELIVERY_COST
               ? `❌ Need ${INSTANT_DELIVERY_COST - premiumCurrency} more Run Bucks`
               : '🚚 Buy Special Delivery'}
+          </button>
+        </div>
+
+        {/* Buy Deluxe Special Delivery Button */}
+        <div
+          style={{
+            marginTop: '12px',
+            padding: '12px',
+            background: premiumCurrency < DELUXE_DELIVERY_COST
+              ? 'rgba(200, 200, 200, 0.3)'
+              : 'linear-gradient(135deg, rgba(218, 112, 214, 0.15), rgba(230, 140, 200, 0.15))',
+            borderRadius: '8px',
+            border: `2px solid ${premiumCurrency < DELUXE_DELIVERY_COST ? '#999' : '#DA70D6'}`,
+          }}
+        >
+          <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '8px', textAlign: 'center' }}>
+            👑 Special Delivery (Deluxe)
+          </div>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '10px' }}>
+            <img
+              src="/delivery-truck.png"
+              alt="Deluxe Delivery Truck"
+              style={{
+                width: '60px',
+                height: 'auto',
+                objectFit: 'contain',
+                filter: premiumCurrency < DELUXE_DELIVERY_COST ? 'grayscale(100%) brightness(0.7)' : 'drop-shadow(0 0 8px rgba(218, 112, 214, 0.4))',
+                opacity: premiumCurrency < DELUXE_DELIVERY_COST ? 0.6 : 1,
+              }}
+            />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '11px', color: '#666', marginBottom: '2px' }}>
+                ✨ Get massive delivery! 50 flowers + 10 bouquets
+              </div>
+              <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#DA70D6' }}>
+                Cost: {DELUXE_DELIVERY_COST} 💎 Run Bucks
+              </div>
+              <div style={{ fontSize: '11px', color: '#999', marginTop: '2px' }}>
+                You have: {premiumCurrency} 💎
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={handleBuyDeluxeDelivery}
+            disabled={premiumCurrency < DELUXE_DELIVERY_COST}
+            style={{
+              width: '100%',
+              padding: '12px',
+              background: premiumCurrency < DELUXE_DELIVERY_COST ? '#CCC' : '#DA70D6',
+              color: '#FFF',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: premiumCurrency < DELUXE_DELIVERY_COST ? 'not-allowed' : 'pointer',
+              fontSize: '13px',
+              fontWeight: 'bold',
+              boxShadow: premiumCurrency >= DELUXE_DELIVERY_COST ? '0 4px 12px rgba(218, 112, 214, 0.3)' : 'none',
+            }}
+          >
+            {premiumCurrency < DELUXE_DELIVERY_COST
+              ? `❌ Need ${DELUXE_DELIVERY_COST - premiumCurrency} more Run Bucks`
+              : '👑 Buy Deluxe Delivery'}
           </button>
         </div>
 

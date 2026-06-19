@@ -20833,11 +20833,128 @@
       "timestamp": 1781845760055,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1781845875761",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "Can you do another one where it's like a deluxe special delivery? it costs 75 run bucks and give them 50 flowers and 10 bouquets? You can put it in the same spot, either below the premium special delivery or on the right side of it.",
+      "timestamp": 1781845875761,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781845885520-0ml407w8k",
+      "role": "assistant",
+      "content": "Using tool: TodoWrite",
+      "isShownToUser": true,
+      "timestamp": 1781845885520,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "TodoWrite"
+      }
+    },
+    {
+      "id": "1781845888121-hrdxoqbc4",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1781845888121,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1781845889811-m6h1t9dws",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1781845889811,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1781845895517-emy7n7gmw",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1781845895517,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1781845897736-0zsp8hxpj",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1781845897736,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1781845906597-1f46cjvmx",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1781845906597,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1781845909034-o5111ht7o",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1781845909034,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1781845915926-y70zb0ue4",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1781845915926,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1781845918258-5uwv8a5ao",
+      "role": "assistant",
+      "content": "Using tool: TodoWrite",
+      "isShownToUser": true,
+      "timestamp": 1781845918258,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "TodoWrite"
+      }
+    },
+    {
+      "id": "1781845922991-h888ru4i7",
+      "role": "assistant",
+      "content": "Perfect! I've added the **Deluxe Special Delivery** option. Here's what I implemented:\n\n## Deluxe Special Delivery Features:\n\n**Cost:** 75 💎 Run Bucks  \n**Contents:** 50 flowers + 10 bouquets\n\n### What's New:\n\n1. **Updated generateSpecialDelivery** - Now accepts parameters for flower and bouquet quantities, so it can be used for both regular deliveries and deluxe ones\n\n2. **New Handler** - `handleBuyDeluxeDelivery()` that:\n   - Generates a delivery with 50 flowers and 10 bouquets\n   - Deducts 75 run bucks\n   - Schedules the next delivery timer\n   - Shows a success message and navigates to shop\n\n3. **Visual Design:**\n   - **👑 Crown icon** to distinguish it as \"Deluxe\"\n   - **Purple/magenta color** (#DA70D6) to make it visually different from the pink premium version\n   - **Glowing truck effect** when affordable, grayscale when not\n   - **Clear description**: \"✨ Get massive delivery! 50 flowers + 10 bouquets\"\n   - **Positioned below** the regular Special Delivery for easy comparison\n\n4. **Analytics** - Tracks deluxe purchases with the type: 'deluxe' for better data insights\n\nPlayers can now choose between:\n- **Premium** (50 💎) - 15 flowers + 2 bouquets\n- **Deluxe** (75 💎) - 50 flowers + 10 bouquets\n\nBoth options use the truck image and are clearly labeled so players know what costs run bucks!",
+      "isShownToUser": true,
+      "timestamp": 1781845925950,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781845760100,
-  "tokenUsage": 20701,
+  "updatedAt": 1781845925996,
+  "tokenUsage": 26485,
   "script": "default",
   "claudeSessionId": "f05884e2-6fae-4fb0-b9b6-b2e806634d8b"
 }

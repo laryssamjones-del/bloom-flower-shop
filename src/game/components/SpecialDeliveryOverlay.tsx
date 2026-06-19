@@ -12,18 +12,19 @@ export interface SpecialDelivery {
   createdAt: number;
 }
 
-function generateSpecialDelivery(): SpecialDelivery {
+function generateSpecialDelivery(flowerCount: number = 15, bouquetCount: number = 2): SpecialDelivery {
   // Get all available flowers (both FLOWERS and GREENERY)
   const allFlowerIds = [
     ...Object.keys(FLOWERS),
     ...Object.keys(GREENERY),
   ];
 
-  // Generate 15 random flowers with varying quantities
+  // Generate random flowers with varying quantities
   const flowers: Array<{ flowerId: string; quantity: number }> = [];
-  let remainingCount = 15;
+  let remainingCount = flowerCount;
+  const maxFlowerTypes = Math.min(Math.ceil(flowerCount / 4), 12);
 
-  while (remainingCount > 0 && flowers.length < 8 && allFlowerIds.length > 0) {
+  while (remainingCount > 0 && flowers.length < maxFlowerTypes && allFlowerIds.length > 0) {
     const randomFlower = allFlowerIds[Math.floor(Math.random() * allFlowerIds.length)]!;
     const quantity = Math.min(remainingCount, Math.ceil(Math.random() * 4));
     flowers.push({ flowerId: randomFlower, quantity });
@@ -35,9 +36,9 @@ function generateSpecialDelivery(): SpecialDelivery {
     flowers[flowers.length - 1]!.quantity += remainingCount;
   }
 
-  // Pick 2 random bouquet recipes
+  // Pick N random bouquet recipes
   const shuffled = [...BOUQUET_RECIPES].sort(() => 0.5 - Math.random());
-  const bouquets = [shuffled[0], shuffled[1]].filter((b) => b !== undefined) as Array<(typeof BOUQUET_RECIPES)[0]>;
+  const bouquets = shuffled.slice(0, bouquetCount).filter((b) => b !== undefined) as Array<(typeof BOUQUET_RECIPES)[0]>;
 
   if (bouquets.length === 0) {
     // Fallback if no recipes available (shouldn't happen)
