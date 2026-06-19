@@ -23,6 +23,7 @@ import { OrderThankYouOverlay } from '../components/OrderThankYouOverlay';
 import { Bouquet } from '../../types';
 import { BOUQUET_RECIPES } from '../../data/bouquets';
 import { getCurrentLevel, getLevelProgress } from '../../data/progression';
+import shopBackground from '/bloomy_shop_background.png';
 
 // NPC visits: a customer slides in every 15–45 seconds
 const NPC_VISIT_MIN = 15000;
@@ -412,7 +413,7 @@ export function ShopScreen() {
         flexDirection: 'column',
         minHeight: 0,
         overflow: 'hidden',
-        backgroundImage: 'url(/bloomy_shop_background.png)',
+        backgroundImage: `url(${shopBackground})`,
         backgroundSize: '100% 100%',
         backgroundPosition: 'center top',
         backgroundRepeat: 'no-repeat',
@@ -658,11 +659,12 @@ export function ShopScreen() {
       {/* Bottom Tab Navigation */}
       <div
         style={{
-          position: 'absolute',
+          position: 'fixed',
           bottom: 0,
           left: 0,
           right: 0,
           zIndex: 10,
+          width: '100%',
         }}
       >
         <BottomTabNavigation />
