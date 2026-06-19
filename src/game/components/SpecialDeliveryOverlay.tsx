@@ -158,17 +158,17 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
             <div
               style={{
                 position: 'absolute',
-                top: '-28px',
+                top: '-16px',
                 left: '50%',
                 transform: 'translateX(-50%)',
                 background: '#FF6B9D',
                 color: '#FFF',
-                padding: '4px 12px',
-                borderRadius: '20px',
-                fontSize: '12px',
+                padding: '2px 8px',
+                borderRadius: '12px',
+                fontSize: '9px',
                 fontWeight: 'bold',
                 whiteSpace: 'nowrap',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
                 zIndex: 10,
               }}
             >
