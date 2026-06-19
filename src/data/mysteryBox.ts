@@ -50,7 +50,7 @@ export const MYSTERY_BOUQUETS: MysteryBouquetRecipe[] = [
   },
 ];
 
-export const MYSTERY_BOX_COST_RUN_BUCKS = 25;
+export const MYSTERY_BOX_COST_RUN_BUCKS = 250;
 
 export function getRandomMysteryBouquet(): MysteryBouquetRecipe {
   return MYSTERY_BOUQUETS[Math.floor(Math.random() * MYSTERY_BOUQUETS.length)]!;
