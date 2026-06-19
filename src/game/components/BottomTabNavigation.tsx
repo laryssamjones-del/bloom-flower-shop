@@ -9,7 +9,7 @@ export function BottomTabNavigation() {
     { screen: 'inventory' as const, label: '📦 Inventory' },
     { screen: 'orders' as const, label: '📋 Orders', badge: hasOrders },
     { screen: 'arrangement' as const, label: '💐 Create Bouquet' },
-    { screen: 'wholesale' as const, label: '🛍️ Shop' },
+    { screen: 'wholesale' as const, label: '🌱 Nursery' },
   ];
 
   return (
