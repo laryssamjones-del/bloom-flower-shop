@@ -8,7 +8,7 @@ export function BottomTabNavigation() {
   const navItems = [
     { screen: 'inventory' as const, label: '📦 Inventory' },
     { screen: 'orders' as const, label: '📋 Orders', badge: hasOrders },
-    { screen: 'arrangement' as const, label: '💐 Create Bouquet' },
+    { screen: 'arrangement' as const, label: '💐 Arrange' },
     { screen: 'wholesale' as const, label: '🌱 Nursery' },
   ];
 
@@ -17,8 +17,8 @@ export function BottomTabNavigation() {
       style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: '8px',
-        padding: '12px',
+        gap: '6px',
+        padding: '8px',
         background: 'rgba(255,255,255,0.3)',
         borderTop: '2px solid rgba(0,0,0,0.1)',
         backdropFilter: 'blur(10px)',
@@ -29,19 +29,19 @@ export function BottomTabNavigation() {
           key={item.screen}
           onClick={() => setCurrentScreen(item.screen)}
           style={{
-            padding: '12px 8px',
+            padding: '8px 6px',
             background: '#F5F0E8',
             color: '#2A1408',
             border: '2px solid #D4AF37',
             borderRadius: '6px',
             cursor: 'pointer',
-            fontSize: '13px',
+            fontSize: '12px',
             fontWeight: '600',
             transition: 'all 0.2s',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '4px',
+            gap: '2px',
             position: 'relative',
           }}
           onMouseEnter={(e) => {
@@ -53,10 +53,10 @@ export function BottomTabNavigation() {
             (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
           }}
         >
-          <div style={{ fontSize: '20px' }}>
+          <div style={{ fontSize: '18px' }}>
             {item.label.split(' ')[0]}
           </div>
-          <div style={{ fontSize: '11px' }}>
+          <div style={{ fontSize: '10px' }}>
             {item.label.split(' ').slice(1).join(' ')}
           </div>
           {/* Red badge indicator for pending orders */}
