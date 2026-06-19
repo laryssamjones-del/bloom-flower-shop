@@ -63,6 +63,7 @@ interface Props {
 
 export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
   const [isSliding, setIsSliding] = useState(false);
+  const [isAccepted, setIsAccepted] = useState(false);
 
   useEffect(() => {
     setIsSliding(true);
@@ -101,25 +102,26 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
         }}
       />
 
-      {/* Truck sliding in from bottom-left */}
+      {/* Truck sliding in from top-center */}
       <div
         style={{
           position: 'absolute',
-          bottom: 0,
-          left: 0,
-          animation: isSliding ? 'slideInLeft 0.6s ease-out forwards' : 'none',
+          top: 0,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          animation: isSliding ? 'slideInDown 0.6s ease-out forwards' : 'none',
           pointerEvents: 'all',
           zIndex: 151,
         }}
       >
         <style>{`
-          @keyframes slideInLeft {
+          @keyframes slideInDown {
             from {
-              transform: translateX(-100%);
+              transform: translateX(-50%) translateY(-100%);
               opacity: 0;
             }
             to {
-              transform: translateX(0);
+              transform: translateX(-50%) translateY(0);
               opacity: 1;
             }
           }
@@ -155,17 +157,19 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
             ✨ Special Delivery!
           </div>
 
-          {/* Truck */}
-          <img
-            src="/delivery-truck.png"
-            alt="Delivery Truck"
-            style={{
-              width: '180px',
-              height: 'auto',
-              objectFit: 'contain',
-              filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.25))',
-            }}
-          />
+          {/* Truck - only show before accepted */}
+          {!isAccepted && (
+            <img
+              src="/delivery-truck.png"
+              alt="Delivery Truck"
+              style={{
+                width: '80px',
+                height: 'auto',
+                objectFit: 'contain',
+                filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.25))',
+              }}
+            />
+          )}
 
           {/* Shipment details panel */}
           <div
@@ -220,38 +224,62 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
 
           {/* Buttons */}
           <div style={{ display: 'flex', gap: '8px', width: '100%', marginTop: '4px' }}>
-            <button
-              onClick={onDeny}
-              style={{
-                flex: 1,
-                padding: '8px 12px',
-                background: '#EEE',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                color: '#666',
-              }}
-            >
-              Deny
-            </button>
-            <button
-              onClick={() => onAccept(delivery)}
-              style={{
-                flex: 1,
-                padding: '8px 12px',
-                background: '#FF6B9D',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                color: '#FFF',
-              }}
-            >
-              Accept
-            </button>
+            {!isAccepted ? (
+              <>
+                <button
+                  onClick={onDeny}
+                  style={{
+                    flex: 1,
+                    padding: '8px 12px',
+                    background: '#EEE',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    color: '#666',
+                  }}
+                >
+                  Deny
+                </button>
+                <button
+                  onClick={() => {
+                    setIsAccepted(true);
+                    onAccept(delivery);
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '8px 12px',
+                    background: '#FF6B9D',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    color: '#FFF',
+                  }}
+                >
+                  Accept
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={onDeny}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  background: '#6A9A50',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  color: '#FFF',
+                }}
+              >
+                ✓ Done
+              </button>
+            )}
           </div>
         </div>
       </div>
