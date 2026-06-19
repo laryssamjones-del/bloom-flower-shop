@@ -29014,11 +29014,29 @@
       "timestamp": 1781900073284,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1781900631783",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "i'm not done making my game, so could you not make a private build unless i tell you to?",
+      "timestamp": 1781900631783,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781900637828-iodno6p1f",
+      "role": "assistant",
+      "content": "Got it! I'll only deploy when you explicitly ask me to. I'll just make code changes and build locally without deploying. Let me know when you're ready to push a new version.",
+      "isShownToUser": true,
+      "timestamp": 1781900638082,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781900073335,
-  "tokenUsage": 1215,
+  "updatedAt": 1781900638234,
+  "tokenUsage": 1353,
   "script": "default",
   "claudeSessionId": "64041c26-81ca-44d9-b1f7-c3429497e7c4"
 }
