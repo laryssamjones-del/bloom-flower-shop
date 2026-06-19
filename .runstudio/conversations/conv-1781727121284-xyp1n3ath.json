@@ -29103,11 +29103,29 @@
       "timestamp": 1781900815549,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1781901154644",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "make these separate purchase buttons in the premium shop. can you name the smallest package \"A Pot of Petals,\" the medium package be called \"A Garden of Petals,\" and then the large package be called, \"A Field of Petals.\" can you give me more options for packages though? I'd like it to be a little bit more generous.",
+      "timestamp": 1781901154644,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781901162913-5yk8zh4qm",
+      "role": "assistant",
+      "content": "Perfect! Here are some more generous pricing options with your custom package names:\n\n**Option A: Very Generous**\n- 🌼 A Pot of Petals: 200 coins for 50 Run Bucks\n- 🌸 A Garden of Petals: 650 coins for 100 Run Bucks\n- 🌺 A Field of Petals: 1500 coins for 200 Run Bucks\n\n**Option B: Progressive Bonus (bigger packages = better value)**\n- 🌼 A Pot of Petals: 180 coins for 50 Run Bucks\n- 🌸 A Garden of Petals: 600 coins for 110 Run Bucks\n- 🌺 A Field of Petals: 1400 coins for 220 Run Bucks\n\n**Option C: Super Generous**\n- 🌼 A Pot of Petals: 250 coins for 50 Run Bucks\n- 🌸 A Garden of Petals: 700 coins for 100 Run Bucks\n- 🌺 A Field of Petals: 1600 coins for 200 Run Bucks\n\n**Option D: Mid-range Generous**\n- 🌼 A Pot of Petals: 180 coins for 50 Run Bucks\n- 🌸 A Garden of Petals: 550 coins for 100 Run Bucks\n- 🌺 A Field of Petals: 1300 coins for 200 Run Bucks\n\nWhich of these feels right for your game? Or would you like me to adjust the numbers in a different direction?",
+      "isShownToUser": true,
+      "timestamp": 1781901164698,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781900815591,
-  "tokenUsage": 2958,
+  "updatedAt": 1781901164750,
+  "tokenUsage": 3837,
   "script": "default",
   "claudeSessionId": "64041c26-81ca-44d9-b1f7-c3429497e7c4"
 }
