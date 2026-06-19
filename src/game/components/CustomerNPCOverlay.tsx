@@ -106,6 +106,7 @@ export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOv
         if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
       };
     }
+    return undefined;
   }, [phase, showDeclineLine, onDecline]);
 
   const handleAccept = () => {

@@ -17,6 +17,7 @@ import {
   type SpecialDelivery,
 } from '../components/SpecialDeliveryOverlay';
 import { NPCCustomizer } from '../components/NPCCustomizer';
+import { TruckCustomizer } from '../components/TruckCustomizer';
 import { Bouquet } from '../../types';
 import { BOUQUET_RECIPES } from '../../data/bouquets';
 
@@ -56,6 +57,9 @@ export function ShopScreen() {
 
   // NPC customizer
   const [customizingNPC, setCustomizingNPC] = useState(false);
+
+  // Truck customizer
+  const [customizingTruck, setCustomizingTruck] = useState(false);
 
   // Special delivery truck
   const [activeDelivery, setActiveDelivery] = useState<SpecialDelivery | null>(null);
@@ -280,6 +284,10 @@ export function ShopScreen() {
     setCustomizingNPC(false);
   };
 
+  const handleTruckCustomizerClose = () => {
+    setCustomizingTruck(false);
+  };
+
   // Split bouquets into rows of BOUQUETS_PER_SHELF for shelf display
   const shelfRows: Bouquet[][] = [];
   for (let i = 0; i < shelfBouquets.length; i += BOUQUETS_PER_SHELF) {
@@ -358,6 +366,27 @@ export function ShopScreen() {
             }}
           >
             👤 NPC
+          </button>
+          <button
+            onClick={() => {
+              setCustomizingTruck(true);
+              RundotGameAPI.analytics.recordCustomEvent('truck_customizer_opened');
+            }}
+            style={{
+              background: '#FFD700',
+              border: '3px solid #000',
+              borderRadius: '8px',
+              padding: '10px 16px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              boxShadow: '0 6px 16px rgba(0,0,0,0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            🚚 Truck
           </button>
         </div>
       )}
@@ -499,6 +528,9 @@ export function ShopScreen() {
 
       {/* NPC Customizer overlay */}
       {customizingNPC && <NPCCustomizer onClose={handleNPCCustomizerClose} />}
+
+      {/* Truck Customizer overlay */}
+      {customizingTruck && <TruckCustomizer onClose={handleTruckCustomizerClose} />}
     </div>
   );
 }
