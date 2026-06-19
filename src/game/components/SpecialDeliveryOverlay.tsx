@@ -107,6 +107,7 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
 
       {/* Truck sliding in and shaking */}
       <div
+        onClick={(e) => e.stopPropagation()}
         style={{
           position: 'absolute',
           top: truckConfig.topOffset,
