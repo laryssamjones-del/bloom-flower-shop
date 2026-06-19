@@ -5,10 +5,15 @@ import { CoinCounter } from '../components/CoinCounter';
 import { BottomTabNavigation } from '../components/BottomTabNavigation';
 import { CustomerNPCOverlay, NPCVisit, createNPCVisit } from '../components/CustomerNPCOverlay';
 import { ShelfPurchaseNPC } from '../components/ShelfPurchaseNPC';
+import {
+  ShelfLayoutEditor,
+  loadShelfLayoutConfig,
+  BOUQUETS_PER_SHELF,
+  type ShelfLayoutConfig,
+} from '../components/ShelfLayoutEditor';
 import { Bouquet } from '../../types';
 import { BOUQUET_RECIPES } from '../../data/bouquets';
 
-const BOUQUETS_PER_SHELF = 4;
 // NPC visits: a customer slides in every 25–90 seconds
 const NPC_VISIT_MIN = 25000;
 const NPC_VISIT_MAX = 90000;
@@ -38,6 +43,10 @@ export function ShopScreen() {
     bouquet: Bouquet;
   } | null>(null);
   const shelfPurchaseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Layout editor
+  const [editingLayout, setEditingLayout] = useState(false);
+  const [shelfConfig, setShelfConfig] = useState<ShelfLayoutConfig>(() => loadShelfLayoutConfig());
 
   // Schedule next NPC visit
   const scheduleNextVisit = () => {
@@ -165,7 +174,12 @@ export function ShopScreen() {
     RundotGameAPI.analytics.recordCustomEvent('bouquet_deleted', { bouquetId });
   };
 
-  // Split bouquets into rows of 5 for shelf display
+  const handleEditorClose = () => {
+    setShelfConfig(loadShelfLayoutConfig());
+    setEditingLayout(false);
+  };
+
+  // Split bouquets into rows of BOUQUETS_PER_SHELF for shelf display
   const shelfRows: Bouquet[][] = [];
   for (let i = 0; i < shelfBouquets.length; i += BOUQUETS_PER_SHELF) {
     shelfRows.push(shelfBouquets.slice(i, i + BOUQUETS_PER_SHELF));
@@ -198,179 +212,123 @@ export function ShopScreen() {
         <CoinCounter />
       </div>
 
-      {/* Grid overlay for positioning (debug) */}
-      <div
+      {/* Edit Layout button — top-left */}
+      <button
+        onClick={() => {
+          setEditingLayout(true);
+          RundotGameAPI.analytics.recordCustomEvent('shelf_layout_editor_opened');
+        }}
         style={{
           position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          pointerEvents: 'none',
-          zIndex: 1,
+          top: '12px',
+          left: '12px',
+          zIndex: 10,
+          background: 'rgba(255,255,255,0.85)',
+          border: '1px solid rgba(0,0,0,0.15)',
+          borderRadius: '8px',
+          padding: '6px 10px',
+          fontSize: '13px',
+          cursor: 'pointer',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
         }}
       >
-        {/* Y% labels on left */}
-        {Array.from({ length: 21 }, (_, i) => i * 5).map((y) => (
+        ⚙️ Layout
+      </button>
+
+      {/* Shelf bouquet display — positioned via saved layout config */}
+      {shelfRows.map((row, rowIdx) => {
+        const shelfPos = shelfConfig.shelves[rowIdx];
+        if (!shelfPos) return null;
+
+        return (
           <div
-            key={`y-${y}`}
+            key={`shelf-row-${rowIdx}`}
             style={{
               position: 'absolute',
-              left: '2px',
-              top: `${y}%`,
-              transform: 'translateY(-50%)',
-              fontSize: '10px',
-              color: '#FF0000',
-              fontWeight: 'bold',
+              left: `${shelfPos.x}%`,
+              top: `${shelfPos.y}%`,
+              transform: 'translate(-50%, -100%)',
+              display: 'flex',
+              gap: `${shelfConfig.gap}px`,
+              alignItems: 'flex-end',
+              zIndex: 5,
             }}
           >
-            Y{y}%
-          </div>
-        ))}
-
-        {/* X% labels on top */}
-        {Array.from({ length: 21 }, (_, i) => i * 5).map((x) => (
-          <div
-            key={`x-${x}`}
-            style={{
-              position: 'absolute',
-              top: '2px',
-              left: `${x}%`,
-              transform: 'translateX(-50%)',
-              fontSize: '10px',
-              color: '#FF0000',
-              fontWeight: 'bold',
-            }}
-          >
-            X{x}%
-          </div>
-        ))}
-
-        {/* Grid lines */}
-        {Array.from({ length: 21 }, (_, i) => i * 5).map((pos) => (
-          <div key={`vline-${pos}`} style={{
-            position: 'absolute',
-            left: `${pos}%`,
-            top: 0,
-            bottom: 0,
-            width: '1px',
-            background: '#FF000033',
-          }} />
-        ))}
-        {Array.from({ length: 21 }, (_, i) => i * 5).map((pos) => (
-          <div key={`hline-${pos}`} style={{
-            position: 'absolute',
-            top: `${pos}%`,
-            left: 0,
-            right: 0,
-            height: '1px',
-            background: '#FF000033',
-          }} />
-        ))}
-      </div>
-
-      {/* Shelf bouquet display — centered and stacked */}
-      {shelfBouquets.length > 0 && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 5,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-start',
-            alignItems: 'center',
-            paddingTop: '30px',
-          }}
-        >
-          {shelfRows.map((row) => (
-            <div
-              key={row[0]?.id}
-              style={{
-                display: 'flex',
-                gap: '4px',
-                justifyContent: 'center',
-                alignItems: 'flex-end',
-              }}
-            >
-              {row.map((bouquet) => (
+            {row.map((bouquet) => (
+              <div
+                key={bouquet.id}
+                style={{
+                  position: 'relative',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '2px',
+                }}
+                onPointerDown={() => handlePointerDown(bouquet.id)}
+                onPointerUp={handlePointerUp}
+                onPointerLeave={handlePointerUp}
+              >
                 <div
-                  key={bouquet.id}
                   style={{
-                    position: 'relative',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    gap: '2px',
+                    transition: 'transform 0.15s',
+                    cursor: 'grab',
                   }}
-                  onPointerDown={() => handlePointerDown(bouquet.id)}
-                  onPointerUp={handlePointerUp}
-                  onPointerLeave={handlePointerUp}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform = 'scale(1.05)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
+                  }}
                 >
-                  <div
+                  <img
+                    src={bouquet.thumbnailUrl || '/bouquets/sunshine-bunch.png'}
+                    alt="Bouquet"
                     style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      transition: 'transform 0.15s',
-                      cursor: 'grab',
+                      width: shelfConfig.bouquetWidth,
+                      height: shelfConfig.bouquetHeight,
+                      objectFit: 'contain',
+                      backgroundColor: 'transparent',
+                      filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
+                      imageRendering: 'crisp-edges',
                     }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.transform = 'scale(1.05)';
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
+                  />
+                </div>
+
+                {/* Delete button shown on long-press */}
+                {longPressId === bouquet.id && (
+                  <button
+                    onClick={() => handleDelete(bouquet.id)}
+                    style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      background: '#C0392B',
+                      color: '#FFF',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '8px 12px',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      zIndex: 20,
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
                     }}
                   >
-                    <img
-                      src={bouquet.thumbnailUrl || '/bouquets/sunshine-bunch.png'}
-                      alt="Bouquet"
-                      style={{
-                        width: '100%',
-                        maxWidth: '90px',
-                        height: '110px',
-                        objectFit: 'contain',
-                        backgroundColor: 'transparent',
-                        filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
-                        imageRendering: 'crisp-edges',
-                        marginBottom: '2px',
-                      }}
-                    />
-                  </div>
-
-                  {/* Delete button shown on long-press */}
-                  {longPressId === bouquet.id && (
-                    <button
-                      onClick={() => handleDelete(bouquet.id)}
-                      style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        background: '#C0392B',
-                        color: '#FFF',
-                        border: 'none',
-                        borderRadius: '6px',
-                        padding: '8px 12px',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                        zIndex: 20,
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                      }}
-                    >
-                      🗑️ Delete
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      )}
+                    🗑️ Delete
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        );
+      })}
 
       {/* NPC Customer Visitor (Order Requests) */}
       {activeVisit && (
@@ -402,6 +360,9 @@ export function ShopScreen() {
       >
         <BottomTabNavigation />
       </div>
+
+      {/* Shelf Layout Editor overlay */}
+      {editingLayout && <ShelfLayoutEditor onClose={handleEditorClose} />}
     </div>
   );
 }
