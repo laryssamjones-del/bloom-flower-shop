@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
+import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { CoinCounter } from '../components/CoinCounter';
 import { BottomTabNavigation } from '../components/BottomTabNavigation';
@@ -44,6 +45,9 @@ export function ShopScreen() {
   const cumulativeBouquetsSold = useGameStore((s) => s.cumulativeBouquetsSold);
   const orderJustCompleted = useGameStore((s) => s.orderJustCompleted);
   const completedOrderCustomerImage = useGameStore((s) => s.completedOrderCustomerImage);
+
+  // Background music
+  useBackgroundMusic('/petals-on-repeat.mp3');
 
   const [longPressId, setLongPressId] = useState<string | null>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
