@@ -17699,11 +17699,29 @@
       "timestamp": 1781837134957,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1781837303187",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "do you remember the kid png NPC characters i added?",
+      "timestamp": 1781837303187,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781837310512-szc2ag4oy",
+      "role": "assistant",
+      "content": "Yes! I can see them in the CustomerNPCOverlay.tsx file. You have four kid/teen NPCs:\n\n- `npc-girl-pigtails.png`\n- `npc-girl-ponytail.png`\n- `npc-boy-brown-hair.png`\n- `npc-teen-purple-hair.png`\n\nThey're in the `NPC_IMAGES` array under the \"Children\" section, so they'll appear randomly when customers visit your shop. What would you like to do with them?",
+      "isShownToUser": true,
+      "timestamp": 1781837311511,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781837134997,
-  "tokenUsage": 9193,
+  "updatedAt": 1781837311699,
+  "tokenUsage": 9502,
   "script": "default",
   "claudeSessionId": "f05884e2-6fae-4fb0-b9b6-b2e806634d8b"
 }
