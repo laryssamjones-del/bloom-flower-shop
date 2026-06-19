@@ -5,7 +5,7 @@ import { MYSTERY_BOX_COST_RUN_BUCKS } from '../../data/mysteryBox';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { ScreenNavigation } from '../components/ScreenNavigation';
 import { generateSpecialDelivery } from '../components/SpecialDeliveryOverlay';
-import { openPlatformStore } from '../../services/iap';
+import { openPlatformStore, getRunbucksBalance } from '../../services/iap';
 
 type BulkOption = 1 | 5 | 10 | 20;
 
@@ -38,6 +38,7 @@ export function WholesaleMarketScreen() {
   const [deliverySuccessMessage, setDeliverySuccessMessage] = useState<string | null>(null);
   const [countdownDisplay, setCountdownDisplay] = useState<string>('8:00:00');
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [storeError, setStoreError] = useState<string | null>(null);
   const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Countdown timer effect
@@ -832,24 +833,38 @@ export function WholesaleMarketScreen() {
             <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: '#888', lineHeight: 1.5 }}>
               Use Run Bucks to unlock premium content like special deliveries and exclusive items!
             </p>
+            {storeError && (
+              <div style={{ margin: '0 0 16px 0', padding: '12px', background: '#FFE6E6', border: '2px solid #FF6B6B', borderRadius: '6px', fontSize: '12px', color: '#C92A2A', fontWeight: 'bold' }}>
+                {storeError}
+              </div>
+            )}
             <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
               <button
                 onClick={async () => {
+                  setStoreError(null);
                   RundotGameAPI.analytics.recordCustomEvent('premium_get_runbucks_clicked', {
                     currentBalance: premiumCurrency,
                   });
                   try {
-                    const result = await openPlatformStore();
-                    if (result.purchased && result.newBalance !== undefined) {
-                      useGameStore.setState({ premiumCurrency: result.newBalance });
-                      RundotGameAPI.analytics.recordCustomEvent('runbucks_purchased', {
-                        newBalance: result.newBalance,
-                      });
+                    await openPlatformStore();
+                    // Refresh RunBucks balance after returning from store
+                    try {
+                      const newBalance = await getRunbucksBalance();
+                      if (newBalance > premiumCurrency) {
+                        useGameStore.setState({ premiumCurrency: newBalance });
+                        RundotGameAPI.analytics.recordCustomEvent('runbucks_purchased', {
+                          newBalance: newBalance,
+                        });
+                      }
+                    } catch {
+                      // Balance fetch failed, but store might have worked
                     }
+                    setShowPremiumModal(false);
                   } catch (err) {
-                    console.error('Failed to open platform store:', err);
+                    const errorMsg = err instanceof Error ? err.message : String(err);
+                    console.error('Failed to open platform store:', errorMsg);
+                    setStoreError('Could not open the store. Please try again.');
                   }
-                  setShowPremiumModal(false);
                 }}
                 style={{
                   padding: '12px',

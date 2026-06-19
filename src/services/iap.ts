@@ -116,9 +116,9 @@ export async function purchaseProduct(
 }
 
 /** Open the platform RunBucks store ("Get more Runbucks" CTA). */
-export async function openPlatformStore(): Promise<{ purchased: boolean; newBalance: number }> {
+export async function openPlatformStore(): Promise<void> {
   try {
-    return await RundotGameAPI.iap.openStore();
+    await RundotGameAPI.iap.openStore();
   } catch (err) {
     throw new KitIapError(`openPlatformStore failed: ${String(err)}`);
   }
