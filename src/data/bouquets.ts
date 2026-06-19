@@ -27,7 +27,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'babys_breath', quantity: 1 },
       { flowerId: 'fern', quantity: 1 },
     ],
-    imageUrl: '/bouquets/sunshine-bunch.png',
+    imageUrl: './bouquets/sunshine-bunch.png',
     totalStems: 5,
   },
   {
@@ -40,7 +40,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'daisy', quantity: 2 },
       { flowerId: 'eucalyptus', quantity: 1 },
     ],
-    imageUrl: '/bouquets/lavender-dream.png',
+    imageUrl: './bouquets/lavender-dream.png',
     totalStems: 4,
   },
   {
@@ -54,7 +54,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'dried_wheat', quantity: 2 },
       { flowerId: 'ruscus', quantity: 1 },
     ],
-    imageUrl: '/bouquets/golden-meadow.png',
+    imageUrl: './bouquets/golden-meadow.png',
     totalStems: 6,
   },
   {
@@ -67,7 +67,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'daisy', quantity: 2 },
       { flowerId: 'babys_breath', quantity: 1 },
     ],
-    imageUrl: '/bouquets/spring-cosmos.png',
+    imageUrl: './bouquets/spring-cosmos.png',
     totalStems: 6,
   },
   {
@@ -80,7 +80,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'eucalyptus', quantity: 1 },
       { flowerId: 'ruscus', quantity: 1 },
     ],
-    imageUrl: '/bouquets/golden-meadow.png',
+    imageUrl: './bouquets/golden-meadow.png',
     totalStems: 5,
   },
   {
@@ -92,7 +92,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'daisy', quantity: 4 },
       { flowerId: 'fern', quantity: 2 },
     ],
-    imageUrl: '/bouquets/sunshine-bunch.png',
+    imageUrl: './bouquets/sunshine-bunch.png',
     totalStems: 6,
   },
 
@@ -107,7 +107,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'carnation', quantity: 1 },
       { flowerId: 'eucalyptus', quantity: 1 },
     ],
-    imageUrl: '/bouquets/tulip-garden.png',
+    imageUrl: './bouquets/tulip-garden.png',
     totalStems: 5,
   },
   {
@@ -121,7 +121,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'sweet_pea', quantity: 1 },
       { flowerId: 'fern', quantity: 1 },
     ],
-    imageUrl: '/bouquets/violet-anemone.png',
+    imageUrl: './bouquets/violet-anemone.png',
     totalStems: 5,
   },
   {
@@ -135,7 +135,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'babys_breath', quantity: 1 },
       { flowerId: 'olive_branch', quantity: 1 },
     ],
-    imageUrl: '/bouquets/poppy-field.png',
+    imageUrl: './bouquets/poppy-field.png',
     totalStems: 6,
   },
   {
@@ -148,7 +148,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'sweet_pea', quantity: 2 },
       { flowerId: 'ruscus', quantity: 1 },
     ],
-    imageUrl: '/bouquets/carnation-kiss.png',
+    imageUrl: './bouquets/carnation-kiss.png',
     totalStems: 6,
   },
   {
@@ -161,7 +161,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'cosmos', quantity: 2 },
       { flowerId: 'dried_wheat', quantity: 2 },
     ],
-    imageUrl: '/bouquets/golden-meadow.png',
+    imageUrl: './bouquets/golden-meadow.png',
     totalStems: 7,
   },
   {
@@ -174,7 +174,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'lilac', quantity: 1 },
       { flowerId: 'babys_breath', quantity: 1 },
     ],
-    imageUrl: '/bouquets/tulip-garden.png',
+    imageUrl: './bouquets/tulip-garden.png',
     totalStems: 4,
   },
   {
@@ -188,7 +188,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'daisy', quantity: 2 },
       { flowerId: 'olive_branch', quantity: 1 },
     ],
-    imageUrl: '/bouquets/spring-cosmos.png',
+    imageUrl: './bouquets/spring-cosmos.png',
     totalStems: 7,
   },
 
@@ -204,7 +204,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'marigold', quantity: 2 },
       { flowerId: 'monstera', quantity: 1 },
     ],
-    imageUrl: '/bouquets/golden-luxury.png',
+    imageUrl: './bouquets/golden-luxury.png',
     totalStems: 6,
   },
   {
@@ -218,7 +218,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'babys_breath', quantity: 1 },
       { flowerId: 'eucalyptus', quantity: 1 },
     ],
-    imageUrl: '/bouquets/rose-garden.png',
+    imageUrl: './bouquets/rose-garden.png',
     totalStems: 6,
   },
   {
@@ -232,7 +232,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'lilac', quantity: 1 },
       { flowerId: 'fern', quantity: 1 },
     ],
-    imageUrl: '/bouquets/peony-blush.png',
+    imageUrl: './bouquets/peony-blush.png',
     totalStems: 5,
   },
   {
@@ -246,7 +246,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'lisianthus', quantity: 2 },
       { flowerId: 'ruscus', quantity: 1 },
     ],
-    imageUrl: '/bouquets/lily-orchid.png',
+    imageUrl: './bouquets/lily-orchid.png',
     totalStems: 5,
   },
   {
@@ -260,7 +260,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'sweet_pea', quantity: 1 },
       { flowerId: 'olive_branch', quantity: 1 },
     ],
-    imageUrl: '/bouquets/hydrangea-cloud.png',
+    imageUrl: './bouquets/hydrangea-cloud.png',
     totalStems: 5,
   },
   {
@@ -274,7 +274,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'carnation', quantity: 1 },
       { flowerId: 'eucalyptus', quantity: 1 },
     ],
-    imageUrl: '/bouquets/rose-garden.png',
+    imageUrl: './bouquets/rose-garden.png',
     totalStems: 5,
   },
   {
@@ -288,7 +288,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'monstera', quantity: 1 },
       { flowerId: 'ruscus', quantity: 1 },
     ],
-    imageUrl: '/bouquets/protea-statement.png',
+    imageUrl: './bouquets/protea-statement.png',
     totalStems: 6,
   },
   {
@@ -302,7 +302,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'babys_breath', quantity: 1 },
       { flowerId: 'fern', quantity: 1 },
     ],
-    imageUrl: '/bouquets/orchard-blossom.png',
+    imageUrl: './bouquets/orchard-blossom.png',
     totalStems: 5,
   },
 
@@ -318,7 +318,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'babys_breath', quantity: 1 },
       { flowerId: 'eucalyptus', quantity: 1 },
     ],
-    imageUrl: '/bouquets/cherry-blossom-dream.png',
+    imageUrl: './bouquets/cherry-blossom-dream.png',
     totalStems: 5,
   },
   {
@@ -332,7 +332,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'monstera', quantity: 1 },
       { flowerId: 'ruscus', quantity: 1 },
     ],
-    imageUrl: '/bouquets/protea-statement.png',
+    imageUrl: './bouquets/protea-statement.png',
     totalStems: 5,
   },
   {
@@ -346,7 +346,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'orchid', quantity: 1 },
       { flowerId: 'fern', quantity: 1 },
     ],
-    imageUrl: '/bouquets/midnight-poppy.png',
+    imageUrl: './bouquets/midnight-poppy.png',
     totalStems: 6,
   },
   {
@@ -360,7 +360,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'cherry_blossom', quantity: 1 },
       { flowerId: 'sweet_pea', quantity: 2 },
     ],
-    imageUrl: '/bouquets/enchanted-lilac.png',
+    imageUrl: './bouquets/enchanted-lilac.png',
     totalStems: 6,
   },
   {
@@ -376,7 +376,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'protea', quantity: 1 },
       { flowerId: 'eucalyptus', quantity: 1 },
     ],
-    imageUrl: '/bouquets/grand-opulence.png',
+    imageUrl: './bouquets/grand-opulence.png',
     totalStems: 7,
   },
   {
@@ -391,7 +391,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'sweet_pea', quantity: 1 },
       { flowerId: 'ruscus', quantity: 1 },
     ],
-    imageUrl: '/bouquets/moonlit-garden.png',
+    imageUrl: './bouquets/moonlit-garden.png',
     totalStems: 6,
   },
   {
@@ -407,7 +407,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'dried_wheat', quantity: 1 },
       { flowerId: 'olive_branch', quantity: 1 },
     ],
-    imageUrl: '/bouquets/autumn-ember.png',
+    imageUrl: './bouquets/autumn-ember.png',
     totalStems: 9,
   },
   {
@@ -421,7 +421,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'peony', quantity: 1 },
       { flowerId: 'eucalyptus', quantity: 1 },
     ],
-    imageUrl: '/bouquets/grand-opulence.png',
+    imageUrl: './bouquets/grand-opulence.png',
     totalStems: 6,
   },
   {
@@ -437,7 +437,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
       { flowerId: 'monstera', quantity: 1 },
       { flowerId: 'olive_branch', quantity: 1 },
     ],
-    imageUrl: '/bouquets/violet-anemone.png',
+    imageUrl: './bouquets/violet-anemone.png',
     totalStems: 9,
   },
 ];

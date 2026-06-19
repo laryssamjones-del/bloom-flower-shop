@@ -207,28 +207,28 @@ export function ShopScreen() {
         const randomBouquet = bouquets[Math.floor(Math.random() * bouquets.length)];
         if (randomBouquet) {
           const NPC_IMAGES = [
-            '/npcs/npc-young-woman-01.png',
-            '/npcs/npc-young-woman-02.png',
-            '/npcs/npc-young-woman-03.png',
-            '/npcs/npc-young-woman-04.png',
-            '/npcs/npc-woman-braid-glasses.png',
-            '/npcs/npc-elder-woman-white-hair.png',
-            '/npcs/npc-elder-woman-grey-curly.png',
-            '/npcs/npc-woman-auburn-curly.png',
-            '/npcs/npc-woman-curly-afro.png',
-            '/npcs/npc-woman-dark-updo.png',
-            '/npcs/npc-girl-pigtails.png',
-            '/npcs/npc-girl-ponytail.png',
-            '/npcs/npc-boy-brown-hair.png',
-            '/npcs/npc-teen-purple-hair.png',
-            '/npcs/npc-man-bald-beard.png',
-            '/npcs/npc-man-black-hair-linen.png',
-            '/npcs/npc-man-brown-hair-sweater.png',
-            '/npcs/npc-man-curly-hair.png',
-            '/npcs/npc-man-grey-beard-blue.png',
-            '/npcs/npc-man-grey-hair-navy.png',
-            '/npcs/npc-man-locs-sweater.png',
-            '/npcs/npc-nonbinary-mint-hair.png',
+            './npcs/npc-young-woman-01.png',
+            './npcs/npc-young-woman-02.png',
+            './npcs/npc-young-woman-03.png',
+            './npcs/npc-young-woman-04.png',
+            './npcs/npc-woman-braid-glasses.png',
+            './npcs/npc-elder-woman-white-hair.png',
+            './npcs/npc-elder-woman-grey-curly.png',
+            './npcs/npc-woman-auburn-curly.png',
+            './npcs/npc-woman-curly-afro.png',
+            './npcs/npc-woman-dark-updo.png',
+            './npcs/npc-girl-pigtails.png',
+            './npcs/npc-girl-ponytail.png',
+            './npcs/npc-boy-brown-hair.png',
+            './npcs/npc-teen-purple-hair.png',
+            './npcs/npc-man-bald-beard.png',
+            './npcs/npc-man-black-hair-linen.png',
+            './npcs/npc-man-brown-hair-sweater.png',
+            './npcs/npc-man-curly-hair.png',
+            './npcs/npc-man-grey-beard-blue.png',
+            './npcs/npc-man-grey-hair-navy.png',
+            './npcs/npc-man-locs-sweater.png',
+            './npcs/npc-nonbinary-mint-hair.png',
           ];
           const randomNPC = NPC_IMAGES[Math.floor(Math.random() * NPC_IMAGES.length)]!;
           setShelfPurchaseNPC({ npcImage: randomNPC, bouquet: randomBouquet });
@@ -586,7 +586,7 @@ export function ShopScreen() {
                   }}
                 >
                   <img
-                    src={bouquet.thumbnailUrl || '/bouquets/sunshine-bunch.png'}
+                    src={bouquet.thumbnailUrl || './bouquets/sunshine-bunch.png'}
                     alt="Bouquet"
                     style={{
                       width: shelfConfig.bouquetWidth,

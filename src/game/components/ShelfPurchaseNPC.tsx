@@ -133,7 +133,7 @@ export function ShelfPurchaseNPC({ npcImage, bouquet, onComplete }: ShelfPurchas
             }}
           >
             <img
-              src={bouquet.thumbnailUrl || '/bouquets/sunshine-bunch.png'}
+              src={bouquet.thumbnailUrl || './bouquets/sunshine-bunch.png'}
               alt={bouquetName}
               style={{
                 width: '50px',

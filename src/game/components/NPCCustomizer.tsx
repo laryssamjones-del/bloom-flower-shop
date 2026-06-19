@@ -83,7 +83,7 @@ export function NPCCustomizer({ onClose }: Props) {
     onClose();
   };
 
-  const exampleNPCImage = '/npcs/npc-young-woman-01.png';
+  const exampleNPCImage = './npcs/npc-young-woman-01.png';
 
   return (
     <div

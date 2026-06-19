@@ -15,7 +15,7 @@ import { BOUQUET_RECIPES, getRecipeById } from '../data/bouquets';
 import { MYSTERY_BOX_COST_RUN_BUCKS, getRandomMysteryBouquet } from '../data/mysteryBox';
 import { getUnlockedFlowersAt } from '../data/progression';
 
-const STARTING_COINS = 1250;
+const STARTING_COINS = 250;
 const MAX_INVENTORY_STEMS = 200;
 const STARTING_SHELF_CAPACITY = 15;
 const DAILY_PURCHASE_LIMIT = 50; // 50 stems per flower per day
@@ -362,7 +362,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     // Use recipe data if a recipe is selected, otherwise fall back to calculation
     const recipe = state.selectedRecipeId ? getRecipeById(state.selectedRecipeId) : undefined;
     const price = recipe ? recipe.sellPrice : state.calculateBouquetPrice(stems);
-    const thumbnailUrl = recipe ? recipe.imageUrl : '/bouquets/sunshine-bunch.png';
+    const thumbnailUrl = recipe ? recipe.imageUrl : './bouquets/sunshine-bunch.png';
 
     const bouquet: Bouquet = {
       id: `bouquet-${Date.now()}-${Math.random()}`,
@@ -382,24 +382,24 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       if (order) {
         // NPC images for thank you animation
         const npcImages = [
-          '/npcs/npc-young-woman-01.png',
-          '/npcs/npc-young-woman-02.png',
-          '/npcs/npc-young-woman-03.png',
-          '/npcs/npc-young-woman-04.png',
-          '/npcs/npc-woman-braid-glasses.png',
-          '/npcs/npc-elder-woman-white-hair.png',
-          '/npcs/npc-elder-woman-grey-curly.png',
-          '/npcs/npc-woman-auburn-curly.png',
-          '/npcs/npc-woman-curly-afro.png',
-          '/npcs/npc-woman-dark-updo.png',
-          '/npcs/npc-man-bald-beard.png',
-          '/npcs/npc-man-black-hair-linen.png',
-          '/npcs/npc-man-brown-hair-sweater.png',
-          '/npcs/npc-man-curly-hair.png',
-          '/npcs/npc-man-grey-beard-blue.png',
-          '/npcs/npc-man-grey-hair-navy.png',
-          '/npcs/npc-man-locs-sweater.png',
-          '/npcs/npc-nonbinary-mint-hair.png',
+          './npcs/npc-young-woman-01.png',
+          './npcs/npc-young-woman-02.png',
+          './npcs/npc-young-woman-03.png',
+          './npcs/npc-young-woman-04.png',
+          './npcs/npc-woman-braid-glasses.png',
+          './npcs/npc-elder-woman-white-hair.png',
+          './npcs/npc-elder-woman-grey-curly.png',
+          './npcs/npc-woman-auburn-curly.png',
+          './npcs/npc-woman-curly-afro.png',
+          './npcs/npc-woman-dark-updo.png',
+          './npcs/npc-man-bald-beard.png',
+          './npcs/npc-man-black-hair-linen.png',
+          './npcs/npc-man-brown-hair-sweater.png',
+          './npcs/npc-man-curly-hair.png',
+          './npcs/npc-man-grey-beard-blue.png',
+          './npcs/npc-man-grey-hair-navy.png',
+          './npcs/npc-man-locs-sweater.png',
+          './npcs/npc-nonbinary-mint-hair.png',
         ];
         const randomCustomerImage = npcImages[Math.floor(Math.random() * npcImages.length)];
 

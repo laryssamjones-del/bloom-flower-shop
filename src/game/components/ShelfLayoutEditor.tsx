@@ -250,7 +250,7 @@ export function ShelfLayoutEditor({ onClose }: Props) {
                     }}
                   >
                     <img
-                      src={bouquet.thumbnailUrl || '/bouquets/sunshine-bunch.png'}
+                      src={bouquet.thumbnailUrl || './bouquets/sunshine-bunch.png'}
                       alt="Bouquet"
                       style={{
                         width: '100%',
