@@ -24,6 +24,7 @@ export function BottomTabNavigation({ onSettingsClick }: BottomTabNavigationProp
         gridTemplateColumns: 'repeat(4, 1fr)',
         gap: '6px',
         padding: '8px',
+        paddingLeft: '50px',
         paddingRight: '50px',
         background: 'rgba(255,255,255,0.3)',
         borderTop: '2px solid rgba(0,0,0,0.1)',
