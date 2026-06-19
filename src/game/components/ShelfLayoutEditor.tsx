@@ -62,7 +62,10 @@ const btnBase: React.CSSProperties = {
 export function ShelfLayoutEditor({ onClose }: Props) {
   const [config, setConfig] = useState<ShelfLayoutConfig>(() => loadShelfLayoutConfig());
   const [draggingIdx, setDraggingIdx] = useState<number | null>(null);
+  const [panelDragOffset, setPanelDragOffset] = useState({ x: 0, y: 0 });
+  const [draggingPanel, setDraggingPanel] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const panelDragStartRef = useRef({ x: 0, y: 0, offsetX: 0, offsetY: 0 });
 
   // Show actual shelf bouquets in the preview if available
   const shelfBouquets = useGameStore((s) => s.shelfBouquets);
@@ -76,19 +79,47 @@ export function ShelfLayoutEditor({ onClose }: Props) {
 
   const onPointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      if (draggingIdx === null || !containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const x = Math.max(5, Math.min(95, ((e.clientX - rect.left) / rect.width) * 100));
-      const y = Math.max(5, Math.min(95, ((e.clientY - rect.top) / rect.height) * 100));
-      setConfig((prev) => ({
-        ...prev,
-        shelves: prev.shelves.map((s, i) => (i === draggingIdx ? { x, y } : s)),
-      }));
+      if (draggingIdx === null && !draggingPanel) return;
+
+      if (draggingIdx !== null && containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const x = Math.max(5, Math.min(95, ((e.clientX - rect.left) / rect.width) * 100));
+        const y = Math.max(5, Math.min(95, ((e.clientY - rect.top) / rect.height) * 100));
+        setConfig((prev) => ({
+          ...prev,
+          shelves: prev.shelves.map((s, i) => (i === draggingIdx ? { x, y } : s)),
+        }));
+      }
+
+      if (draggingPanel) {
+        const dx = e.clientX - panelDragStartRef.current.x;
+        const dy = e.clientY - panelDragStartRef.current.y;
+        setPanelDragOffset({
+          x: panelDragStartRef.current.offsetX + dx,
+          y: panelDragStartRef.current.offsetY + dy,
+        });
+      }
     },
-    [draggingIdx],
+    [draggingIdx, draggingPanel],
   );
 
-  const onPointerUp = useCallback(() => setDraggingIdx(null), []);
+  const onPointerUp = useCallback(() => {
+    setDraggingIdx(null);
+    setDraggingPanel(false);
+  }, []);
+
+  const handlePanelDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    panelDragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      offsetX: panelDragOffset.x,
+      offsetY: panelDragOffset.y,
+    };
+    setDraggingPanel(true);
+  };
 
   const handleSave = () => {
     saveShelfLayoutConfig(config);
@@ -279,8 +310,8 @@ export function ShelfLayoutEditor({ onClose }: Props) {
       <div
         style={{
           position: 'absolute',
-          bottom: '120px',
-          left: '50%',
+          bottom: 120 + panelDragOffset.y,
+          left: `calc(50% + ${panelDragOffset.x}px)`,
           transform: 'translateX(-50%)',
           background: 'rgba(255,255,255,0.97)',
           borderRadius: '14px',
@@ -294,8 +325,17 @@ export function ShelfLayoutEditor({ onClose }: Props) {
           zIndex: 10,
         }}
       >
-        <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>
-          Shelf Layout Editor
+        <div
+          onPointerDown={handlePanelDragStart}
+          style={{
+            fontSize: '13px',
+            fontWeight: 'bold',
+            color: '#333',
+            cursor: draggingPanel ? 'grabbing' : 'grab',
+            userSelect: 'none',
+          }}
+        >
+          🎯 Shelf Layout Editor
         </div>
         <div style={{ fontSize: '10px', color: '#777', textAlign: 'center' }}>
           Drag each shelf handle · bottom of preview = Y position
