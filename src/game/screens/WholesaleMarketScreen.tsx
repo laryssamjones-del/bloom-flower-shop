@@ -5,6 +5,7 @@ import { MYSTERY_BOX_COST_RUN_BUCKS } from '../../data/mysteryBox';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { ScreenNavigation } from '../components/ScreenNavigation';
 import { getNextFlowerUnlock, isFlowerUnlockedAt } from '../../data/progression';
+import { generateSpecialDelivery } from '../components/SpecialDeliveryOverlay';
 
 type BulkOption = 1 | 5 | 10 | 20;
 
@@ -36,6 +37,7 @@ export function WholesaleMarketScreen() {
   const [selectedBulk, setSelectedBulk] = useState<number>(1);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [misterySuccessMessage, setMysterySuccessMessage] = useState<string | null>(null);
+  const [deliverySuccessMessage, setDeliverySuccessMessage] = useState<string | null>(null);
   const [countdownDisplay, setCountdownDisplay] = useState<string>('8:00:00');
   const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -209,6 +211,45 @@ export function WholesaleMarketScreen() {
     }
   };
 
+  const INSTANT_DELIVERY_COST = 50;
+
+  const handleBuyInstantDelivery = () => {
+    if (premiumCurrency < INSTANT_DELIVERY_COST) {
+      return;
+    }
+
+    // Deduct run bucks
+    const state = useGameStore.getState();
+    if (state.premiumCurrency >= INSTANT_DELIVERY_COST) {
+      // Generate delivery and save to localStorage
+      const delivery = generateSpecialDelivery();
+      localStorage.setItem('activeDelivery', JSON.stringify(delivery));
+
+      // Deduct the cost directly via Zustand
+      useGameStore.setState((s) => ({
+        premiumCurrency: s.premiumCurrency - INSTANT_DELIVERY_COST,
+        lastUpdated: Date.now(),
+      }));
+
+      // Schedule next delivery timer
+      const nextDeliveryTime = Date.now() + 8 * 60 * 60 * 1000;
+      localStorage.setItem('nextDeliveryTime', nextDeliveryTime.toString());
+
+      const successMsg = `🚚 Delivery truck incoming! ${INSTANT_DELIVERY_COST} 💎 Run Bucks spent`;
+      setDeliverySuccessMessage(successMsg);
+      setTimeout(() => setDeliverySuccessMessage(null), 3000);
+
+      RundotGameAPI.analytics.recordCustomEvent('instant_delivery_purchased', {
+        cost: INSTANT_DELIVERY_COST,
+      });
+
+      // Navigate back to shop after a short delay so they can see the message
+      setTimeout(() => {
+        setCurrentScreen('shop');
+      }, 500);
+    }
+  };
+
   return (
     <div
       style={{
@@ -341,6 +382,24 @@ export function WholesaleMarketScreen() {
           }}
         >
           {misterySuccessMessage}
+        </div>
+      )}
+
+      {/* Delivery Success Message */}
+      {deliverySuccessMessage && (
+        <div
+          style={{
+            padding: '12px 16px',
+            background: 'rgba(255, 107, 157, 0.2)',
+            color: '#FF6B9D',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            textAlign: 'center',
+            borderBottom: '2px solid #FF6B9D',
+            transition: 'opacity 0.3s ease-in-out',
+          }}
+        >
+          {deliverySuccessMessage}
         </div>
       )}
 
@@ -541,6 +600,29 @@ export function WholesaleMarketScreen() {
             </button>
           );
         })()}
+
+        {/* Buy Instant Delivery Button */}
+        <button
+          onClick={handleBuyInstantDelivery}
+          disabled={premiumCurrency < INSTANT_DELIVERY_COST}
+          style={{
+            width: '100%',
+            padding: '14px',
+            background: premiumCurrency < INSTANT_DELIVERY_COST ? '#CCC' : '#FF6B9D',
+            color: '#FFF',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: premiumCurrency < INSTANT_DELIVERY_COST ? 'not-allowed' : 'pointer',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            marginTop: '12px',
+            boxShadow: premiumCurrency >= INSTANT_DELIVERY_COST ? '0 4px 12px rgba(255, 107, 157, 0.3)' : 'none',
+          }}
+        >
+          {premiumCurrency < INSTANT_DELIVERY_COST
+            ? `❌ Not enough Run Bucks (${INSTANT_DELIVERY_COST - premiumCurrency} more needed)`
+            : `🚚 Buy Instant Delivery (${INSTANT_DELIVERY_COST} 💎)`}
+        </button>
 
         {/* Mystery Box Section — hidden until ready */}
         {false && <div

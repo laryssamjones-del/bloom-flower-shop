@@ -8,7 +8,7 @@ const DELIVERY_COST = 65;
 export interface SpecialDelivery {
   id: string;
   flowers: Array<{ flowerId: string; quantity: number }>;
-  bouquet: (typeof BOUQUET_RECIPES)[0];
+  bouquets: Array<(typeof BOUQUET_RECIPES)[0]>;
   createdAt: number;
 }
 
@@ -19,11 +19,11 @@ function generateSpecialDelivery(): SpecialDelivery {
     ...Object.keys(GREENERY),
   ];
 
-  // Generate 10 random flowers with varying quantities
+  // Generate 15 random flowers with varying quantities
   const flowers: Array<{ flowerId: string; quantity: number }> = [];
-  let remainingCount = 10;
+  let remainingCount = 15;
 
-  while (remainingCount > 0 && flowers.length < 5 && allFlowerIds.length > 0) {
+  while (remainingCount > 0 && flowers.length < 8 && allFlowerIds.length > 0) {
     const randomFlower = allFlowerIds[Math.floor(Math.random() * allFlowerIds.length)]!;
     const quantity = Math.min(remainingCount, Math.ceil(Math.random() * 4));
     flowers.push({ flowerId: randomFlower, quantity });
@@ -35,23 +35,19 @@ function generateSpecialDelivery(): SpecialDelivery {
     flowers[flowers.length - 1]!.quantity += remainingCount;
   }
 
-  // Pick a random bouquet recipe
-  const randomBouquet = BOUQUET_RECIPES[Math.floor(Math.random() * BOUQUET_RECIPES.length)];
+  // Pick 2 random bouquet recipes
+  const shuffled = [...BOUQUET_RECIPES].sort(() => 0.5 - Math.random());
+  const bouquets = [shuffled[0], shuffled[1]].filter((b) => b !== undefined) as Array<(typeof BOUQUET_RECIPES)[0]>;
 
-  if (!randomBouquet) {
+  if (bouquets.length === 0) {
     // Fallback if no recipes available (shouldn't happen)
-    return {
-      id: `delivery-${Date.now()}-${Math.random()}`,
-      flowers,
-      bouquet: BOUQUET_RECIPES[0]!,
-      createdAt: Date.now(),
-    };
+    bouquets.push(BOUQUET_RECIPES[0]!);
   }
 
   return {
     id: `delivery-${Date.now()}-${Math.random()}`,
     flowers,
-    bouquet: randomBouquet,
+    bouquets,
     createdAt: Date.now(),
   };
 }
@@ -222,13 +218,17 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
               </div>
             </div>
 
-            {/* Bouquet */}
+            {/* Bouquets */}
             <div style={{ marginBottom: '3px', paddingTop: '3px', borderTop: '1px solid rgba(0,0,0,0.1)' }}>
               <div style={{ fontSize: '10px', fontWeight: 'bold', color: '#666', marginBottom: '2px' }}>
-                💐 Bonus Bouquet:
+                💐 Bonus Bouquets:
               </div>
-              <div style={{ fontSize: '10px', color: '#555' }}>
-                {delivery.bouquet.name}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                {delivery.bouquets.map((bouquet, idx) => (
+                  <div key={idx} style={{ fontSize: '10px', color: '#555' }}>
+                    • {bouquet.name}
+                  </div>
+                ))}
               </div>
             </div>
 

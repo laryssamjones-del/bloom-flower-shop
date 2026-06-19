@@ -106,6 +106,23 @@ export function ShopScreen() {
   });
   const deliveryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Check if delivery should appear on mount based on stored timestamp
+  useEffect(() => {
+    const nextDeliveryTime = localStorage.getItem('nextDeliveryTime');
+    if (nextDeliveryTime) {
+      const deliveryTime = parseInt(nextDeliveryTime);
+      const now = Date.now();
+      if (now >= deliveryTime && !activeDelivery) {
+        // Delivery is ready!
+        const newDelivery = generateSpecialDelivery();
+        setActiveDelivery(newDelivery);
+        RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
+          deliveryId: newDelivery.id,
+        });
+      }
+    }
+  }, []);
+
   // Schedule next NPC visit
   const scheduleNextVisit = () => {
     const delay = NPC_VISIT_MIN + Math.random() * (NPC_VISIT_MAX - NPC_VISIT_MIN);
@@ -214,6 +231,8 @@ export function ShopScreen() {
 
   // Schedule special deliveries (8 hours)
   const scheduleNextDelivery = () => {
+    if (deliveryTimerRef.current) clearTimeout(deliveryTimerRef.current);
+
     const delay = 8 * 60 * 60 * 1000; // 8 hours
     const nextTime = Date.now() + delay;
     localStorage.setItem('nextDeliveryTime', nextTime.toString());
@@ -268,32 +287,35 @@ export function ShopScreen() {
       addStemsToInventory(flowerId, quantity);
     }
 
-    // Create and add bouquet to shelf
-    const bouquetToAdd: Bouquet = {
-      id: `delivery-bouquet-${Date.now()}`,
-      stems: delivery.bouquet.ingredients.flatMap((ing, idx) =>
-        Array.from({ length: ing.quantity }, (_, i) => ({
-          flowerId: ing.flowerId,
-          order: idx * 10 + i,
-        }))
-      ),
-      wrappingPaper: 'plain-white',
-      ribbonColor: 'blush',
-      sellPrice: delivery.bouquet.sellPrice,
-      thumbnailUrl: delivery.bouquet.imageUrl,
-      createdAt: Date.now(),
-      recipeName: delivery.bouquet.name,
-    };
+    // Create and add both bouquets to shelf
+    for (const bouquetRecipe of delivery.bouquets) {
+      const bouquetToAdd: Bouquet = {
+        id: `delivery-bouquet-${Date.now()}-${Math.random()}`,
+        stems: bouquetRecipe.ingredients.flatMap((ing, idx) =>
+          Array.from({ length: ing.quantity }, (_, i) => ({
+            flowerId: ing.flowerId,
+            order: idx * 10 + i,
+          }))
+        ),
+        wrappingPaper: 'plain-white',
+        ribbonColor: 'blush',
+        sellPrice: bouquetRecipe.sellPrice,
+        thumbnailUrl: bouquetRecipe.imageUrl,
+        createdAt: Date.now(),
+        recipeName: bouquetRecipe.name,
+      };
 
-    addBouquetToShelf(bouquetToAdd);
+      addBouquetToShelf(bouquetToAdd);
+    }
 
     RundotGameAPI.analytics.recordCustomEvent('special_delivery_accepted', {
       deliveryId: delivery.id,
       flowerCount: delivery.flowers.reduce((sum, f) => sum + f.quantity, 0),
-      bouquetName: delivery.bouquet.name,
+      bouquetCount: delivery.bouquets.length,
     });
 
     setActiveDelivery(null);
+    scheduleNextDelivery();
   };
 
   const handleDeliveryDeny = () => {
@@ -303,6 +325,7 @@ export function ShopScreen() {
       });
     }
     setActiveDelivery(null);
+    scheduleNextDelivery();
   };
 
   // Long-press handling for delete
