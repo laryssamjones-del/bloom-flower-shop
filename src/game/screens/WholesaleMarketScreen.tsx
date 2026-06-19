@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { FLOWERS, GREENERY, INITIAL_UNLOCKED_FLOWERS } from '../../constants/flowers';
 import { MYSTERY_BOX_COST_RUN_BUCKS } from '../../data/mysteryBox';
@@ -29,6 +29,26 @@ export function WholesaleMarketScreen() {
   const [selectedBulk, setSelectedBulk] = useState<number>(1);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [misterySuccessMessage, setMysterySuccessMessage] = useState<string | null>(null);
+  const [countdownDisplay, setCountdownDisplay] = useState<string>('15:00');
+  const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Countdown timer effect
+  useEffect(() => {
+    countdownIntervalRef.current = setInterval(() => {
+      const nextDeliveryTime = localStorage.getItem('nextDeliveryTime');
+      if (nextDeliveryTime) {
+        const now = Date.now();
+        const remaining = Math.max(0, parseInt(nextDeliveryTime) - now);
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+        setCountdownDisplay(`${minutes}:${String(seconds).padStart(2, '0')}`);
+      }
+    }, 1000);
+
+    return () => {
+      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    };
+  }, []);
 
   const availableFlowers = Array.from(INITIAL_UNLOCKED_FLOWERS);
   const availableGreenery = Object.keys(GREENERY);
@@ -190,6 +210,21 @@ export function WholesaleMarketScreen() {
 
       {/* Quick Navigation */}
       <ScreenNavigation currentScreen="wholesale" />
+
+      {/* Special delivery countdown */}
+      <div
+        style={{
+          padding: '10px 16px',
+          background: 'rgba(255, 107, 157, 0.95)',
+          color: '#FFF',
+          fontSize: '13px',
+          fontWeight: 'bold',
+          textAlign: 'center',
+          borderBottom: '2px solid rgba(255, 107, 157, 0.7)',
+        }}
+      >
+        🚚 Special delivery truck in: {countdownDisplay}
+      </div>
 
       {/* Success message */}
       {successMessage && (
