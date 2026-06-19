@@ -325,22 +325,22 @@ export function ShopScreen() {
         <CoinCounter />
       </div>
 
-      {/* Special delivery countdown */}
+      {/* Special delivery countdown — top of shop */}
       {nextDeliveryTime && !activeDelivery && (
         <div
           style={{
             position: 'absolute',
-            top: '50%',
+            top: '65px',
             left: '50%',
-            transform: 'translate(-50%, -50%)',
+            transform: 'translateX(-50%)',
             background: 'rgba(255, 107, 157, 0.95)',
             color: '#FFF',
-            padding: '12px 24px',
-            borderRadius: '20px',
-            fontSize: '14px',
+            padding: '8px 16px',
+            borderRadius: '16px',
+            fontSize: '12px',
             fontWeight: 'bold',
             zIndex: 9,
-            boxShadow: '0 4px 12px rgba(255, 107, 157, 0.4)',
+            boxShadow: '0 2px 8px rgba(255, 107, 157, 0.3)',
             pointerEvents: 'none',
             whiteSpace: 'nowrap',
           }}
