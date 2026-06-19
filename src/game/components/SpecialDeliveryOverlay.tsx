@@ -94,14 +94,13 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
         pointerEvents: 'none',
       }}
     >
-      {/* Overlay bg */}
+      {/* Overlay bg - no click dismiss, only via buttons */}
       <div
-        onClick={onDeny}
         style={{
           position: 'absolute',
           inset: 0,
           background: 'transparent',
-          pointerEvents: 'all',
+          pointerEvents: 'none',
         }}
       />
 
