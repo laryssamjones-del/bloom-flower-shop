@@ -472,9 +472,8 @@ export function ShopScreen() {
       </div>
 
 
-      {/* Edit Layout button — top-left (dev only) */}
-      {import.meta.env.DEV && (
-        <div style={{ position: 'fixed', top: '20px', left: '20px', display: 'flex', gap: '12px', zIndex: 10000 }}>
+      {/* Edit Layout button — top-left */}
+      <div style={{ position: 'fixed', top: '20px', left: '20px', display: 'flex', gap: '12px', zIndex: 10000 }}>
           <button
             onClick={() => {
               setEditingLayout(true);
@@ -539,7 +538,6 @@ export function ShopScreen() {
             🚚 Truck
           </button>
         </div>
-      )}
 
       {/* Shelf bouquet display — positioned via saved layout config */}
       {shelfRows.map((row, rowIdx) => {
