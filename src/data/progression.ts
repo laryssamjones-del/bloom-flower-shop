@@ -3,10 +3,10 @@
  * Tracks flower and tier unlocks based on cumulative bouquets sold
  */
 
-export type FlowerTier = 'budget' | 'standard' | 'premium' | 'deluxe';
+export type BouquetTier = 'budget' | 'standard' | 'premium' | 'deluxe';
 
 export interface FlowerTierDef {
-  tier: FlowerTier;
+  tier: BouquetTier;
   flowerIds: string[];
   unlockedAt: number; // cumulative bouquets sold to unlock tier
   label: string;
@@ -14,7 +14,7 @@ export interface FlowerTierDef {
 
 export interface FlowerUnlock {
   flowerId: string;
-  tier: FlowerTier;
+  tier: BouquetTier;
   unlockedAt: number; // cumulative bouquets sold to unlock this flower
 }
 
@@ -117,7 +117,7 @@ export function isFlowerUnlockedAt(flowerId: string, salesCount: number): boolea
 /**
  * Helper to get tier unlock requirement
  */
-export function getTierUnlockRequirement(tier: FlowerTier): number {
+export function getTierUnlockRequirement(tier: BouquetTier): number {
   const tierDef = FLOWER_TIERS.find((t) => t.tier === tier);
   return tierDef ? tierDef.unlockedAt : 0;
 }
@@ -127,4 +127,38 @@ export function getTierUnlockRequirement(tier: FlowerTier): number {
  */
 export function getUnlockedFlowersAt(salesCount: number): string[] {
   return FLOWER_UNLOCKS.filter((unlock) => unlock.unlockedAt <= salesCount).map((u) => u.flowerId);
+}
+
+/**
+ * Get the player's current level based on bouquets sold
+ * Level is based on tier progression:
+ * Level 1: 0-39 bouquets (Budget tier, 0/40)
+ * Level 2: 40-139 bouquets (Standard tier, 40/140)
+ * Level 3: 140-349 bouquets (Premium tier, 140/350)
+ * Level 4: 350+ bouquets (Deluxe tier, 350+)
+ */
+export function getCurrentLevel(cumulativeBouquetsSold: number): number {
+  if (cumulativeBouquetsSold < 40) return 1;
+  if (cumulativeBouquetsSold < 140) return 2;
+  if (cumulativeBouquetsSold < 350) return 3;
+  return 4;
+}
+
+/**
+ * Get the current level progress (current, target) for display
+ * Returns [currentBouquets, targetBouquets] for the current level
+ */
+export function getLevelProgress(cumulativeBouquetsSold: number): [number, number] {
+  const currentLevel = getCurrentLevel(cumulativeBouquetsSold);
+
+  if (currentLevel === 1) {
+    return [cumulativeBouquetsSold, 40]; // 0/40
+  } else if (currentLevel === 2) {
+    return [cumulativeBouquetsSold, 140]; // X/140
+  } else if (currentLevel === 3) {
+    return [cumulativeBouquetsSold, 350]; // X/350
+  } else {
+    // Level 4 - show 350+ (doesn't progress further)
+    return [Math.max(cumulativeBouquetsSold, 350), 350];
+  }
 }

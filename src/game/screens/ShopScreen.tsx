@@ -21,6 +21,7 @@ import { TruckCustomizer } from '../components/TruckCustomizer';
 import { FlowerUnlockNotification } from '../components/FlowerUnlockNotification';
 import { Bouquet } from '../../types';
 import { BOUQUET_RECIPES } from '../../data/bouquets';
+import { getCurrentLevel, getLevelProgress } from '../../data/progression';
 
 // NPC visits: a customer slides in every 15–45 seconds
 const NPC_VISIT_MIN = 15000;
@@ -38,6 +39,7 @@ export function ShopScreen() {
   const removeBouquetFromShelf = useGameStore((s) => s.removeBouquetFromShelf);
   const createOrder = useGameStore((s) => s.createOrder);
   const unlockedFlowers = useGameStore((s) => s.unlockedFlowers);
+  const cumulativeBouquetsSold = useGameStore((s) => s.cumulativeBouquetsSold);
 
   const [longPressId, setLongPressId] = useState<string | null>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -77,6 +79,19 @@ export function ShopScreen() {
     setPendingUnlockNotifications((prev) => prev.slice(1));
     setCurrentUnlock(null);
   };
+
+  // Track level-up events
+  const previousLevelRef = useRef<number>(getCurrentLevel(cumulativeBouquetsSold));
+  useEffect(() => {
+    const currentLevel = getCurrentLevel(cumulativeBouquetsSold);
+    if (currentLevel > previousLevelRef.current) {
+      RundotGameAPI.analytics.recordCustomEvent('player_leveled_up', {
+        newLevel: currentLevel,
+        bouquetsSold: cumulativeBouquetsSold,
+      });
+      previousLevelRef.current = currentLevel;
+    }
+  }, [cumulativeBouquetsSold]);
 
   // Active NPC visit (order requests)
   const [activeVisit, setActiveVisit] = useState<NPCVisit | null>(null);
@@ -401,6 +416,32 @@ export function ShopScreen() {
         position: 'relative',
       }}
     >
+      {/* Level display — top-left */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '12px',
+          left: '12px',
+          zIndex: 10,
+          background: 'rgba(255,255,255,0.95)',
+          borderRadius: '8px',
+          padding: '8px 12px',
+          fontSize: '14px',
+          fontWeight: 'bold',
+          color: '#333',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          minWidth: '140px',
+          textAlign: 'center',
+        }}
+      >
+        <div style={{ fontSize: '16px', marginBottom: '2px' }}>
+          Level {getCurrentLevel(cumulativeBouquetsSold)}
+        </div>
+        <div style={{ fontSize: '12px', color: '#666' }}>
+          {getLevelProgress(cumulativeBouquetsSold)[0]}/{getLevelProgress(cumulativeBouquetsSold)[1]} Bouquets Sold
+        </div>
+      </div>
+
       {/* Top bar with coin counter */}
       <div
         style={{

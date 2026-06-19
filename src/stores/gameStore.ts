@@ -8,11 +8,12 @@ import {
   StemInInventory,
   Order,
   MysteryBouquetItem,
+  BouquetTier,
 } from '../types';
 import { FLOWERS, INITIAL_UNLOCKED_FLOWERS, CUSTOMER_MOODS } from '../constants/flowers';
 import { BOUQUET_RECIPES, getRecipeById } from '../data/bouquets';
 import { MYSTERY_BOX_COST_RUN_BUCKS, getRandomMysteryBouquet } from '../data/mysteryBox';
-import { FlowerTier, getUnlockedFlowersAt } from '../data/progression';
+import { getUnlockedFlowersAt } from '../data/progression';
 
 const STARTING_COINS = 1250;
 const MAX_INVENTORY_STEMS = 200;
@@ -55,7 +56,7 @@ const createInitialState = (): ShopState => ({
   unlockedRibbons: ['blush', 'ivory'],
   unlockedWrappings: ['plain-white', 'kraft'],
   cumulativeBouquetsSold: 0,
-  unlockedTiers: new Set<FlowerTier>(['budget']),
+  unlockedTiers: new Set<BouquetTier>(['budget']),
 
   // Daily limits
   dailyPurchases: {},
@@ -137,9 +138,9 @@ interface GameStoreActions {
   unlockFlower: (flowerId: string) => void;
   unlockRibbon: (ribbon: RibbonColor) => void;
   unlockWrapping: (wrapping: WrappingPaperType) => void;
-  unlockTier: (tier: FlowerTier) => void;
+  unlockTier: (tier: BouquetTier) => void;
   isFlowerUnlocked: (flowerId: string) => boolean;
-  isTierUnlocked: (tier: FlowerTier) => boolean;
+  isTierUnlocked: (tier: BouquetTier) => boolean;
   getCumulativeBouquetsSold: () => number;
 
   // Save/load
@@ -713,7 +714,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     }));
   },
 
-  unlockTier: (tier: FlowerTier) => {
+  unlockTier: (tier: BouquetTier) => {
     set((s) => ({
       unlockedTiers: new Set([...s.unlockedTiers, tier]),
     }));
@@ -723,7 +724,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     return get().unlockedFlowers.has(flowerId);
   },
 
-  isTierUnlocked: (tier: FlowerTier) => {
+  isTierUnlocked: (tier: BouquetTier) => {
     return get().unlockedTiers.has(tier);
   },
 
@@ -778,8 +779,8 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
         const unlockedFlowers = new Set(
           Array.isArray(data['unlockedFlowers']) ? (data['unlockedFlowers'] as string[]) : []
         );
-        const unlockedTiers = new Set(
-          Array.isArray(data['unlockedTiers']) ? (data['unlockedTiers'] as FlowerTier[]) : ['budget']
+        const unlockedTiers = new Set<BouquetTier>(
+          Array.isArray(data['unlockedTiers']) ? (data['unlockedTiers'] as BouquetTier[]) : (['budget'] as BouquetTier[])
         );
         // Boost coins to 650 if needed
         const coins = typeof data['coins'] === 'number' ? (data['coins'] as number) : 50;

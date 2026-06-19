@@ -3,6 +3,7 @@
  */
 
 export type FlowerTier = 'common' | 'mid' | 'premium' | 'rare';
+export type BouquetTier = 'budget' | 'standard' | 'premium' | 'deluxe';
 
 export interface Flower {
   id: string;
@@ -91,6 +92,7 @@ export interface GameState {
   shelfCapacity: number;
   shelfBouquets: Bouquet[];
   displayedBouquets: (Bouquet | null)[]; // Array matching shelf capacity, null = empty spot
+  pendingBouquets: Bouquet[]; // Bouquets waiting to be placed on shelf
 
   // Customers & Orders
   activeCustomers: Customer[];
@@ -105,6 +107,8 @@ export interface GameState {
   unlockedFlowers: Set<string>;
   unlockedRibbons: RibbonColor[];
   unlockedWrappings: WrappingPaperType[];
+  cumulativeBouquetsSold: number;
+  unlockedTiers: Set<BouquetTier>;
 
   // Daily limits
   dailyPurchases: Record<string, number>;
