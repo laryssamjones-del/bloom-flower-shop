@@ -93,8 +93,9 @@ export function BottomTabNavigation({ onSettingsClick }: BottomTabNavigationProp
         }}
         style={{
           position: 'absolute',
-          top: '6px',
-          right: '6px',
+          top: '50%',
+          right: '8px',
+          transform: 'translateY(-50%)',
           width: '32px',
           height: '32px',
           background: '#F5F0E8',
