@@ -197,7 +197,7 @@ export function ShopScreen() {
     const addStemsToInventory = useGameStore.getState().addStemsToInventory;
     const addBouquetToShelf = useGameStore.getState().addBouquetToShelf;
 
-    const DELIVERY_COST = 25;
+    const DELIVERY_COST = 65;
 
     if (!spendCoins(DELIVERY_COST)) {
       // Not enough coins
