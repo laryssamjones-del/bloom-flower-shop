@@ -36,7 +36,7 @@ export function WholesaleMarketScreen() {
   const [selectedBulk, setSelectedBulk] = useState<number>(1);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [misterySuccessMessage, setMysterySuccessMessage] = useState<string | null>(null);
-  const [countdownDisplay, setCountdownDisplay] = useState<string>('15:00');
+  const [countdownDisplay, setCountdownDisplay] = useState<string>('8:00:00');
   const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Countdown timer effect
@@ -46,9 +46,10 @@ export function WholesaleMarketScreen() {
       if (nextDeliveryTime) {
         const now = Date.now();
         const remaining = Math.max(0, parseInt(nextDeliveryTime) - now);
-        const minutes = Math.floor(remaining / 60000);
+        const hours = Math.floor(remaining / 3600000);
+        const minutes = Math.floor((remaining % 3600000) / 60000);
         const seconds = Math.floor((remaining % 60000) / 1000);
-        setCountdownDisplay(`${minutes}:${String(seconds).padStart(2, '0')}`);
+        setCountdownDisplay(`${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
       }
     }, 1000);
 
