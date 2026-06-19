@@ -65,12 +65,13 @@ export function TruckCustomizer({ onClose }: Props) {
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      if (!draggingTruck || !containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
+      if (!draggingTruck) return;
       const dx = e.clientX - truckDragStartRef.current.x;
       const dy = e.clientY - truckDragStartRef.current.y;
 
-      const newLeftOffset = Math.max(0, Math.min(100, truckDragStartRef.current.offsetX + (dx / rect.width) * 100));
+      // Use viewport width for percentage calculation to match delivery overlay positioning
+      const viewportWidth = window.innerWidth;
+      const newLeftOffset = Math.max(0, Math.min(100, truckDragStartRef.current.offsetX + (dx / viewportWidth) * 100));
       const newTopOffset = Math.max(0, truckDragStartRef.current.offsetY + dy);
 
       setConfig((prev) => ({
