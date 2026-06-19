@@ -151,18 +151,6 @@ export function FlowerUnlockNotification({ flowerId, onComplete }: Props) {
           {flower.name}
         </p>
 
-        {flower.description && (
-          <p
-            style={{
-              margin: '8px 0 0 0',
-              fontSize: '12px',
-              color: '#666',
-              fontStyle: 'italic',
-            }}
-          >
-            {flower.description}
-          </p>
-        )}
       </div>
     </div>
   );

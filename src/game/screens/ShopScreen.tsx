@@ -70,7 +70,7 @@ export function ShopScreen() {
   // Show unlock notifications one at a time
   useEffect(() => {
     if (currentUnlock === null && pendingUnlockNotifications.length > 0) {
-      const nextUnlock = pendingUnlockNotifications[0];
+      const nextUnlock = pendingUnlockNotifications[0] ?? null;
       setCurrentUnlock(nextUnlock);
       RundotGameAPI.analytics.recordCustomEvent('flower_unlocked', {
         flowerId: nextUnlock,

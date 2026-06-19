@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useGameStore } from '../../stores/gameStore';
-import { FLOWERS, GREENERY, INITIAL_UNLOCKED_FLOWERS } from '../../constants/flowers';
+import { FLOWERS, GREENERY } from '../../constants/flowers';
 import { MYSTERY_BOX_COST_RUN_BUCKS } from '../../data/mysteryBox';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { ScreenNavigation } from '../components/ScreenNavigation';
-import { getNextFlowerUnlock, isFlowerUnlockedAt } from '../../data/progression';
 import { generateSpecialDelivery } from '../components/SpecialDeliveryOverlay';
 
 type BulkOption = 1 | 5 | 10 | 20;
@@ -30,8 +29,6 @@ export function WholesaleMarketScreen() {
   const getOrderForShopping = useGameStore((s) => s.getOrderForShopping);
   const setShoppingForOrderId = useGameStore((s) => s.setShoppingForOrderId);
   const inventory = useGameStore((s) => s.inventory);
-  const unlockedFlowers = useGameStore((s) => s.unlockedFlowers);
-  const cumulativeBouquetsSold = useGameStore((s) => s.cumulativeBouquetsSold);
 
   const [selectedFlower, setSelectedFlower] = useState<string | null>(null);
   const [selectedBulk, setSelectedBulk] = useState<number>(1);
