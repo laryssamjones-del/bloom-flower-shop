@@ -73,7 +73,7 @@ interface CustomerNPCOverlayProps {
 export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOverlayProps) {
   const [phase, setPhase] = useState<'entering' | 'visible' | 'leaving'>('entering');
   const [showDeclineLine, setShowDeclineLine] = useState<string | null>(null);
-  const [timeRemaining, setTimeRemaining] = useState(10);
+  const [timeRemaining, setTimeRemaining] = useState(15);
   const npcConfig = useMemo(() => loadNPCCustomizationConfig(), []);
   const autoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -84,7 +84,7 @@ export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOv
     return () => clearTimeout(t);
   }, []);
 
-  // Handle 10-second countdown and auto-dismiss
+  // Handle 15-second countdown and auto-dismiss
   useEffect(() => {
     if (phase === 'visible' && !showDeclineLine) {
       // Start countdown
