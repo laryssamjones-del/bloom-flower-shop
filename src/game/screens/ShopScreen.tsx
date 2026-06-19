@@ -316,23 +316,24 @@ export function ShopScreen() {
 
       {/* Edit Layout button — top-left (dev only) */}
       {import.meta.env.DEV && (
-        <div style={{ position: 'absolute', top: '12px', left: '12px', display: 'flex', gap: '8px', zIndex: 10 }}>
+        <div style={{ position: 'absolute', top: '16px', left: '16px', display: 'flex', gap: '12px', zIndex: 100 }}>
           <button
             onClick={() => {
               setEditingLayout(true);
               RundotGameAPI.analytics.recordCustomEvent('shelf_layout_editor_opened');
             }}
             style={{
-              background: 'rgba(255,255,255,0.85)',
-              border: '1px solid rgba(0,0,0,0.15)',
+              background: 'rgba(255,255,255,0.95)',
+              border: '2px solid rgba(0,0,0,0.2)',
               borderRadius: '8px',
-              padding: '6px 10px',
-              fontSize: '13px',
+              padding: '8px 14px',
+              fontSize: '14px',
+              fontWeight: '500',
               cursor: 'pointer',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
               display: 'flex',
               alignItems: 'center',
-              gap: '4px',
+              gap: '6px',
             }}
           >
             ⚙️ Layout
@@ -343,16 +344,17 @@ export function ShopScreen() {
               RundotGameAPI.analytics.recordCustomEvent('npc_customizer_opened');
             }}
             style={{
-              background: 'rgba(255,255,255,0.85)',
-              border: '1px solid rgba(0,0,0,0.15)',
+              background: 'rgba(255,255,255,0.95)',
+              border: '2px solid rgba(0,0,0,0.2)',
               borderRadius: '8px',
-              padding: '6px 10px',
-              fontSize: '13px',
+              padding: '8px 14px',
+              fontSize: '14px',
+              fontWeight: '500',
               cursor: 'pointer',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
               display: 'flex',
               alignItems: 'center',
-              gap: '4px',
+              gap: '6px',
             }}
           >
             👤 NPC
