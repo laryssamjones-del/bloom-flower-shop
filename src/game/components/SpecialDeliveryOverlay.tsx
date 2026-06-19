@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { FLOWERS, GREENERY } from '../../constants/flowers';
 import { BOUQUET_RECIPES } from '../../data/bouquets';
 import { loadTruckCustomizationConfig } from './TruckCustomizer';
@@ -66,7 +66,7 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
   const [isSliding, setIsSliding] = useState(false);
   const [showContents, setShowContents] = useState(false);
   const [isAccepted, setIsAccepted] = useState(false);
-  const truckConfig = useMemo(() => loadTruckCustomizationConfig(), []);
+  const truckConfig = loadTruckCustomizationConfig();
 
   useEffect(() => {
     setIsSliding(true);
