@@ -26,6 +26,10 @@ const NPC_IMAGES = [
   '/npcs/npc-man-grey-beard-blue.png',
   '/npcs/npc-man-grey-hair-navy.png',
   '/npcs/npc-man-locs-sweater.png',
+  '/npcs/npc-man-black-fade-tan-jacket.png',
+  '/npcs/npc-man-black-wavy-denim-shirt.png',
+  '/npcs/npc-man-blonde-curly-lilac-sweater.png',
+  '/npcs/npc-man-red-hair-navy-sweater.png',
   // Other
   '/npcs/npc-nonbinary-mint-hair.png',
 ];
