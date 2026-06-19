@@ -27,6 +27,7 @@ export function WholesaleMarketScreen() {
   const shoppingForOrderId = useGameStore((s) => s.shoppingForOrderId);
   const getOrderForShopping = useGameStore((s) => s.getOrderForShopping);
   const setShoppingForOrderId = useGameStore((s) => s.setShoppingForOrderId);
+  const inventory = useGameStore((s) => s.inventory);
 
   const [selectedFlower, setSelectedFlower] = useState<string | null>(null);
   const [selectedBulk, setSelectedBulk] = useState<number>(1);
@@ -356,6 +357,10 @@ export function WholesaleMarketScreen() {
             const isGreenery = availableGreenery.includes(itemId);
             const neededQuantity = neededFlowersMap.get(itemId);
 
+            // Calculate remaining needed after inventory
+            const inventoryQuantity = inventory.find((stem) => stem.flowerId === itemId)?.quantity || 0;
+            const remainingNeeded = neededQuantity !== undefined ? Math.max(0, neededQuantity - inventoryQuantity) : undefined;
+
             return (
               <div
                 key={itemId}
@@ -381,7 +386,7 @@ export function WholesaleMarketScreen() {
                   position: 'relative',
                 }}
               >
-                {neededQuantity !== undefined && (
+                {remainingNeeded !== undefined && remainingNeeded > 0 && (
                   <div
                     style={{
                       position: 'absolute',
@@ -396,7 +401,7 @@ export function WholesaleMarketScreen() {
                       border: '1px solid white',
                     }}
                   >
-                    {neededQuantity}
+                    {remainingNeeded}
                   </div>
                 )}
                 <img
