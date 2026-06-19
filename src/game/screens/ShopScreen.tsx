@@ -14,9 +14,9 @@ import {
 import { Bouquet } from '../../types';
 import { BOUQUET_RECIPES } from '../../data/bouquets';
 
-// NPC visits: a customer slides in every 25–90 seconds
-const NPC_VISIT_MIN = 25000;
-const NPC_VISIT_MAX = 90000;
+// NPC visits: a customer slides in every 15–45 seconds
+const NPC_VISIT_MIN = 15000;
+const NPC_VISIT_MAX = 45000;
 
 // Lifecycle analytics (module-scope — runs once)
 RundotGameAPI.lifecycles.onPause(() => RundotGameAPI.analytics.recordCustomEvent('game_paused'));
