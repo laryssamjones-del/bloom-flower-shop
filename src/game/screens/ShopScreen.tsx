@@ -19,6 +19,7 @@ import {
 import { NPCCustomizer } from '../components/NPCCustomizer';
 import { TruckCustomizer } from '../components/TruckCustomizer';
 import { FlowerUnlockNotification } from '../components/FlowerUnlockNotification';
+import { OrderThankYouOverlay } from '../components/OrderThankYouOverlay';
 import { Bouquet } from '../../types';
 import { BOUQUET_RECIPES } from '../../data/bouquets';
 import { getCurrentLevel, getLevelProgress } from '../../data/progression';
@@ -40,6 +41,8 @@ export function ShopScreen() {
   const createOrder = useGameStore((s) => s.createOrder);
   const unlockedFlowers = useGameStore((s) => s.unlockedFlowers);
   const cumulativeBouquetsSold = useGameStore((s) => s.cumulativeBouquetsSold);
+  const orderJustCompleted = useGameStore((s) => s.orderJustCompleted);
+  const completedOrderCustomerImage = useGameStore((s) => s.completedOrderCustomerImage);
 
   const [longPressId, setLongPressId] = useState<string | null>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -632,6 +635,14 @@ export function ShopScreen() {
           npcImage={shelfPurchaseNPC.npcImage}
           bouquet={shelfPurchaseNPC.bouquet}
           onComplete={handleShelfPurchaseComplete}
+        />
+      )}
+
+      {/* Order Thank You Animation */}
+      {orderJustCompleted && completedOrderCustomerImage && (
+        <OrderThankYouOverlay
+          customerImage={completedOrderCustomerImage}
+          onComplete={() => useGameStore.setState({ orderJustCompleted: false, completedOrderCustomerImage: undefined })}
         />
       )}
 

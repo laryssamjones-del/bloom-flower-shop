@@ -70,6 +70,8 @@ const createInitialState = (): ShopState => ({
   currentScreen: 'shop',
   stemsInArrangement: [],
   shoppingForOrderId: undefined,
+  orderJustCompleted: false,
+  completedOrderCustomerImage: undefined,
 });
 
 interface GameStoreActions {
@@ -378,6 +380,29 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     if (fulfillOrderId) {
       const order = state.pendingOrders.find((o) => o.id === fulfillOrderId);
       if (order) {
+        // NPC images for thank you animation
+        const npcImages = [
+          '/npcs/npc-young-woman-01.png',
+          '/npcs/npc-young-woman-02.png',
+          '/npcs/npc-young-woman-03.png',
+          '/npcs/npc-young-woman-04.png',
+          '/npcs/npc-woman-braid-glasses.png',
+          '/npcs/npc-elder-woman-white-hair.png',
+          '/npcs/npc-elder-woman-grey-curly.png',
+          '/npcs/npc-woman-auburn-curly.png',
+          '/npcs/npc-woman-curly-afro.png',
+          '/npcs/npc-woman-dark-updo.png',
+          '/npcs/npc-man-bald-beard.png',
+          '/npcs/npc-man-black-hair-linen.png',
+          '/npcs/npc-man-brown-hair-sweater.png',
+          '/npcs/npc-man-curly-hair.png',
+          '/npcs/npc-man-grey-beard-blue.png',
+          '/npcs/npc-man-grey-hair-navy.png',
+          '/npcs/npc-man-locs-sweater.png',
+          '/npcs/npc-nonbinary-mint-hair.png',
+        ];
+        const randomCustomerImage = npcImages[Math.floor(Math.random() * npcImages.length)];
+
         set((s) => ({
           pendingOrders: s.pendingOrders.filter((o) => o.id !== fulfillOrderId),
           completedOrders: [...s.completedOrders, { ...order, status: 'completed' }],
@@ -386,7 +411,9 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
           inProgressWrapping: undefined,
           selectedRecipeId: undefined,
           fulfillOrderId: undefined,
-          currentScreen: 'orders',
+          orderJustCompleted: true,
+          completedOrderCustomerImage: randomCustomerImage,
+          currentScreen: 'shop',
           lastUpdated: Date.now(),
         }));
         state.addCoins(price);
