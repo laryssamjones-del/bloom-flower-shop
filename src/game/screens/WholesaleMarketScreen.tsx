@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { FLOWERS, GREENERY } from '../../constants/flowers';
 import { MYSTERY_BOX_COST_RUN_BUCKS } from '../../data/mysteryBox';
+import { PETAL_COINS_PACKAGES } from '../../data/petalCoinsPackages';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { ScreenNavigation } from '../components/ScreenNavigation';
 import { generateSpecialDelivery } from '../components/SpecialDeliveryOverlay';
@@ -306,6 +307,37 @@ export function WholesaleMarketScreen() {
       setTimeout(() => {
         setCurrentScreen('shop');
       }, 500);
+    }
+  };
+
+  const handleBuyPetalCoinsPackage = (packageId: string) => {
+    const pkg = PETAL_COINS_PACKAGES.find((p) => p.id === packageId);
+    if (!pkg) return;
+
+    if (premiumCurrency < pkg.cost) {
+      return;
+    }
+
+    // Deduct run bucks
+    const state = useGameStore.getState();
+    if (state.premiumCurrency >= pkg.cost) {
+      // Add coins to inventory
+      useGameStore.setState((s) => ({
+        premiumCurrency: s.premiumCurrency - pkg.cost,
+        coins: s.coins + pkg.coins,
+        lastUpdated: Date.now(),
+      }));
+
+      const successMsg = `✨ ${pkg.emoji} ${pkg.coins} Petal Coins added! ${pkg.cost} 💎 Run Bucks spent`;
+      setSuccessMessage(successMsg);
+      setTimeout(() => setSuccessMessage(null), 3000);
+
+      RundotGameAPI.analytics.recordCustomEvent('petal_coins_purchased', {
+        packageId: packageId,
+        packageName: pkg.name,
+        coins: pkg.coins,
+        cost: pkg.cost,
+      });
     }
   };
 
@@ -881,6 +913,62 @@ export function WholesaleMarketScreen() {
                 >
                   {premiumCurrency < MYSTERY_BOX_COST_RUN_BUCKS ? '❌ Not enough' : '🎲 Unlock'}
                 </button>
+              </div>
+
+              {/* Petal Coins Packages */}
+              <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '2px solid #EEE' }}>
+                <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', color: '#333' }}>💚 Boost Your Coins</h3>
+                {PETAL_COINS_PACKAGES.map((pkg) => {
+                  const canAfford = premiumCurrency >= pkg.cost;
+                  return (
+                    <div
+                      key={pkg.id}
+                      style={{
+                        marginBottom: '10px',
+                        padding: '12px',
+                        background: canAfford
+                          ? 'linear-gradient(135deg, rgba(106, 154, 80, 0.15), rgba(175, 215, 120, 0.15))'
+                          : 'rgba(200, 200, 200, 0.3)',
+                        borderRadius: '8px',
+                        border: `2px solid ${canAfford ? '#6A9A50' : '#999'}`,
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#333' }}>
+                          {pkg.emoji} {pkg.name}
+                        </div>
+                        <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#6A9A50' }}>
+                          {pkg.coins} 🌼
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <div style={{ fontSize: '11px', color: '#666' }}>
+                          Cost: {pkg.cost} 💎
+                        </div>
+                        <div style={{ fontSize: '11px', color: canAfford ? '#6A9A50' : '#C0392B', fontWeight: 'bold' }}>
+                          {canAfford ? `✓ ${premiumCurrency - pkg.cost} left` : `Need ${pkg.cost - premiumCurrency}`}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleBuyPetalCoinsPackage(pkg.id)}
+                        disabled={!canAfford}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          background: canAfford ? '#6A9A50' : '#CCC',
+                          color: '#FFF',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: canAfford ? 'pointer' : 'not-allowed',
+                          fontSize: '11px',
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        {canAfford ? '💚 Buy' : '❌ Not enough'}
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
