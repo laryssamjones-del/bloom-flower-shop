@@ -17,7 +17,7 @@ const DEFAULT_CONFIG: ShelfLayoutConfig = {
   shelves: [
     { x: 50, y: 35 },
     { x: 50, y: 55 },
-    { x: 50, y: 72 },
+    { x: 50, y: 65 },
   ],
   gap: 4,
   bouquetWidth: 70,
