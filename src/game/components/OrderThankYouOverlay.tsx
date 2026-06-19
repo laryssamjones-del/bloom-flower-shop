@@ -32,61 +32,93 @@ export function OrderThankYouOverlay({ customerImage, onComplete }: OrderThankYo
     return undefined;
   }, [phase, onComplete]);
 
-  const getTransform = () => {
-    if (phase === 'entering') return 'translateX(120%)';
-    if (phase === 'leaving') return 'translateX(120%)';
-    return 'translateX(0)';
-  };
-
-  const getOpacity = () => {
-    if (phase === 'visible') return 1;
-    return 0.8;
-  };
+  const isLeaving = phase === 'leaving';
 
   return (
     <div
       style={{
-        position: 'fixed',
-        inset: 0,
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 9999,
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        zIndex: 8,
+        animation: isLeaving
+          ? 'npcSlideOut 0.5s ease-in forwards'
+          : 'npcSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
         pointerEvents: 'none',
       }}
     >
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '16px',
-          transform: getTransform(),
-          opacity: getOpacity(),
-          transition: phase === 'entering' ? 'none' : 'transform 0.6s ease-in-out, opacity 0.6s ease-in-out',
-        }}
-      >
-        <img
-          src={customerImage}
-          alt="Customer"
-          style={{
-            width: '140px',
-            height: '140px',
-            objectFit: 'contain',
-            filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.2))',
-          }}
-        />
+      {/* Chat bubble */}
+      {phase !== 'entering' && (
         <div
           style={{
-            fontSize: '32px',
-            fontWeight: 'bold',
-            color: '#333',
-            textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            marginRight: '90px',
+            marginBottom: '6px',
+            animation: 'bubblePop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
           }}
         >
-          Thanks! 💐
+          <div
+            style={{
+              background: '#FFFDF5',
+              border: '1.5px solid #E8C5A0',
+              borderRadius: '14px',
+              padding: '8px 11px',
+              maxWidth: '170px',
+              fontSize: '12px',
+              color: '#4A2C17',
+              lineHeight: 1.3,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px',
+            }}
+          >
+            <div>Thanks! 💐</div>
+
+            {/* Chat bubble tail pointing right-down */}
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '-10px',
+                right: '24px',
+                width: 0,
+                height: 0,
+                borderLeft: '8px solid transparent',
+                borderRight: '8px solid transparent',
+                borderTop: '10px solid #E8C5A0',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '-7px',
+                right: '25px',
+                width: 0,
+                height: 0,
+                borderLeft: '7px solid transparent',
+                borderRight: '7px solid transparent',
+                borderTop: '9px solid #FFFDF5',
+              }}
+            />
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* NPC character image */}
+      <img
+        src={customerImage}
+        alt="Customer"
+        style={{
+          height: '420px',
+          width: 'auto',
+          objectFit: 'contain',
+          filter: 'drop-shadow(-4px 0 8px rgba(0,0,0,0.25))',
+          imageRendering: 'crisp-edges',
+        }}
+      />
     </div>
   );
 }
