@@ -206,8 +206,8 @@ export function WholesaleMarketScreen() {
     }
   };
 
-  const INSTANT_DELIVERY_COST = 50;
-  const DELUXE_DELIVERY_COST = 75;
+  const INSTANT_DELIVERY_COST = 75;
+  const DELUXE_DELIVERY_COST = 150;
 
   const handleBuyInstantDelivery = () => {
     if (premiumCurrency < INSTANT_DELIVERY_COST) {
