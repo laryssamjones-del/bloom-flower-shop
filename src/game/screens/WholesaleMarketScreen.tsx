@@ -218,7 +218,7 @@ export function WholesaleMarketScreen() {
     const state = useGameStore.getState();
     if (state.premiumCurrency >= INSTANT_DELIVERY_COST) {
       // Generate delivery and save to localStorage (15 flowers + 2 deluxe bouquets)
-      const delivery = generateSpecialDelivery(15, 2, 'deluxe');
+      const delivery = generateSpecialDelivery(15, 2, 'deluxe', true);
       localStorage.setItem('activeDelivery', JSON.stringify(delivery));
 
       // Deduct the cost directly via Zustand
@@ -256,7 +256,7 @@ export function WholesaleMarketScreen() {
     const state = useGameStore.getState();
     if (state.premiumCurrency >= DELUXE_DELIVERY_COST) {
       // Generate delivery and save to localStorage (50 flowers + 10 deluxe bouquets)
-      const delivery = generateSpecialDelivery(50, 10, 'deluxe');
+      const delivery = generateSpecialDelivery(50, 10, 'deluxe', true);
       localStorage.setItem('activeDelivery', JSON.stringify(delivery));
 
       // Deduct the cost directly via Zustand
@@ -610,7 +610,7 @@ export function WholesaleMarketScreen() {
             />
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: '11px', color: '#666', marginBottom: '2px' }}>
-                Get instant delivery! 15 flowers + 2 Deluxe bouquets
+                Get instant delivery! 15 flowers + 2 Deluxe bouquets (worth 3x 💰)
               </div>
               <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#FF6B9D' }}>
                 Cost: {INSTANT_DELIVERY_COST} 💎 Run Bucks
@@ -671,7 +671,7 @@ export function WholesaleMarketScreen() {
             />
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: '11px', color: '#666', marginBottom: '2px' }}>
-                ✨ Get massive delivery! 50 flowers + 10 Deluxe bouquets
+                ✨ Get massive delivery! 50 flowers + 10 Deluxe bouquets (worth 3x 💰 each)
               </div>
               <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#DA70D6' }}>
                 Cost: {DELUXE_DELIVERY_COST} 💎 Run Bucks

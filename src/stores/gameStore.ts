@@ -38,6 +38,7 @@ const createInitialState = (): ShopState => ({
   // Shop
   shelfCapacity: STARTING_SHELF_CAPACITY,
   shelfBouquets: [],
+  pendingBouquets: [],
   displayedBouquets: Array(STARTING_SHELF_CAPACITY).fill(null),
 
   // Customers & Orders
@@ -510,11 +511,26 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     const availableFlowers = getUnlockedFlowersAt(newCumulativeSales);
     availableFlowers.forEach((flowerId) => newUnlockedFlowers.add(flowerId));
 
+    // Move pending bouquets to shelf if there's space
+    const pendingBouquets = [...state.pendingBouquets];
+    let movedBouquets = 0;
+    const currentShelfSize = state.shelfBouquets.length - 1; // -1 because we just removed one
+    const shelfSpaceAvailable = state.shelfCapacity - currentShelfSize;
+
+    if (pendingBouquets.length > 0 && shelfSpaceAvailable > 0) {
+      const bouquetsToMove = pendingBouquets.splice(0, shelfSpaceAvailable);
+      for (const pendingBouquet of bouquetsToMove) {
+        state.addBouquetToShelf(pendingBouquet);
+        movedBouquets++;
+      }
+    }
+
     set((s) => ({
       totalCustomersServed: s.totalCustomersServed + 1,
       cumulativeBouquetsSold: newCumulativeSales,
       unlockedFlowers: newUnlockedFlowers,
       unlockedTiers: newUnlockedTiers,
+      pendingBouquets: pendingBouquets,
       lastUpdated: Date.now(),
     }));
 
@@ -726,6 +742,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       inventoryCapacity: state.inventoryCapacity,
       shelfCapacity: state.shelfCapacity,
       shelfBouquets: state.shelfBouquets,
+      pendingBouquets: state.pendingBouquets,
       displayedBouquets: state.displayedBouquets,
       mysteryBouquets: state.mysteryBouquets,
       totalCustomersServed: state.totalCustomersServed,
@@ -775,6 +792,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
           inventoryCapacity: typeof data['inventoryCapacity'] === 'number' ? (data['inventoryCapacity'] as number) : 200,
           shelfCapacity: typeof data['shelfCapacity'] === 'number' ? (data['shelfCapacity'] as number) : 20,
           shelfBouquets: Array.isArray(data['shelfBouquets']) ? (data['shelfBouquets'] as Bouquet[]) : [],
+          pendingBouquets: Array.isArray(data['pendingBouquets']) ? (data['pendingBouquets'] as Bouquet[]) : [],
           displayedBouquets: Array.isArray(data['displayedBouquets']) ? (data['displayedBouquets'] as (Bouquet | null)[]) : Array(20).fill(null),
           mysteryBouquets: Array.isArray(data['mysteryBouquets']) ? (data['mysteryBouquets'] as MysteryBouquetItem[]) : [],
           totalCustomersServed: typeof data['totalCustomersServed'] === 'number' ? (data['totalCustomersServed'] as number) : 0,
@@ -802,6 +820,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
             coins,
             premiumCurrency: parsed.premiumCurrency ?? 0,
             mysteryBouquets: parsed.mysteryBouquets ?? [],
+            pendingBouquets: parsed.pendingBouquets ?? [],
             unlockedFlowers,
             unlockedTiers,
             cumulativeBouquetsSold: parsed.cumulativeBouquetsSold ?? 0,

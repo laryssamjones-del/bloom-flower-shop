@@ -266,9 +266,12 @@ export function ShopScreen() {
   }, []);
 
   const handleDeliveryAccept = (delivery: SpecialDelivery) => {
-    const spendCoins = useGameStore.getState().spendCoins;
-    const addStemsToInventory = useGameStore.getState().addStemsToInventory;
-    const addBouquetToShelf = useGameStore.getState().addBouquetToShelf;
+    const state = useGameStore.getState();
+    const spendCoins = state.spendCoins;
+    const addStemsToInventory = state.addStemsToInventory;
+    const addBouquetToShelf = state.addBouquetToShelf;
+    const shelfBouquets = state.shelfBouquets;
+    const shelfCapacity = state.shelfCapacity;
 
     const DELIVERY_COST = 65;
 
@@ -287,7 +290,11 @@ export function ShopScreen() {
       addStemsToInventory(flowerId, quantity);
     }
 
-    // Create and add both bouquets to shelf
+    // Create bouquets and add to shelf or pending based on available space
+    let shelfSpaceLeft = shelfCapacity - shelfBouquets.length;
+    const isPremium = delivery.isPremiumDelivery ?? false;
+    const priceMultiplier = isPremium ? 3 : 1;
+
     for (const bouquetRecipe of delivery.bouquets) {
       const bouquetToAdd: Bouquet = {
         id: `delivery-bouquet-${Date.now()}-${Math.random()}`,
@@ -299,19 +306,31 @@ export function ShopScreen() {
         ),
         wrappingPaper: 'plain-white',
         ribbonColor: 'blush',
-        sellPrice: bouquetRecipe.sellPrice,
+        sellPrice: Math.round(bouquetRecipe.sellPrice * priceMultiplier),
         thumbnailUrl: bouquetRecipe.imageUrl,
         createdAt: Date.now(),
         recipeName: bouquetRecipe.name,
+        fromPremiumDelivery: isPremium,
       };
 
-      addBouquetToShelf(bouquetToAdd);
+      if (shelfSpaceLeft > 0) {
+        // Add to shelf
+        addBouquetToShelf(bouquetToAdd);
+        shelfSpaceLeft--;
+      } else {
+        // Add to pending bouquets (inventory)
+        useGameStore.setState((s) => ({
+          pendingBouquets: [...s.pendingBouquets, bouquetToAdd],
+          lastUpdated: Date.now(),
+        }));
+      }
     }
 
     RundotGameAPI.analytics.recordCustomEvent('special_delivery_accepted', {
       deliveryId: delivery.id,
       flowerCount: delivery.flowers.reduce((sum, f) => sum + f.quantity, 0),
       bouquetCount: delivery.bouquets.length,
+      isPremiumDelivery: isPremium,
     });
 
     setActiveDelivery(null);

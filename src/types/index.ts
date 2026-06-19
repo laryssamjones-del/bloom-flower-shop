@@ -38,6 +38,7 @@ export interface Bouquet {
   thumbnailUrl?: string;
   createdAt: number;
   fromSpecialBox?: boolean;
+  fromPremiumDelivery?: boolean;
   recipeName?: string;
 }
 

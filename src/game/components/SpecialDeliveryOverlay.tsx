@@ -10,9 +10,10 @@ export interface SpecialDelivery {
   flowers: Array<{ flowerId: string; quantity: number }>;
   bouquets: Array<(typeof BOUQUET_RECIPES)[0]>;
   createdAt: number;
+  isPremiumDelivery?: boolean;
 }
 
-function generateSpecialDelivery(flowerCount: number = 15, bouquetCount: number = 2, bouquetTier?: BouquetTier): SpecialDelivery {
+function generateSpecialDelivery(flowerCount: number = 15, bouquetCount: number = 2, bouquetTier?: BouquetTier, isPremiumDelivery: boolean = false): SpecialDelivery {
   // Get all available flowers (both FLOWERS and GREENERY)
   const allFlowerIds = [
     ...Object.keys(FLOWERS),
@@ -53,6 +54,7 @@ function generateSpecialDelivery(flowerCount: number = 15, bouquetCount: number 
     flowers,
     bouquets,
     createdAt: Date.now(),
+    isPremiumDelivery,
   };
 }
 
