@@ -1,14 +1,15 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export function useBackgroundMusic(audioUrl: string) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [volume, setVolume] = useState(0.3);
 
+  // Initialize audio element
   useEffect(() => {
-    // Create audio element if it doesn't exist
     if (!audioRef.current) {
       const audio = new Audio(audioUrl);
       audio.loop = true;
-      audio.volume = 0.3; // Set volume to 30% to not be overwhelming
+      audio.volume = volume;
       audioRef.current = audio;
 
       // Start playing
@@ -23,5 +24,16 @@ export function useBackgroundMusic(audioUrl: string) {
     };
   }, [audioUrl]);
 
-  return audioRef.current;
+  // Update volume when it changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
+
+  return {
+    audio: audioRef.current,
+    volume,
+    setVolume,
+  };
 }

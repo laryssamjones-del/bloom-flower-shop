@@ -21,6 +21,7 @@ import { NPCCustomizer } from '../components/NPCCustomizer';
 import { TruckCustomizer } from '../components/TruckCustomizer';
 import { FlowerUnlockNotification } from '../components/FlowerUnlockNotification';
 import { OrderThankYouOverlay } from '../components/OrderThankYouOverlay';
+import { SettingsModal } from '../components/SettingsModal';
 import { Bouquet } from '../../types';
 import { BOUQUET_RECIPES } from '../../data/bouquets';
 import { getCurrentLevel, getLevelProgress } from '../../data/progression';
@@ -47,7 +48,10 @@ export function ShopScreen() {
   const completedOrderCustomerImage = useGameStore((s) => s.completedOrderCustomerImage);
 
   // Background music
-  useBackgroundMusic('/petals-on-repeat.mp3');
+  const { volume: musicVolume, setVolume: setMusicVolume } = useBackgroundMusic('/petals-on-repeat.mp3');
+
+  // Settings modal
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const [longPressId, setLongPressId] = useState<string | null>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -451,15 +455,49 @@ export function ShopScreen() {
         <span>Level {getCurrentLevel(cumulativeBouquetsSold)} ({getLevelProgress(cumulativeBouquetsSold)[0]}/{getLevelProgress(cumulativeBouquetsSold)[1]})</span>
       </div>
 
-      {/* Top bar with coin counter */}
+      {/* Top bar with coin counter and settings */}
       <div
         style={{
           position: 'absolute',
           top: '12px',
           right: '12px',
           zIndex: 10,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
         }}
       >
+        <button
+          onClick={() => {
+            setIsSettingsOpen(true);
+            RundotGameAPI.analytics.recordCustomEvent('settings_opened');
+          }}
+          style={{
+            background: '#F5F1E8',
+            border: '2px solid #C09840',
+            borderRadius: '50%',
+            width: '44px',
+            height: '44px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            fontSize: '20px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.transform = 'scale(1.1)';
+            (e.currentTarget as HTMLElement).style.background = '#EEE5D8';
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
+            (e.currentTarget as HTMLElement).style.background = '#F5F1E8';
+          }}
+          title="Settings"
+        >
+          ⚙️
+        </button>
         <CoinCounter />
       </div>
 
@@ -659,6 +697,14 @@ export function ShopScreen() {
           onDeny={handleDeliveryDeny}
         />
       )}
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        musicVolume={musicVolume}
+        onMusicVolumeChange={setMusicVolume}
+      />
 
       {/* Bottom Tab Navigation */}
       <div
