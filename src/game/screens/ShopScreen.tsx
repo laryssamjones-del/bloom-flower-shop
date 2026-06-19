@@ -418,7 +418,6 @@ export function ShopScreen() {
         backgroundPosition: 'center top',
         backgroundRepeat: 'no-repeat',
         position: 'relative',
-        paddingBottom: '80px',
       }}
     >
       {/* Level display — top-left */}
@@ -660,12 +659,11 @@ export function ShopScreen() {
       {/* Bottom Tab Navigation */}
       <div
         style={{
-          position: 'fixed',
+          position: 'absolute',
           bottom: 0,
           left: 0,
           right: 0,
           zIndex: 10,
-          width: '100%',
         }}
       >
         <BottomTabNavigation />
