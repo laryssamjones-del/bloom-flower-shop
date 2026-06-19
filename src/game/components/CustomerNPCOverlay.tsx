@@ -14,11 +14,6 @@ const NPC_IMAGES = [
   '/npcs/npc-woman-auburn-curly.png',
   '/npcs/npc-woman-curly-afro.png',
   '/npcs/npc-woman-dark-updo.png',
-  // Children
-  '/npcs/npc-girl-pigtails.png',
-  '/npcs/npc-girl-ponytail.png',
-  '/npcs/npc-boy-brown-hair.png',
-  '/npcs/npc-teen-purple-hair.png',
   // Men
   '/npcs/npc-man-bald-beard.png',
   '/npcs/npc-man-black-hair-linen.png',
