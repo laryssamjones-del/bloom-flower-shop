@@ -418,6 +418,7 @@ export function ShopScreen() {
         backgroundPosition: 'center top',
         backgroundRepeat: 'no-repeat',
         position: 'relative',
+        paddingBottom: '80px',
       }}
     >
       {/* Level display — top-left */}
