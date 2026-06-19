@@ -11,6 +11,11 @@ import {
   BOUQUETS_PER_SHELF,
   type ShelfLayoutConfig,
 } from '../components/ShelfLayoutEditor';
+import {
+  SpecialDeliveryOverlay,
+  generateSpecialDelivery,
+  type SpecialDelivery,
+} from '../components/SpecialDeliveryOverlay';
 import { Bouquet } from '../../types';
 import { BOUQUET_RECIPES } from '../../data/bouquets';
 
@@ -47,6 +52,10 @@ export function ShopScreen() {
   // Layout editor
   const [editingLayout, setEditingLayout] = useState(false);
   const [shelfConfig, setShelfConfig] = useState<ShelfLayoutConfig>(() => loadShelfLayoutConfig());
+
+  // Special delivery truck
+  const [activeDelivery, setActiveDelivery] = useState<SpecialDelivery | null>(null);
+  const deliveryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Schedule next NPC visit
   const scheduleNextVisit = () => {
@@ -152,6 +161,87 @@ export function ShopScreen() {
       });
     }
     setShelfPurchaseNPC(null);
+  };
+
+  // Schedule special deliveries every 15 minutes
+  const scheduleNextDelivery = () => {
+    const delay = 15 * 60 * 1000; // 15 minutes
+    deliveryTimerRef.current = setTimeout(() => {
+      if (!activeDelivery) {
+        const newDelivery = generateSpecialDelivery();
+        setActiveDelivery(newDelivery);
+        RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
+          deliveryId: newDelivery.id,
+        });
+      }
+      scheduleNextDelivery();
+    }, delay);
+  };
+
+  useEffect(() => {
+    scheduleNextDelivery();
+    return () => {
+      if (deliveryTimerRef.current) clearTimeout(deliveryTimerRef.current);
+    };
+  }, []);
+
+  const handleDeliveryAccept = (delivery: SpecialDelivery) => {
+    const spendCoins = useGameStore.getState().spendCoins;
+    const addStemsToInventory = useGameStore.getState().addStemsToInventory;
+    const addBouquetToShelf = useGameStore.getState().addBouquetToShelf;
+
+    const DELIVERY_COST = 25;
+
+    if (!spendCoins(DELIVERY_COST)) {
+      // Not enough coins
+      RundotGameAPI.analytics.recordCustomEvent('special_delivery_rejected', {
+        reason: 'insufficient_coins',
+        deliveryId: delivery.id,
+      });
+      setActiveDelivery(null);
+      return;
+    }
+
+    // Add flowers to inventory
+    for (const { flowerId, quantity } of delivery.flowers) {
+      addStemsToInventory(flowerId, quantity);
+    }
+
+    // Create and add bouquet to shelf
+    const bouquetToAdd: Bouquet = {
+      id: `delivery-bouquet-${Date.now()}`,
+      stems: delivery.bouquet.ingredients.flatMap((ing, idx) =>
+        Array.from({ length: ing.quantity }, (_, i) => ({
+          flowerId: ing.flowerId,
+          order: idx * 10 + i,
+        }))
+      ),
+      wrappingPaper: 'plain-white',
+      ribbonColor: 'blush',
+      sellPrice: delivery.bouquet.sellPrice,
+      thumbnailUrl: delivery.bouquet.imageUrl,
+      createdAt: Date.now(),
+      recipeName: delivery.bouquet.name,
+    };
+
+    addBouquetToShelf(bouquetToAdd);
+
+    RundotGameAPI.analytics.recordCustomEvent('special_delivery_accepted', {
+      deliveryId: delivery.id,
+      flowerCount: delivery.flowers.reduce((sum, f) => sum + f.quantity, 0),
+      bouquetName: delivery.bouquet.name,
+    });
+
+    setActiveDelivery(null);
+  };
+
+  const handleDeliveryDeny = () => {
+    if (activeDelivery) {
+      RundotGameAPI.analytics.recordCustomEvent('special_delivery_denied', {
+        deliveryId: activeDelivery.id,
+      });
+    }
+    setActiveDelivery(null);
   };
 
   // Long-press handling for delete
@@ -347,6 +437,15 @@ export function ShopScreen() {
           npcImage={shelfPurchaseNPC.npcImage}
           bouquet={shelfPurchaseNPC.bouquet}
           onComplete={handleShelfPurchaseComplete}
+        />
+      )}
+
+      {/* Special Delivery Truck */}
+      {activeDelivery && (
+        <SpecialDeliveryOverlay
+          delivery={activeDelivery}
+          onAccept={handleDeliveryAccept}
+          onDeny={handleDeliveryDeny}
         />
       )}
 
