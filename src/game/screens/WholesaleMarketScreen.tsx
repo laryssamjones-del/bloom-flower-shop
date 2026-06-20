@@ -176,15 +176,31 @@ export function WholesaleMarketScreen() {
         const successMsg = `✅ Bought ${quantityToBuy} ${itemName} for ${totalCost} 🌼`;
         setSuccessMessage(successMsg);
 
-        // Clear success message after 2 seconds
-        setTimeout(() => setSuccessMessage(null), 2000);
-
         RundotGameAPI.analytics.recordCustomEvent('flowers_purchased', {
           flowerId: selectedFlower,
           quantity: quantityToBuy,
           cost: totalCost,
           discount: discount > 0 ? `${(discount * 100).toFixed(0)}%` : 'none',
         });
+
+        // Check if all needed ingredients for bouquet arrangement are now satisfied
+        if (neededFlowersList && neededFlowersList.length > 0) {
+          const state = useGameStore.getState();
+          const allNeeded = neededFlowersList.every((needed) => {
+            const currentInventory = state.inventory.find((inv) => inv.flowerId === needed.flowerId)?.quantity || 0;
+            return currentInventory >= needed.quantity;
+          });
+
+          if (allNeeded) {
+            // All ingredients bought! Return to arrangement screen
+            setNeededFlowers([]);
+            setCurrentScreen('arrangement');
+            return;
+          }
+        }
+
+        // Clear success message after 2 seconds (only if not returning to arrangement)
+        setTimeout(() => setSuccessMessage(null), 2000);
       }
     }
   };
