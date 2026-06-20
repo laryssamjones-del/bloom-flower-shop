@@ -804,21 +804,6 @@ export function ShopScreen() {
         >
           Shelf NPC
         </button>
-        <button
-          onClick={() => setCustomizingTruck(true)}
-          style={{
-            padding: '8px 12px',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            background: '#F5E6D8',
-            border: '1.5px solid #D4A57C',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            color: '#8B5E3C',
-          }}
-        >
-          Truck
-        </button>
       </div>
 
       {/* Shelf bouquet display — positioned via saved layout config */}
