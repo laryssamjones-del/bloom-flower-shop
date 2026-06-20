@@ -19,6 +19,8 @@ import { generateExclusiveBoxContents } from '../data/mysteryBoxContents';
 import { getUnlockedFlowersAt } from '../data/progression';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { playChaChingSound, playSuccessSound } from '../services/audio';
+import { loadNPCCustomizationConfig } from '../game/components/NPCCustomizer';
+import { loadShelfNPCCustomizationConfig } from '../game/components/ShelfNPCCustomizer';
 
 const STARTING_COINS = 250;
 const MAX_INVENTORY_STEMS = 200;
@@ -90,11 +92,11 @@ const createInitialState = (): ShopState => ({
   // Shelf Layout
   shelfLayoutConfig: undefined,
 
-  // NPC Customization
-  npcCustomizationConfig: undefined,
+  // NPC Customization (load from localStorage to persist across sessions)
+  npcCustomizationConfig: loadNPCCustomizationConfig(),
 
-  // Shelf NPC Customization
-  shelfNPCCustomizationConfig: undefined,
+  // Shelf NPC Customization (load from localStorage to persist across sessions)
+  shelfNPCCustomizationConfig: loadShelfNPCCustomizationConfig(),
 
   // Truck Customization
   truckCustomizationConfig: undefined,

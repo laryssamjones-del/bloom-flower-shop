@@ -35,7 +35,10 @@ interface Props {
 }
 
 export function ShelfNPCCustomizer({ onClose }: Props) {
-  const [config, setConfig] = useState<ShelfNPCCustomizationConfig>(() => loadShelfNPCCustomizationConfig());
+  const storedConfig = useGameStore((s) => s.shelfNPCCustomizationConfig);
+  const [config, setConfig] = useState<ShelfNPCCustomizationConfig>(() =>
+    storedConfig || loadShelfNPCCustomizationConfig()
+  );
   const [draggingNPC, setDraggingNPC] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const npcDragStartRef = useRef({ x: 0, y: 0, offsetX: 0, offsetY: 0 });

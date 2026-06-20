@@ -35,7 +35,10 @@ interface Props {
 }
 
 export function NPCCustomizer({ onClose }: Props) {
-  const [config, setConfig] = useState<NPCCustomizationConfig>(() => loadNPCCustomizationConfig());
+  const storedConfig = useGameStore((s) => s.npcCustomizationConfig);
+  const [config, setConfig] = useState<NPCCustomizationConfig>(() =>
+    storedConfig || loadNPCCustomizationConfig()
+  );
   const [draggingNPC, setDraggingNPC] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const npcDragStartRef = useRef({ x: 0, y: 0, offsetX: 0, offsetY: 0 });
