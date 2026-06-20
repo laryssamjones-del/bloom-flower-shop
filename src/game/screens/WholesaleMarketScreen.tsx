@@ -1057,13 +1057,15 @@ export function WholesaleMarketScreen() {
         <div
           style={{
             position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
+            bottom: '0',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '90%',
+            maxWidth: '420px',
             padding: '6px',
             background: 'rgba(255,255,255,0.95)',
             borderTop: '2px solid rgba(0,0,0,0.1)',
-            maxHeight: '140px',
+            maxHeight: '130px',
             overflow: 'auto',
             zIndex: 10,
           }}
