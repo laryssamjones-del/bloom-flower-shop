@@ -145,6 +145,13 @@ export interface GameState {
     rightOffset: number;
   };
 
+  // Truck Customization
+  truckCustomizationConfig?: {
+    width: number;
+    topOffset: number;
+    leftOffset: number;
+  };
+
   // Meta
   lastUpdated: number;
   sessionStarted: number;

@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { FLOWERS, GREENERY } from '../../constants/flowers';
 import { BOUQUET_RECIPES, type BouquetTier } from '../../data/bouquets';
 import { loadTruckCustomizationConfig } from './TruckCustomizer';
+import { useGameStore } from '../../stores/gameStore';
 
 const DELIVERY_COST = 65;
 
@@ -70,7 +71,14 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
   const [isSliding, setIsSliding] = useState(false);
   const [showContents, setShowContents] = useState(false);
   const [isAccepted, setIsAccepted] = useState(false);
-  const truckConfig = loadTruckCustomizationConfig();
+  const storedTruckConfig = useGameStore((s) => s.truckCustomizationConfig);
+  const truckConfig = useMemo(() => {
+    // Use stored config if available, fall back to localStorage
+    if (storedTruckConfig) {
+      return storedTruckConfig;
+    }
+    return loadTruckCustomizationConfig();
+  }, [storedTruckConfig]);
 
   useEffect(() => {
     setIsSliding(true);

@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { useGameStore } from '../../stores/gameStore';
 
 // Mobile ratio constraints (9:16)
 const MOBILE_RATIO = 9 / 16; // 0.5625
@@ -31,7 +32,7 @@ export function loadTruckCustomizationConfig(): TruckCustomizationConfig {
   return DEFAULT_CONFIG;
 }
 
-export function saveTruckCustomizationConfig(config: TruckCustomizationConfig) {
+function saveToLocalStorage(config: TruckCustomizationConfig) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
 }
 
@@ -58,6 +59,7 @@ export function TruckCustomizer({ onClose }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const truckDragStartRef = useRef({ x: 0, y: 0, offsetX: 0, offsetY: 0 });
   const panelDragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
+  const saveTruckCustomizationConfig = useGameStore((s) => s.saveTruckCustomizationConfig);
 
   const handleTruckDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -123,7 +125,13 @@ export function TruckCustomizer({ onClose }: Props) {
   }, []);
 
   const handleSave = () => {
-    saveTruckCustomizationConfig(config);
+    // Save to both localStorage (for quick loading) and game store (for persistence)
+    saveToLocalStorage(config);
+    saveTruckCustomizationConfig({
+      width: config.width,
+      topOffset: config.topOffset,
+      leftOffset: config.leftOffset,
+    });
     onClose();
   };
 

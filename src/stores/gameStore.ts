@@ -90,6 +90,9 @@ const createInitialState = (): ShopState => ({
   // NPC Customization
   npcCustomizationConfig: undefined,
 
+  // Truck Customization
+  truckCustomizationConfig: undefined,
+
   // Tutorial
   tutorialCompleted: false,
   tutorialCurrentStep: 0,
@@ -203,6 +206,13 @@ interface GameStoreActions {
     height: number;
     bottomOffset: number;
     rightOffset: number;
+  }) => void;
+
+  // Truck Customization
+  saveTruckCustomizationConfig: (config: {
+    width: number;
+    topOffset: number;
+    leftOffset: number;
   }) => void;
 
   // Tutorial
@@ -1111,6 +1121,13 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
   saveNPCCustomizationConfig: (config) => {
     set({
       npcCustomizationConfig: config,
+      lastUpdated: Date.now(),
+    });
+  },
+
+  saveTruckCustomizationConfig: (config) => {
+    set({
+      truckCustomizationConfig: config,
       lastUpdated: Date.now(),
     });
   },
