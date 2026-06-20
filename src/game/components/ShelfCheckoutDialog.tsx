@@ -19,6 +19,7 @@ export function ShelfCheckoutDialog({
 }: ShelfCheckoutDialogProps) {
   const [phase, setPhase] = useState<DialogPhase>('asking');
   const [timeRemaining, setTimeRemaining] = useState(15);
+  const [isExplicitConfirm, setIsExplicitConfirm] = useState(false);
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const autoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const npcConfig = useGameStore((s) => s.npcCustomizationConfig);
@@ -49,20 +50,21 @@ export function ShelfCheckoutDialog({
 
   // Auto-close when phase is 'closing' after a delay
   useEffect(() => {
-    if (phase === 'closing') {
+    if (phase === 'closing' && isExplicitConfirm) {
       const timer = setTimeout(() => {
         onConfirm();
       }, 1500);
       return () => clearTimeout(timer);
     }
     return undefined;
-  }, [phase, onConfirm]);
+  }, [phase, isExplicitConfirm, onConfirm]);
 
   const handleCheckoutClick = () => {
     setPhase('confirming');
   };
 
   const handleConfirmClick = () => {
+    setIsExplicitConfirm(true);
     setPhase('closing');
   };
 
