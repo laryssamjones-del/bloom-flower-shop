@@ -59,16 +59,14 @@ export function ShelfCheckoutDialog({
         zIndex: 5000,
       }}
     >
-      {/* NPC positioned on right-bottom, constrained within mobile viewport */}
+      {/* NPC positioned on right-bottom with padding, constrained within mobile viewport */}
       <div
         style={{
           position: 'fixed',
           bottom: `${npcBottomOffset}px`,
-          right: '0',
-          maxWidth: '240px',
+          right: '10px',
+          width: '200px',
           height: `${npcHeight}px`,
-          width: '100%',
-          overflow: 'hidden',
           animation:
             phase === 'asking'
               ? 'npcSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)'
