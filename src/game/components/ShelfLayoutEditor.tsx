@@ -39,7 +39,13 @@ export function loadShelfLayoutConfig(): ShelfLayoutConfig {
 }
 
 function saveToLocalStorage(config: ShelfLayoutConfig) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+  try {
+    const json = JSON.stringify(config);
+    localStorage.setItem(STORAGE_KEY, json);
+    console.log('✓ Shelf layout config saved to localStorage:', json);
+  } catch (err) {
+    console.error('✗ Failed to save shelf layout config to localStorage:', err);
+  }
 }
 
 interface Props {

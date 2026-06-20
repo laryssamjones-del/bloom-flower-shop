@@ -27,7 +27,13 @@ export function loadNPCCustomizationConfig(): NPCCustomizationConfig {
 }
 
 function saveToLocalStorage(config: NPCCustomizationConfig) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+  try {
+    const json = JSON.stringify(config);
+    localStorage.setItem(STORAGE_KEY, json);
+    console.log('✓ NPC config saved to localStorage:', json);
+  } catch (err) {
+    console.error('✗ Failed to save NPC config to localStorage:', err);
+  }
 }
 
 interface Props {

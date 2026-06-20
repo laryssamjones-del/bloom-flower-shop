@@ -33,7 +33,13 @@ export function loadTruckCustomizationConfig(): TruckCustomizationConfig {
 }
 
 function saveToLocalStorage(config: TruckCustomizationConfig) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+  try {
+    const json = JSON.stringify(config);
+    localStorage.setItem(STORAGE_KEY, json);
+    console.log('✓ Truck config saved to localStorage:', json);
+  } catch (err) {
+    console.error('✗ Failed to save Truck config to localStorage:', err);
+  }
 }
 
 interface Props {

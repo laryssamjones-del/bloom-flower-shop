@@ -27,7 +27,13 @@ export function loadShelfNPCCustomizationConfig(): ShelfNPCCustomizationConfig {
 }
 
 function saveToLocalStorage(config: ShelfNPCCustomizationConfig) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+  try {
+    const json = JSON.stringify(config);
+    localStorage.setItem(STORAGE_KEY, json);
+    console.log('✓ Shelf NPC config saved to localStorage:', json);
+  } catch (err) {
+    console.error('✗ Failed to save Shelf NPC config to localStorage:', err);
+  }
 }
 
 interface Props {
