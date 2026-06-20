@@ -437,7 +437,7 @@ export function BouquetArrangementScreen() {
                   textAlign: 'center',
                 }}
               >
-                You're missing some ingredients. Visit the Shop to buy what you need!
+                You're missing some ingredients. Visit the Market to buy what you need!
                 <div style={{ marginTop: '8px' }}>
                   <button
                     onClick={() => {
@@ -462,7 +462,7 @@ export function BouquetArrangementScreen() {
                       fontWeight: 'bold',
                     }}
                   >
-                    🛍️ Go to Shop
+                    🏪 Go to Market
                   </button>
                 </div>
               </div>

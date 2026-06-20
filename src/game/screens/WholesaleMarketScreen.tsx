@@ -430,7 +430,7 @@ export function WholesaleMarketScreen() {
           gap: '12px',
         }}
       >
-        <h1 style={{ margin: 0, fontSize: '18px' }}>🛍️ Shop</h1>
+        <h1 style={{ margin: 0, fontSize: '18px' }}>🏪 Market</h1>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <div
             style={{
