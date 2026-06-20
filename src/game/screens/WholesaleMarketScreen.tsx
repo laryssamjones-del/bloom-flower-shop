@@ -116,6 +116,12 @@ export function WholesaleMarketScreen() {
     if (allIngredientsObtained && neededFlowersMap.size > 0) {
       // Small delay to ensure UI updates smoothly
       setTimeout(() => {
+        // Set up the recipe for the order before navigating
+        const state = useGameStore.getState();
+        const order = state.getOrderForShopping(shoppingForOrderId);
+        if (order) {
+          state.selectRecipe(order.recipeId, shoppingForOrderId);
+        }
         setCurrentScreen('arrangement');
       }, 500);
     }
