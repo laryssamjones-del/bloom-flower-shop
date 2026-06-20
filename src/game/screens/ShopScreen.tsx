@@ -23,7 +23,7 @@ import { FlowerUnlockNotification } from '../components/FlowerUnlockNotification
 import { OrderThankYouOverlay } from '../components/OrderThankYouOverlay';
 import { SettingsModal } from '../components/SettingsModal';
 import { Bouquet } from '../../types';
-import { BOUQUET_RECIPES } from '../../data/bouquets';
+import { BOUQUET_RECIPES, isBouquetUnlocked } from '../../data/bouquets';
 import { getCurrentLevel, getLevelProgress } from '../../data/progression';
 import shopBackground from '/bloomy_shop_background.png';
 
@@ -187,14 +187,25 @@ export function ShopScreen() {
     const delay = NPC_VISIT_MIN + Math.random() * (NPC_VISIT_MAX - NPC_VISIT_MIN);
     npcTimerRef.current = setTimeout(() => {
       // Don't spawn a new NPC if one is already visible
-      if (useGameStore.getState().pendingOrders.length < 10) {
-        const recipe = BOUQUET_RECIPES[Math.floor(Math.random() * BOUQUET_RECIPES.length)]!;
-        const visit = createNPCVisit(recipe.id, recipe.name, recipe.sellPrice);
-        setActiveVisit(visit);
-        RundotGameAPI.analytics.recordCustomEvent('npc_customer_arrived', {
-          recipeId: recipe.id,
-          recipeName: recipe.name,
-        });
+      const state = useGameStore.getState();
+      if (state.pendingOrders.length < 10) {
+        // Pick only from unlocked bouquets (same logic as createOrder)
+        const unlockedRecipes = BOUQUET_RECIPES.filter(
+          (recipe) =>
+            state.unlockedTiers.has(recipe.tier) &&
+            isBouquetUnlocked(recipe.id, state.cumulativeBouquetsSold)
+        );
+
+        // Only spawn NPC if there are unlocked bouquets available
+        if (unlockedRecipes.length > 0) {
+          const recipe = unlockedRecipes[Math.floor(Math.random() * unlockedRecipes.length)]!;
+          const visit = createNPCVisit(recipe.id, recipe.name, recipe.sellPrice);
+          setActiveVisit(visit);
+          RundotGameAPI.analytics.recordCustomEvent('npc_customer_arrived', {
+            recipeId: recipe.id,
+            recipeName: recipe.name,
+          });
+        }
       }
       scheduleNextVisit();
     }, delay);
