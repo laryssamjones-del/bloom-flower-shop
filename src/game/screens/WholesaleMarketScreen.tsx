@@ -588,6 +588,7 @@ export function WholesaleMarketScreen() {
           overflow: 'auto',
           WebkitOverflowScrolling: 'touch',
           padding: '12px',
+          paddingTop: selectedFlower ? '140px' : '12px',
         }}
       >
         <div
@@ -1112,9 +1113,25 @@ export function WholesaleMarketScreen() {
               borderRadius: '6px',
             }}
           >
-            <h3 style={{ margin: '0 0 4px 0', fontSize: '11px' }}>
-              {selectedFlower && getItem(selectedFlower)?.name}
-            </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+              <h3 style={{ margin: 0, fontSize: '11px' }}>
+                {selectedFlower && getItem(selectedFlower)?.name}
+              </h3>
+              <button
+                onClick={() => setSelectedFlower(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '16px',
+                  cursor: 'pointer',
+                  padding: '0 4px',
+                  color: '#666',
+                }}
+                title="Close"
+              >
+                ✕
+              </button>
+            </div>
 
 {/* Custom quantity controls */}
             <div
