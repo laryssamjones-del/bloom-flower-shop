@@ -4,6 +4,7 @@ import { Notification } from '../../types';
 interface NotificationCenterProps {
   isOpen: boolean;
   onClose: () => void;
+  onNotificationClick?: (notificationType: Notification['type']) => void;
 }
 
 const NOTIFICATION_TITLES: Record<Notification['type'], string> = {
@@ -13,7 +14,7 @@ const NOTIFICATION_TITLES: Record<Notification['type'], string> = {
   order_pending: '📋 Order Pending',
 };
 
-export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps) {
+export function NotificationCenter({ isOpen, onClose, onNotificationClick }: NotificationCenterProps) {
   const notifications = useGameStore((s) => s.notifications);
   const markAsRead = useGameStore((s) => s.markNotificationAsRead);
   const removeNotification = useGameStore((s) => s.removeNotification);
@@ -93,71 +94,109 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {notifications
                 .sort((a, b) => b.createdAt - a.createdAt) // Most recent first
-                .map((notif) => (
-                  <div
-                    key={notif.id}
-                    style={{
-                      padding: '12px',
-                      background: notif.isRead ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.9)',
-                      border: `1px solid ${notif.isRead ? '#E0D5C7' : '#D4A57C'}`,
-                      borderRadius: '8px',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      gap: '12px',
-                    }}
-                  >
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div
-                        style={{
-                          fontSize: '14px',
-                          fontWeight: 'bold',
-                          color: '#333',
-                          marginBottom: '4px',
-                        }}
-                      >
-                        {NOTIFICATION_TITLES[notif.type] || notif.title}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: '12px',
-                          color: '#666',
-                          marginBottom: '6px',
-                          lineHeight: 1.3,
-                        }}
-                      >
-                        {notif.message}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: '10px',
-                          color: '#999',
-                        }}
-                      >
-                        {new Date(notif.createdAt).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => removeNotification(notif.id)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: '#999',
-                        cursor: 'pointer',
-                        fontSize: '18px',
-                        padding: '0',
-                        minWidth: '24px',
-                        flexShrink: 0,
+                .map((notif) => {
+                  const isClickable = notif.type === 'claim_rewards';
+                  return (
+                    <div
+                      key={notif.id}
+                      onClick={() => {
+                        if (isClickable && onNotificationClick) {
+                          onNotificationClick(notif.type);
+                          removeNotification(notif.id);
+                        }
                       }}
-                      title="Dismiss"
+                      style={{
+                        padding: '12px',
+                        background: notif.isRead ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.9)',
+                        border: `1px solid ${notif.isRead ? '#E0D5C7' : '#D4A57C'}`,
+                        borderRadius: '8px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                        gap: '12px',
+                        cursor: isClickable ? 'pointer' : 'default',
+                        transition: isClickable ? 'all 0.2s ease' : 'none',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (isClickable) {
+                          (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,1)';
+                          (e.currentTarget as HTMLElement).style.borderColor = '#C8A96E';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (isClickable) {
+                          (e.currentTarget as HTMLElement).style.background = notif.isRead ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.9)';
+                          (e.currentTarget as HTMLElement).style.borderColor = notif.isRead ? '#E0D5C7' : '#D4A57C';
+                        }
+                      }}
                     >
-                      ×
-                    </button>
-                  </div>
-                ))}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div
+                          style={{
+                            fontSize: '14px',
+                            fontWeight: 'bold',
+                            color: '#333',
+                            marginBottom: '4px',
+                          }}
+                        >
+                          {NOTIFICATION_TITLES[notif.type] || notif.title}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: '12px',
+                            color: '#666',
+                            marginBottom: '6px',
+                            lineHeight: 1.3,
+                          }}
+                        >
+                          {notif.message}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: '10px',
+                            color: '#999',
+                          }}
+                        >
+                          {new Date(notif.createdAt).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </div>
+                        {isClickable && (
+                          <div
+                            style={{
+                              fontSize: '10px',
+                              color: '#C8A96E',
+                              marginTop: '6px',
+                              fontWeight: 'bold',
+                            }}
+                          >
+                            Tap to claim rewards
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeNotification(notif.id);
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#999',
+                          cursor: 'pointer',
+                          fontSize: '18px',
+                          padding: '0',
+                          minWidth: '24px',
+                          flexShrink: 0,
+                        }}
+                        title="Dismiss"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  );
+                })}
             </div>
           )}
         </div>

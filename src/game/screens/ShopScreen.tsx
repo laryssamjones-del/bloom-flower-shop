@@ -142,6 +142,17 @@ export function ShopScreen() {
     setCurrentPopupNotification(null);
   };
 
+  const handleNotificationClick = (notificationType: string) => {
+    if (notificationType === 'claim_rewards') {
+      // Navigate to inventory screen where claim rewards is shown
+      useGameStore.setState({ currentScreen: 'inventory' });
+      setIsNotificationCenterOpen(false);
+      RundotGameAPI.analytics.recordCustomEvent('notification_action_taken', {
+        notificationType: 'claim_rewards',
+      });
+    }
+  };
+
   // Track unclaimed rewards and trigger silent notification
   const previousUnclaimedRewardsRef = useRef<Set<number>>(new Set());
   useEffect(() => {
@@ -862,7 +873,11 @@ export function ShopScreen() {
       />
 
       {/* Notification Center Modal */}
-      <NotificationCenter isOpen={isNotificationCenterOpen} onClose={() => setIsNotificationCenterOpen(false)} />
+      <NotificationCenter
+        isOpen={isNotificationCenterOpen}
+        onClose={() => setIsNotificationCenterOpen(false)}
+        onNotificationClick={handleNotificationClick}
+      />
 
       {/* Notification Popup */}
       {currentPopupNotification && (
