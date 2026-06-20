@@ -672,13 +672,13 @@ export function WholesaleMarketScreen() {
               onClick={handleBuyAllItems}
               style={{
                 width: '100%',
-                padding: '14px',
+                padding: '12px',
                 background: '#E8A87C',
                 color: '#FFF',
                 border: 'none',
                 borderRadius: '6px',
                 cursor: 'pointer',
-                fontSize: '14px',
+                fontSize: '12px',
                 fontWeight: 'bold',
                 marginTop: '12px',
               }}
@@ -1243,13 +1243,13 @@ export function WholesaleMarketScreen() {
                     disabled={isDisabled}
                     style={{
                       width: '100%',
-                      padding: '12px',
+                      padding: '10px',
                       background: isDisabled ? '#CCC' : '#6A9A50',
                       color: '#FFF',
                       border: 'none',
                       borderRadius: '4px',
                       cursor: isDisabled ? 'not-allowed' : 'pointer',
-                      fontSize: '14px',
+                      fontSize: '12px',
                       fontWeight: 'bold',
                     }}
                   >
@@ -1262,13 +1262,13 @@ export function WholesaleMarketScreen() {
                       disabled={isBuyAllDisabled}
                       style={{
                         width: '100%',
-                        padding: '12px',
+                        padding: '10px',
                         background: isBuyAllDisabled ? '#CCC' : '#C8956E',
                         color: '#FFF',
                         border: 'none',
                         borderRadius: '4px',
                         cursor: isBuyAllDisabled ? 'not-allowed' : 'pointer',
-                        fontSize: '13px',
+                        fontSize: '11px',
                         fontWeight: 'bold',
                       }}
                     >
