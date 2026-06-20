@@ -60,7 +60,10 @@ const btnBase: React.CSSProperties = {
 };
 
 export function ShelfLayoutEditor({ onClose }: Props) {
-  const [config, setConfig] = useState<ShelfLayoutConfig>(() => loadShelfLayoutConfig());
+  const storedConfig = useGameStore((s) => s.shelfLayoutConfig);
+  const [config, setConfig] = useState<ShelfLayoutConfig>(() =>
+    storedConfig || loadShelfLayoutConfig()
+  );
   const [draggingIdx, setDraggingIdx] = useState<number | null>(null);
   const [panelDragOffset, setPanelDragOffset] = useState({ x: 0, y: 0 });
   const [draggingPanel, setDraggingPanel] = useState(false);

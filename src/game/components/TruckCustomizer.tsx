@@ -52,7 +52,10 @@ const btnBase = {
 };
 
 export function TruckCustomizer({ onClose }: Props) {
-  const [config, setConfig] = useState<TruckCustomizationConfig>(() => loadTruckCustomizationConfig());
+  const storedConfig = useGameStore((s) => s.truckCustomizationConfig);
+  const [config, setConfig] = useState<TruckCustomizationConfig>(() =>
+    storedConfig || loadTruckCustomizationConfig()
+  );
   const [draggingTruck, setDraggingTruck] = useState(false);
   const [draggingPanel, setDraggingPanel] = useState(false);
   const [panelPosition, setPanelPosition] = useState({ x: 0, y: 0 });

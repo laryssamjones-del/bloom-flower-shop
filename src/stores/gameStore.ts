@@ -21,6 +21,8 @@ import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { playChaChingSound, playSuccessSound } from '../services/audio';
 import { loadNPCCustomizationConfig } from '../game/components/NPCCustomizer';
 import { loadShelfNPCCustomizationConfig } from '../game/components/ShelfNPCCustomizer';
+import { loadShelfLayoutConfig } from '../game/components/ShelfLayoutEditor';
+import { loadTruckCustomizationConfig } from '../game/components/TruckCustomizer';
 
 const STARTING_COINS = 250;
 const MAX_INVENTORY_STEMS = 200;
@@ -89,8 +91,8 @@ const createInitialState = (): ShopState => ({
   completedOrderCustomerImage: undefined,
   pendingBoxReveal: undefined,
 
-  // Shelf Layout
-  shelfLayoutConfig: undefined,
+  // Shelf Layout (load from localStorage to persist across sessions)
+  shelfLayoutConfig: loadShelfLayoutConfig(),
 
   // NPC Customization (load from localStorage to persist across sessions)
   npcCustomizationConfig: loadNPCCustomizationConfig(),
@@ -98,8 +100,8 @@ const createInitialState = (): ShopState => ({
   // Shelf NPC Customization (load from localStorage to persist across sessions)
   shelfNPCCustomizationConfig: loadShelfNPCCustomizationConfig(),
 
-  // Truck Customization
-  truckCustomizationConfig: undefined,
+  // Truck Customization (load from localStorage to persist across sessions)
+  truckCustomizationConfig: loadTruckCustomizationConfig(),
 
   // Tutorial
   tutorialCompleted: false,
