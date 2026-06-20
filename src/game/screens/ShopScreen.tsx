@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
+import { setSFXVolume, setSFXMuted } from '../../services/audio';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { CoinCounter } from '../components/CoinCounter';
 import { BottomTabNavigation } from '../components/BottomTabNavigation';
@@ -58,6 +59,33 @@ export function ShopScreen() {
 
   // Background music
   const { volume: musicVolume, setVolume: setMusicVolume, isMuted: isMusicMuted, toggleMute: toggleMusicMute } = useBackgroundMusic('/petals-on-repeat.mp3');
+
+  // SFX volume — load from localStorage on mount
+  const [sfxVolume, setSfxVolumeState] = useState<number>(() => {
+    const saved = localStorage.getItem('bloommy_sfx_volume');
+    const vol = saved !== null ? parseFloat(saved) : 0.7;
+    setSFXVolume(vol);
+    return vol;
+  });
+  const [isSfxMuted, setIsSfxMuted] = useState<boolean>(() => {
+    const saved = localStorage.getItem('bloommy_sfx_muted');
+    const muted = saved === 'true';
+    setSFXMuted(muted);
+    return muted;
+  });
+
+  const handleSfxVolumeChange = (volume: number) => {
+    setSFXVolume(volume);
+    setSfxVolumeState(volume);
+    localStorage.setItem('bloommy_sfx_volume', String(volume));
+  };
+
+  const handleToggleSfxMute = () => {
+    const next = !isSfxMuted;
+    setSFXMuted(next);
+    setIsSfxMuted(next);
+    localStorage.setItem('bloommy_sfx_muted', String(next));
+  };
 
   // Settings modal
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -974,6 +1002,10 @@ export function ShopScreen() {
         onMusicVolumeChange={setMusicVolume}
         isMusicMuted={isMusicMuted}
         onToggleMusicMute={toggleMusicMute}
+        sfxVolume={sfxVolume}
+        onSfxVolumeChange={handleSfxVolumeChange}
+        isSfxMuted={isSfxMuted}
+        onToggleSfxMute={handleToggleSfxMute}
       />
 
       {/* Notification Center Modal */}

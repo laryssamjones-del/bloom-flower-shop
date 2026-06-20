@@ -9,6 +9,10 @@ interface SettingsModalProps {
   onMusicVolumeChange: (volume: number) => void;
   isMusicMuted: boolean;
   onToggleMusicMute: () => void;
+  sfxVolume: number;
+  onSfxVolumeChange: (volume: number) => void;
+  isSfxMuted: boolean;
+  onToggleSfxMute: () => void;
 }
 
 export function SettingsModal({
@@ -18,6 +22,10 @@ export function SettingsModal({
   onMusicVolumeChange,
   isMusicMuted,
   onToggleMusicMute,
+  sfxVolume,
+  onSfxVolumeChange,
+  isSfxMuted,
+  onToggleSfxMute,
 }: SettingsModalProps) {
   const resetGame = useGameStore((s) => s.resetGame);
   const [showResetConfirmation, setShowResetConfirmation] = useState(false);
@@ -159,6 +167,101 @@ export function SettingsModal({
             }}
           >
             {isMusicMuted ? '🔇 Unmute' : '🔊 Mute'}
+          </button>
+        </div>
+
+        {/* SFX Volume Control */}
+        <div style={{ marginBottom: '24px' }}>
+          <label
+            style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              color: '#555',
+              marginBottom: '10px',
+            }}
+          >
+            🎵 Sound Effects Volume
+          </label>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+            }}
+          >
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={isSfxMuted ? 0 : sfxVolume * 100}
+              onChange={(e) => {
+                const newVolume = parseFloat(e.target.value) / 100;
+                onSfxVolumeChange(newVolume);
+                RundotGameAPI.analytics.recordCustomEvent('sfx_volume_changed', {
+                  volume: Math.round(newVolume * 100),
+                });
+              }}
+              style={{
+                flex: 1,
+                height: '6px',
+                borderRadius: '3px',
+                background: '#E8C5A0',
+                outline: 'none',
+                accentColor: '#C09840',
+              }}
+            />
+            <span
+              style={{
+                fontSize: '12px',
+                fontWeight: 'bold',
+                color: '#666',
+                minWidth: '35px',
+              }}
+            >
+              {isSfxMuted ? '0%' : Math.round(sfxVolume * 100) + '%'}
+            </span>
+          </div>
+
+          {/* SFX Mute Button */}
+          <button
+            onClick={() => {
+              onToggleSfxMute();
+              RundotGameAPI.analytics.recordCustomEvent('sfx_muted_toggled', {
+                isMuted: !isSfxMuted,
+              });
+            }}
+            style={{
+              marginTop: '10px',
+              width: '100%',
+              padding: '10px',
+              background: isSfxMuted ? '#D4A57C' : '#E8D5C4',
+              color: isSfxMuted ? '#FFF' : '#555',
+              border: `1.5px solid ${isSfxMuted ? '#A07840' : '#D4A57C'}`,
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '13px',
+              fontWeight: 'bold',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              const btn = e.currentTarget as HTMLElement;
+              if (isSfxMuted) {
+                btn.style.background = '#C8985E';
+              } else {
+                btn.style.background = '#DEC4B3';
+              }
+            }}
+            onMouseLeave={(e) => {
+              const btn = e.currentTarget as HTMLElement;
+              if (isSfxMuted) {
+                btn.style.background = '#D4A57C';
+              } else {
+                btn.style.background = '#E8D5C4';
+              }
+            }}
+          >
+            {isSfxMuted ? '🔇 Unmute' : '🔊 Mute'}
           </button>
         </div>
 

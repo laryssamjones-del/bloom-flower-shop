@@ -3,6 +3,26 @@
  * Uses pre-recorded files to avoid conflicts with background music
  */
 
+// Module-level SFX volume state (persists across individual sound plays)
+let sfxVolume = 0.7;
+let sfxMuted = false;
+
+export function setSFXVolume(volume: number) {
+  sfxVolume = Math.max(0, Math.min(1, volume));
+}
+
+export function getSFXVolume(): number {
+  return sfxVolume;
+}
+
+export function setSFXMuted(muted: boolean) {
+  sfxMuted = muted;
+}
+
+export function isSFXMuted(): boolean {
+  return sfxMuted;
+}
+
 /**
  * Play the cha-ching cash register sound
  * Used when bouquets are sold or orders are completed
@@ -10,7 +30,7 @@
 export function playChaChingSound() {
   try {
     const audio = new Audio('./sounds/cha-ching.mp3');
-    audio.volume = 0.7;
+    audio.volume = sfxMuted ? 0 : sfxVolume;
     audio.play().catch((err) => {
       console.warn('Failed to play cha-ching sound:', err);
     });
@@ -26,7 +46,7 @@ export function playChaChingSound() {
 export function playSuccessSound() {
   try {
     const audio = new Audio('./sounds/cha-ching.mp3');
-    audio.volume = 0.7;
+    audio.volume = sfxMuted ? 0 : sfxVolume;
     audio.play().catch((err) => {
       console.warn('Failed to play success sound:', err);
     });
@@ -42,7 +62,7 @@ export function playSuccessSound() {
 export function playNotificationSound() {
   try {
     const audio = new Audio('./sounds/cha-ching.mp3');
-    audio.volume = 0.6;
+    audio.volume = sfxMuted ? 0 : sfxVolume;
     audio.play().catch((err) => {
       console.warn('Failed to play notification sound:', err);
     });
