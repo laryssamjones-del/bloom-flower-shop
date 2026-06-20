@@ -31,8 +31,9 @@ export function TutorialModal({
         'Your task is to buy flowers, create beautiful bouquets (that can be displayed on your shelf), and fulfill customer orders.',
     },
     {
-      title: '📱 Explore the tabs below!',
-      message: 'Explore the tabs below at the bottom of the screen!',
+      title: '📱 The Tabs',
+      message:
+        'The tabs below is where all the magic happens. Click the next steps of the tutorial to read what each tab does!',
     },
     {
       title: '📦 Inventory',
