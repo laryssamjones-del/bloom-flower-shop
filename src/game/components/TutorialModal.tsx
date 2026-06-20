@@ -13,7 +13,7 @@ export function TutorialModal({
 }: TutorialModalProps) {
   if (!isOpen) return null;
 
-  // 4 tutorial messages
+  // Tutorial messages
   const tutorials = [
     {
       title: 'Welcome to Bloom!',
@@ -34,10 +34,41 @@ export function TutorialModal({
       message:
         'Fulfill orders, create bouquets and sell them to customers. Each bouquet sold gets you closer to leveling up to unlock rewards and higher tier bouquets!',
     },
+    {
+      title: '📱 Explore the tabs below!',
+      message: 'Explore the tabs below at the bottom of the screen!',
+    },
+    {
+      title: '📦 Inventory',
+      message:
+        'Inventory is where you keep all the flowers and bouquets that you acquire in the game.',
+    },
+    {
+      title: '📋 Orders',
+      message: 'Orders is where customer orders are located.',
+    },
+    {
+      title: '🎨 Arrange',
+      message: 'Arrange is where you can create beautiful bouquets.',
+    },
+    {
+      title: '🏪 Shop',
+      message:
+        'Shop is where you can buy flowers to create bouquets and is also where you will find the Premium Shop.',
+    },
+    {
+      title: '⚙️ Settings',
+      message:
+        'Settings is where you can adjust the music volume and where you can reset the game.',
+    },
+    {
+      title: 'Have fun!',
+      message: '',
+    },
   ];
 
   const current = tutorials[currentStep] || tutorials[0];
-  const isLastStep = currentStep === 3;
+  const isLastStep = currentStep === 10;
 
   return (
     <div
@@ -159,7 +190,7 @@ export function TutorialModal({
             color: '#999',
           }}
         >
-          Step {currentStep + 1} of 4
+          Step {currentStep + 1} of 11
         </div>
       </div>
     </div>
