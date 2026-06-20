@@ -49,7 +49,7 @@ export function ShopScreen() {
   const addUnclaimedReward = useGameStore((s) => s.addUnclaimedReward);
 
   // Background music
-  const { volume: musicVolume, setVolume: setMusicVolume } = useBackgroundMusic('/petals-on-repeat.mp3');
+  const { volume: musicVolume, setVolume: setMusicVolume, isMuted: isMusicMuted, toggleMute: toggleMusicMute } = useBackgroundMusic('/petals-on-repeat.mp3');
 
   // Settings modal
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -754,6 +754,8 @@ export function ShopScreen() {
         onClose={() => setIsSettingsOpen(false)}
         musicVolume={musicVolume}
         onMusicVolumeChange={setMusicVolume}
+        isMusicMuted={isMusicMuted}
+        onToggleMusicMute={toggleMusicMute}
       />
 
       {/* Bottom Tab Navigation */}

@@ -7,6 +7,8 @@ interface SettingsModalProps {
   onClose: () => void;
   musicVolume: number;
   onMusicVolumeChange: (volume: number) => void;
+  isMusicMuted: boolean;
+  onToggleMusicMute: () => void;
 }
 
 export function SettingsModal({
@@ -14,6 +16,8 @@ export function SettingsModal({
   onClose,
   musicVolume,
   onMusicVolumeChange,
+  isMusicMuted,
+  onToggleMusicMute,
 }: SettingsModalProps) {
   const resetGame = useGameStore((s) => s.resetGame);
   const [showResetConfirmation, setShowResetConfirmation] = useState(false);
@@ -87,7 +91,7 @@ export function SettingsModal({
               type="range"
               min="0"
               max="100"
-              value={musicVolume * 100}
+              value={isMusicMuted ? 0 : musicVolume * 100}
               onChange={(e) => {
                 const newVolume = parseFloat(e.target.value) / 100;
                 onMusicVolumeChange(newVolume);
@@ -112,9 +116,50 @@ export function SettingsModal({
                 minWidth: '35px',
               }}
             >
-              {Math.round(musicVolume * 100)}%
+              {isMusicMuted ? '0%' : Math.round(musicVolume * 100) + '%'}
             </span>
           </div>
+
+          {/* Mute Button */}
+          <button
+            onClick={() => {
+              onToggleMusicMute();
+              RundotGameAPI.analytics.recordCustomEvent('music_muted_toggled', {
+                isMuted: !isMusicMuted,
+              });
+            }}
+            style={{
+              marginTop: '10px',
+              width: '100%',
+              padding: '10px',
+              background: isMusicMuted ? '#D4A57C' : '#E8D5C4',
+              color: isMusicMuted ? '#FFF' : '#555',
+              border: `1.5px solid ${isMusicMuted ? '#A07840' : '#D4A57C'}`,
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '13px',
+              fontWeight: 'bold',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              const btn = e.currentTarget as HTMLElement;
+              if (isMusicMuted) {
+                btn.style.background = '#C8985E';
+              } else {
+                btn.style.background = '#DEC4B3';
+              }
+            }}
+            onMouseLeave={(e) => {
+              const btn = e.currentTarget as HTMLElement;
+              if (isMusicMuted) {
+                btn.style.background = '#D4A57C';
+              } else {
+                btn.style.background = '#E8D5C4';
+              }
+            }}
+          >
+            {isMusicMuted ? '🔇 Unmute' : '🔊 Mute'}
+          </button>
         </div>
 
         {/* Reset Game Button */}
