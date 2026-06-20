@@ -11,7 +11,7 @@ import {
   BouquetTier,
 } from '../types';
 import { FLOWERS, INITIAL_UNLOCKED_FLOWERS, CUSTOMER_MOODS } from '../constants/flowers';
-import { BOUQUET_RECIPES, getRecipeById } from '../data/bouquets';
+import { BOUQUET_RECIPES, getRecipeById, isBouquetUnlocked } from '../data/bouquets';
 import { MYSTERY_BOX_COST_RUN_BUCKS, getRandomMysteryBouquet } from '../data/mysteryBox';
 import { EXCLUSIVE_BOX_COSTS } from '../data/exclusiveBouquets';
 import { generateExclusiveBoxContents } from '../data/mysteryBoxContents';
@@ -647,8 +647,19 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     const selectedType = types[Math.floor(Math.random() * types.length)]!;
     const mood = CUSTOMER_MOODS[Math.floor(Math.random() * CUSTOMER_MOODS.length)]!;
 
-    // Pick a random recipe from the full recipe book
-    const recipe = BOUQUET_RECIPES[Math.floor(Math.random() * BOUQUET_RECIPES.length)]!;
+    // Pick a random recipe from only unlocked bouquets
+    const unlockedRecipes = BOUQUET_RECIPES.filter(
+      (recipe) =>
+        state.unlockedTiers.has(recipe.tier) &&
+        isBouquetUnlocked(recipe.id, state.cumulativeBouquetsSold)
+    );
+
+    // If no unlocked recipes (shouldn't happen), don't create order
+    if (unlockedRecipes.length === 0) {
+      return null;
+    }
+
+    const recipe = unlockedRecipes[Math.floor(Math.random() * unlockedRecipes.length)]!;
 
     // Build requiredStems from recipe ingredients (expanded per quantity)
     const requiredStems: BouquetStem[] = [];
@@ -676,6 +687,13 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       pendingOrders: [...s.pendingOrders, order],
       lastUpdated: Date.now(),
     }));
+
+    RundotGameAPI.analytics.recordCustomEvent('npc_order_created', {
+      bouquetId: recipe.id,
+      bouquetName: recipe.name,
+      bouquetTier: recipe.tier,
+      reward: recipe.sellPrice,
+    });
 
     return order;
   },
