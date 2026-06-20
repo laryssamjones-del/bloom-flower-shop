@@ -48977,11 +48977,29 @@
       "timestamp": 1781972731258,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1781973160291",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "so i just adjusted my shelf NPC and i saved the positioning that i wanted, but then the NPC was just back to the old positioning.",
+      "timestamp": 1781973160291,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781973167919-bxfqymcw9",
+      "role": "assistant",
+      "content": "That's the issue we need to debug! When you clicked Save, **did you check the console for messages?**\n\nHere's what to do:\n\n1. **Open the browser console** (F12 or Cmd+Option+I)\n2. **Click on the Console tab**\n3. **Open the Shelf NPC customizer again**\n4. **Position it and click Save**\n5. **Tell me exactly what message appears in the console:**\n   - Look for a **green ✓ message** (means save succeeded)\n   - Or a **red ✗ error** (means save failed)\n\nCopy and paste the message you see - that will tell me exactly what's going wrong! 🔍",
+      "isShownToUser": true,
+      "timestamp": 1781973169567,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781972731315,
-  "tokenUsage": 85499,
+  "updatedAt": 1781973169610,
+  "tokenUsage": 85799,
   "script": "default",
   "claudeSessionId": "57cb0000-401d-450c-a8d5-dfb762752dc9"
 }
