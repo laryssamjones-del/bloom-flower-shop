@@ -181,6 +181,12 @@ export function ShopScreen() {
       RundotGameAPI.analytics.recordCustomEvent('notification_action_taken', {
         notificationType: 'claim_rewards',
       });
+    } else if (notificationType === 'special_delivery') {
+      // Show the delivery overlay when notification is clicked
+      setShowDeliveryOverlay(true);
+      RundotGameAPI.analytics.recordCustomEvent('notification_action_taken', {
+        notificationType: 'special_delivery',
+      });
     }
   };
 
@@ -285,6 +291,8 @@ export function ShopScreen() {
     const saved = localStorage.getItem('activeDelivery');
     return saved ? JSON.parse(saved) : null;
   });
+  // Track if the delivery overlay should be shown (only after notification is clicked)
+  const [showDeliveryOverlay, setShowDeliveryOverlay] = useState(false);
   const deliveryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Check if delivery should appear on mount based on stored timestamp
@@ -297,12 +305,16 @@ export function ShopScreen() {
         // Delivery is ready!
         const newDelivery = generateSpecialDelivery();
         setActiveDelivery(newDelivery);
+
+        // Add notification to notification center
+        addNotification('special_delivery', '🚚 Special Delivery!', 'A new delivery has arrived. Check it in your notifications!', true);
+
         RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
           deliveryId: newDelivery.id,
         });
       }
     }
-  }, []);
+  }, [addNotification]);
 
   // Schedule next NPC visit
   const scheduleNextVisit = () => {
@@ -484,6 +496,10 @@ export function ShopScreen() {
       if (!activeDelivery && !customizingTruck) {
         const newDelivery = generateSpecialDelivery();
         setActiveDelivery(newDelivery);
+
+        // Add notification to notification center
+        addNotification('special_delivery', '🚚 Special Delivery!', 'A new delivery has arrived. Check it in your notifications!', true);
+
         RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
           deliveryId: newDelivery.id,
         });
@@ -576,6 +592,7 @@ export function ShopScreen() {
       isPremiumDelivery: isPremium,
     });
 
+    setShowDeliveryOverlay(false);
     setActiveDelivery(null);
     scheduleNextDelivery();
   };
@@ -586,6 +603,7 @@ export function ShopScreen() {
         deliveryId: activeDelivery.id,
       });
     }
+    setShowDeliveryOverlay(false);
     setActiveDelivery(null);
     scheduleNextDelivery();
   };
@@ -913,8 +931,8 @@ export function ShopScreen() {
         />
       )}
 
-      {/* Special Delivery Truck */}
-      {activeDelivery && (
+      {/* Special Delivery Truck - only show overlay if user clicked notification */}
+      {activeDelivery && showDeliveryOverlay && (
         <SpecialDeliveryOverlay
           delivery={activeDelivery}
           onAccept={handleDeliveryAccept}

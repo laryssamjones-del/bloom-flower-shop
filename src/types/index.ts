@@ -209,7 +209,7 @@ export interface MysteryBoxReveal {
 
 export interface Notification {
   id: string;
-  type: 'level_up' | 'bouquet_unlocked' | 'claim_rewards' | 'order_pending';
+  type: 'level_up' | 'bouquet_unlocked' | 'claim_rewards' | 'order_pending' | 'special_delivery';
   title: string;
   message: string;
   isRead: boolean;

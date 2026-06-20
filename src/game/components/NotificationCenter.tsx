@@ -12,6 +12,7 @@ const NOTIFICATION_TITLES: Record<Notification['type'], string> = {
   bouquet_unlocked: '🌸 New Bouquet Unlocked!',
   claim_rewards: '🎁 Rewards Waiting',
   order_pending: '📋 Order Pending',
+  special_delivery: '🚚 Special Delivery!',
 };
 
 export function NotificationCenter({ isOpen, onClose, onNotificationClick }: NotificationCenterProps) {
@@ -95,7 +96,7 @@ export function NotificationCenter({ isOpen, onClose, onNotificationClick }: Not
               {notifications
                 .sort((a, b) => b.createdAt - a.createdAt) // Most recent first
                 .map((notif) => {
-                  const isClickable = notif.type === 'claim_rewards';
+                  const isClickable = notif.type === 'claim_rewards' || notif.type === 'special_delivery';
                   return (
                     <div
                       key={notif.id}
