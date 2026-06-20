@@ -8,9 +8,9 @@ export interface ShelfNPCCustomizationConfig {
 }
 
 const DEFAULT_CONFIG: ShelfNPCCustomizationConfig = {
-  height: 340,
-  bottomOffset: 80,
-  rightOffset: 20,
+  height: 420,
+  bottomOffset: 0,
+  rightOffset: 0,
 };
 
 const STORAGE_KEY = 'bloommy_shelf_npc_customization';
