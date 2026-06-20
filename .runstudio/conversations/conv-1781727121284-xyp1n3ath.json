@@ -38545,11 +38545,104 @@
       "timestamp": 1781928391432,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "upload-1781928537071-24",
+      "role": "user",
+      "content": "okay great. but do you see in the screenshot how they just overlapped? i don't want this to happen which is why i wanted the NPCs to be in a queue so that overlapping doesn't happen?",
+      "timestamp": 1781928537071,
+      "isShownToUser": true,
+      "type": "upload",
+      "metadata": {
+        "uploadedFiles": [
+          {
+            "name": "screenshot_2026-06-20_04-07-31.png",
+            "type": "image/png",
+            "path": "uploads/screenshot_2026-06-20_04-07-31.png",
+            "thumbnailPath": ".runstudio/conversations/assets/conv-1781727121284-xyp1n3ath/upload-upload-1781928537071-24-0.png"
+          }
+        ],
+        "uploadPayload": {
+          "display": "okay great. but do you see in the screenshot how they just overlapped? i don't want this to happen which is why i wanted the NPCs to be in a queue so that overlapping doesn't happen?",
+          "forClaude": "This is a message from the RUN.game system. The user has uploaded the following files:\n```\nuploads/screenshot_2026-06-20_04-07-31.png\n```\n\nThe user has also included this message: \"okay great. but do you see in the screenshot how they just overlapped? i don't want this to happen which is why i wanted the NPCs to be in a queue so that overlapping doesn't happen?\"\n\nReview the files before responding to the user."
+        }
+      }
+    },
+    {
+      "id": "1781928544199-x6fp9yumz",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1781928544199,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1781928558083-ml1lj92c2",
+      "role": "assistant",
+      "content": "Perfect! I can see the issue - both the order NPC (left, pink dress) and the shelf checkout NPC (right, purple cardigan) are appearing at the same time. You're right - they should wait in a queue. Let me fix the rendering logic to prevent them from overlapping.\n\nThe issue is that the shelf checkout NPC is being rendered even when an order NPC is active. I need to add a check in the render condition:",
+      "isShownToUser": true,
+      "timestamp": 1781928558333,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781928560312-ee0co02og",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1781928560312,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1781928563993-jucqh2dva",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1781928563993,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1781928565474-10os69ugc",
+      "role": "assistant",
+      "content": "Now let me add the queue check:",
+      "isShownToUser": true,
+      "timestamp": 1781928565679,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781928566732-2rfxwpnv8",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1781928566732,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1781928570843-4wmez7wnt",
+      "role": "assistant",
+      "content": "Done! I've fixed the overlapping issue by adding a queue check to the render condition. Now the shelf checkout NPC will **only appear if no order NPCs or delivery trucks are active**.\n\nHere's what happens now:\n1. When a shelf checkout NPC is scheduled (`shelfPurchaseNPC` is set), it won't immediately render\n2. It will wait until both `!activeVisit` (no order NPC) and `!activeDelivery` (no delivery truck)\n3. Once those clear, the shelf checkout NPC can appear\n4. This creates a natural queue system - NPCs take turns appearing\n\nThe shelf checkout NPC will be ready to show but will remain hidden behind the scenes if another NPC is active, preventing any overlapping!",
+      "isShownToUser": true,
+      "timestamp": 1781928572254,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781928391685,
-  "tokenUsage": 22307,
+  "updatedAt": 1781928572299,
+  "tokenUsage": 24958,
   "script": "default",
   "claudeSessionId": "e57a1710-6ad2-4bf3-9c9c-fac350f9623e"
 }

@@ -704,8 +704,8 @@ export function ShopScreen() {
         />
       )}
 
-      {/* Shelf Checkout Dialog */}
-      {shelfPurchaseNPC && (
+      {/* Shelf Checkout Dialog — only show if no other NPCs are active */}
+      {shelfPurchaseNPC && !activeVisit && !activeDelivery && (
         <ShelfCheckoutDialog
           npcImage={shelfPurchaseNPC.npcImage}
           bouquet={shelfPurchaseNPC.bouquet}
