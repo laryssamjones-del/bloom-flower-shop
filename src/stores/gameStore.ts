@@ -78,6 +78,10 @@ const createInitialState = (): ShopState => ({
   orderJustCompleted: false,
   completedOrderCustomerImage: undefined,
   pendingBoxReveal: undefined,
+
+  // Tutorial
+  tutorialCompleted: false,
+  tutorialCurrentStep: 0,
 });
 
 interface GameStoreActions {
@@ -168,6 +172,10 @@ interface GameStoreActions {
   // Utilities
   getTotalInventoryValue: () => number;
   calculateBouquetPrice: (stems: BouquetStem[]) => number;
+
+  // Tutorial
+  setTutorialStep: (step: number) => void;
+  completeTutorial: () => void;
 }
 
 export const useGameStore = create<ShopState & GameStoreActions>((set, get) => ({
@@ -1003,5 +1011,18 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     const varietyBonus = (uniqueFlowers - 1) * 3;
 
     return Math.round(basePrice + varietyBonus);
+  },
+
+  // Tutorial
+  setTutorialStep: (step: number) => {
+    set({ tutorialCurrentStep: step, lastUpdated: Date.now() });
+  },
+
+  completeTutorial: () => {
+    set({
+      tutorialCompleted: true,
+      tutorialCurrentStep: 4,
+      lastUpdated: Date.now(),
+    });
   },
 }));

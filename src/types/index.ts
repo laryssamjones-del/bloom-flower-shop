@@ -152,6 +152,9 @@ export interface ShopState extends GameState {
   completedOrderCustomerImage?: string; // NPC image for thank you animation
   // Exclusive mystery box reveal animation
   pendingBoxReveal?: ExclusiveBoxContents[]; // Contents waiting to be revealed in animation
+  // Tutorial
+  tutorialCompleted: boolean;
+  tutorialCurrentStep: number;
 }
 
 export interface SpecialBox {

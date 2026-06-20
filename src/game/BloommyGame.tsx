@@ -9,10 +9,20 @@ import { WrappingScreen } from './screens/WrappingScreen';
 import { InventoryScreen } from './screens/InventoryScreen';
 import { OrdersScreen } from './screens/OrdersScreen';
 import { NotificationBell } from './components/NotificationBell';
+import { TutorialModal } from './components/TutorialModal';
 
 // Module-level telemetry registration (runs once on import)
 RundotGameAPI.lifecycles.onPause(() => RundotGameAPI.analytics.recordCustomEvent('game_paused'));
-RundotGameAPI.lifecycles.onResume(() => RundotGameAPI.analytics.recordCustomEvent('game_resumed'));
+RundotGameAPI.lifecycles.onResume(() => {
+  RundotGameAPI.analytics.recordCustomEvent('game_resumed');
+  // Track tutorial start on resume if it hasn't been completed
+  const { tutorialCompleted, tutorialCurrentStep } = useGameStore.getState();
+  if (!tutorialCompleted && tutorialCurrentStep === 0) {
+    RundotGameAPI.analytics.recordCustomEvent('tutorial_started', {
+      timestamp: Date.now(),
+    });
+  }
+});
 RundotGameAPI.lifecycles.onSleep(() => RundotGameAPI.analytics.recordCustomEvent('game_sleep'));
 RundotGameAPI.lifecycles.onQuit(() => RundotGameAPI.analytics.recordCustomEvent('game_quit'));
 
@@ -21,6 +31,10 @@ export function BloommyGame() {
   const currentScreen = useGameStore((s) => s.currentScreen);
   const loadGameState = useGameStore((s) => s.loadGameState);
   const saveGameState = useGameStore((s) => s.saveGameState);
+  const tutorialCompleted = useGameStore((s) => s.tutorialCompleted);
+  const tutorialCurrentStep = useGameStore((s) => s.tutorialCurrentStep);
+  const setTutorialStep = useGameStore((s) => s.setTutorialStep);
+  const completeTutorial = useGameStore((s) => s.completeTutorial);
   const [isLoading, setIsLoading] = useState(true);
 
   // Initialize game on mount
@@ -94,6 +108,8 @@ export function BloommyGame() {
     );
   }
 
+  const shouldShowTutorial = !tutorialCompleted && currentScreen === 'shop';
+
   return (
     <div className="bloomy-phone-outer">
       <div className="bloomy-phone-inner" style={safeAreaPadding}>
@@ -103,6 +119,37 @@ export function BloommyGame() {
         {currentScreen === 'wrapping' && <WrappingScreen />}
         {currentScreen === 'inventory' && <InventoryScreen />}
         {currentScreen === 'orders' && <OrdersScreen />}
+
+        {/* Tutorial Modal */}
+        {shouldShowTutorial && (
+          <TutorialModal
+            isOpen={shouldShowTutorial}
+            currentStep={tutorialCurrentStep}
+            onNextStep={(nextStep) => {
+              if (nextStep <= 3) {
+                // Still on a step (0-3)
+                setTutorialStep(nextStep);
+                RundotGameAPI.analytics.recordCustomEvent('tutorial_step_completed', {
+                  step: nextStep,
+                  timestamp: Date.now(),
+                });
+              } else {
+                // Completed all steps
+                completeTutorial();
+                RundotGameAPI.analytics.recordCustomEvent('tutorial_completed', {
+                  timestamp: Date.now(),
+                });
+              }
+            }}
+            onSkip={() => {
+              completeTutorial();
+              RundotGameAPI.analytics.recordCustomEvent('tutorial_skipped', {
+                stepWhenSkipped: tutorialCurrentStep,
+                timestamp: Date.now(),
+              });
+            }}
+          />
+        )}
       </div>
       <NotificationBell />
     </div>

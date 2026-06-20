@@ -1,0 +1,167 @@
+interface TutorialModalProps {
+  isOpen: boolean;
+  currentStep: number;
+  onNextStep: (step: number) => void;
+  onSkip: () => void;
+}
+
+export function TutorialModal({
+  isOpen,
+  currentStep,
+  onNextStep,
+  onSkip,
+}: TutorialModalProps) {
+  if (!isOpen) return null;
+
+  // 4 tutorial messages
+  const tutorials = [
+    {
+      title: 'Welcome to Bloom!',
+      message: '',
+    },
+    {
+      title: '',
+      message:
+        'You are the owner of your very own floral shop! What you do is buy flowers which you will be able to arrange into a beautiful bouquet, and then you can display it on the shelf for customers to buy.',
+    },
+    {
+      title: '',
+      message:
+        'You will also be able to fulfill customer orders and earn Petal Coins to buy more flowers from the shop!',
+    },
+    {
+      title: '',
+      message:
+        'Fulfill orders, create bouquets and sell them to customers. Each bouquet sold gets you closer to leveling up to unlock rewards and higher tier bouquets!',
+    },
+  ];
+
+  const current = tutorials[currentStep] || tutorials[0];
+  const isLastStep = currentStep === 3;
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0, 0, 0, 0.7)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 10000,
+      }}
+      onClick={() => onNextStep(currentStep + 1)}
+    >
+      {/* Bubble Container */}
+      <div
+        style={{
+          background: '#F5F1E8',
+          border: '4px solid #D4A574',
+          borderRadius: '16px',
+          padding: '32px 24px',
+          maxWidth: '320px',
+          width: '85%',
+          textAlign: 'center',
+          boxShadow: '0 12px 40px rgba(0, 0, 0, 0.3)',
+          position: 'relative',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Skip Button */}
+        <button
+          onClick={onSkip}
+          style={{
+            position: 'absolute',
+            top: '12px',
+            right: '12px',
+            background: 'transparent',
+            border: 'none',
+            fontSize: '20px',
+            cursor: 'pointer',
+            padding: '4px 8px',
+          }}
+        >
+          ✕
+        </button>
+
+        {/* Title */}
+        {current!.title && (
+          <h2
+            style={{
+              margin: '0 0 16px 0',
+              fontSize: '24px',
+              color: '#333',
+              fontWeight: 'bold',
+            }}
+          >
+            {current!.title}
+          </h2>
+        )}
+
+        {/* Message */}
+        <p
+          style={{
+            margin: '0 0 24px 0',
+            fontSize: '14px',
+            lineHeight: '1.6',
+            color: '#555',
+          }}
+        >
+          {current!.message}
+        </p>
+
+        {/* Buttons */}
+        <div
+          style={{
+            display: 'flex',
+            gap: '12px',
+            justifyContent: 'center',
+          }}
+        >
+          <button
+            onClick={onSkip}
+            style={{
+              padding: '10px 16px',
+              background: 'transparent',
+              border: '2px solid #D4A574',
+              color: '#D4A574',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '12px',
+              fontWeight: 'bold',
+            }}
+          >
+            Skip Tutorial
+          </button>
+
+          <button
+            onClick={() => onNextStep(currentStep + 1)}
+            style={{
+              padding: '10px 20px',
+              background: '#D4A574',
+              color: '#FFF',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '12px',
+              fontWeight: 'bold',
+            }}
+          >
+            {isLastStep ? 'Done!' : 'Next'}
+          </button>
+        </div>
+
+        {/* Step Indicator */}
+        <div
+          style={{
+            marginTop: '16px',
+            fontSize: '11px',
+            color: '#999',
+          }}
+        >
+          Step {currentStep + 1} of 4
+        </div>
+      </div>
+    </div>
+  );
+}
