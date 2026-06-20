@@ -38711,11 +38711,60 @@
       "timestamp": 1781928721109,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1781928929066",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "and for the NPCs buying a bouquet from the shelf, when they buy it, the bouquet that was bought should disappear since it's been purchased.",
+      "timestamp": 1781928929066,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781928939316-n3lzodb70",
+      "role": "assistant",
+      "content": "Got it! Let me verify that when an NPC buys a bouquet, it's properly removed from the shelf. Let me check the `sellBouquet` function in the game store:",
+      "isShownToUser": true,
+      "timestamp": 1781928939529,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781928940485-v39351353",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1781928940485,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1781928942725-ikai6lgpm",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1781928942725,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1781928947028-7nxrucwgo",
+      "role": "assistant",
+      "content": "Perfect! I can confirm that the bouquet removal is already implemented and working. When `sellBouquet()` is called (which happens in `handleShelfCheckoutConfirm`), it:\n\n1. **Removes the bouquet from the shelf** (line 597: `state.removeBouquetFromShelf(bouquetId)`)\n2. Adds coins to the player\n3. Updates sales count and unlocks new flowers if applicable\n4. Moves pending bouquets to the shelf if there's space\n\nSo when an NPC completes a shelf checkout purchase, the bouquet automatically disappears from the shelf! The functionality is already in place and working correctly.",
+      "isShownToUser": true,
+      "timestamp": 1781928947945,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781928721157,
-  "tokenUsage": 25741,
+  "updatedAt": 1781928947993,
+  "tokenUsage": 26684,
   "script": "default",
   "claudeSessionId": "e57a1710-6ad2-4bf3-9c9c-fac350f9623e"
 }
