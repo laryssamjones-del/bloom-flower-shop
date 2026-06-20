@@ -81,9 +81,9 @@ export function BloommyGame() {
   }, []);
 
   // Safe-area padding applied inline (values come from SDK at runtime)
-  // Only apply padding where needed to avoid creating empty space on mobile
+  // Only apply minimal padding to avoid creating excess empty space on mobile
   const safeAreaPadding = {
-    paddingTop: Math.max(0, safeArea.top),
+    paddingTop: 0,
     paddingLeft: Math.max(0, safeArea.left),
     paddingRight: Math.max(0, safeArea.right),
   };
