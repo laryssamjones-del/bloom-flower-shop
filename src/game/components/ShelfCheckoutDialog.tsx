@@ -43,9 +43,10 @@ export function ShelfCheckoutDialog({
     onDecline();
   };
 
-  // NPC positioning (consistent with order NPCs, but constrained to mobile viewport)
+  // NPC positioning (consistent with order NPCs)
   const npcHeight = npcConfig?.height || 420;
   const npcBottomOffset = npcConfig?.bottomOffset || 70;
+  const npcRightOffset = npcConfig?.rightOffset || 0;
 
   return (
     <div
@@ -59,14 +60,16 @@ export function ShelfCheckoutDialog({
         zIndex: 5000,
       }}
     >
-      {/* NPC positioned on right-bottom with padding, constrained within mobile viewport */}
+      {/* NPC positioned on right-bottom (same as order NPCs) */}
       <div
         style={{
-          position: 'fixed',
+          position: 'absolute',
           bottom: `${npcBottomOffset}px`,
-          right: '10px',
-          width: '200px',
-          height: `${npcHeight}px`,
+          right: `${npcRightOffset}px`,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          zIndex: 8,
           animation:
             phase === 'asking'
               ? 'npcSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)'
@@ -75,15 +78,18 @@ export function ShelfCheckoutDialog({
                 : 'none',
           opacity: phase === 'closing' ? 0 : 1,
           transition: 'opacity 0.5s ease-in',
-          pointerEvents: 'none', // Prevent NPC from blocking interactions
+          pointerEvents: 'none',
         }}
       >
         <img
           src={npcImage}
           alt="Customer"
           style={{
-            height: '100%',
+            height: `${npcHeight}px`,
+            width: 'auto',
             objectFit: 'contain',
+            filter: 'drop-shadow(-4px 0 8px rgba(0,0,0,0.25))',
+            imageRendering: 'crisp-edges',
           }}
         />
       </div>
