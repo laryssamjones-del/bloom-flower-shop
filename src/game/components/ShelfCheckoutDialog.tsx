@@ -146,7 +146,7 @@ export function ShelfCheckoutDialog({
             lineHeight: 1.3,
           }}
         >
-          {phase === 'asking' && "I'd like to buy this bouquet."}
+          {phase === 'asking' && "This bouquet is beautiful! I'd like to buy this from your shelf, please."}
           {phase === 'confirming' && `Sell for ${bouquet.sellPrice} 🌼?`}
           {phase === 'closing' && 'Thanks!'}
         </div>
