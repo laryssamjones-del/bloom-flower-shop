@@ -319,6 +319,29 @@ export function TruckCustomizer({ onClose }: Props) {
           </button>
         </div>
 
+        {/* Left offset control */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+          <button
+            onClick={() =>
+              setConfig((p) => ({ ...p, leftOffset: Math.max(MOBILE_MIN_LEFT, p.leftOffset - 2) }))
+            }
+            style={btnBase}
+          >
+            −
+          </button>
+          <span style={{ fontSize: '12px', flex: 1, textAlign: 'center' }}>
+            Left Gap: {Math.round(config.leftOffset)}%
+          </span>
+          <button
+            onClick={() =>
+              setConfig((p) => ({ ...p, leftOffset: Math.min(MOBILE_MAX_LEFT, p.leftOffset + 2) }))
+            }
+            style={btnBase}
+          >
+            +
+          </button>
+        </div>
+
         {/* Position info */}
         <div style={{ fontSize: '10px', color: '#999', textAlign: 'center', lineHeight: 1.4 }}>
           <div>Position: {Math.round(config.leftOffset)}% from left</div>
