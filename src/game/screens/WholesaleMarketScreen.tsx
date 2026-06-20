@@ -1060,22 +1060,22 @@ export function WholesaleMarketScreen() {
             bottom: 0,
             left: 0,
             right: 0,
-            padding: '12px',
+            padding: '8px',
             background: 'rgba(255,255,255,0.95)',
             borderTop: '2px solid rgba(0,0,0,0.1)',
-            maxHeight: '280px',
+            maxHeight: '220px',
             overflow: 'auto',
             zIndex: 10,
           }}
         >
           <div
             style={{
-              padding: '12px',
+              padding: '8px',
               background: 'rgba(255,255,255,0.5)',
               borderRadius: '6px',
             }}
           >
-            <h3 style={{ margin: '0 0 8px 0', fontSize: '14px' }}>
+            <h3 style={{ margin: '0 0 6px 0', fontSize: '12px' }}>
               {selectedFlower && getItem(selectedFlower)?.name}
             </h3>
 
@@ -1083,10 +1083,10 @@ export function WholesaleMarketScreen() {
             {selectedFlower && (
               <div
                 style={{
-                  fontSize: '12px',
+                  fontSize: '10px',
                   color: '#666',
-                  marginBottom: '12px',
-                  padding: '8px',
+                  marginBottom: '8px',
+                  padding: '6px',
                   background: 'rgba(0,0,0,0.05)',
                   borderRadius: '4px',
                 }}
@@ -1103,8 +1103,8 @@ export function WholesaleMarketScreen() {
               style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: '8px',
-                marginBottom: '12px',
+                gap: '6px',
+                marginBottom: '8px',
               }}
             >
               {([1, 5, 10, 20] as BulkOption[]).map((bulk) => {
@@ -1125,13 +1125,13 @@ export function WholesaleMarketScreen() {
                     key={bulk}
                     onClick={() => setSelectedBulk(bulk)}
                     style={{
-                      padding: '8px',
+                      padding: '6px',
                       background: isBulkSelected ? '#C8B8A0' : '#DDD',
                       color: '#2A1408',
                       border: 'none',
                       borderRadius: '4px',
                       cursor: 'pointer',
-                      fontSize: '11px',
+                      fontSize: '10px',
                       fontWeight: 'bold',
                       opacity: canAffordThisBulk ? 1 : 0.5,
                     }}
@@ -1139,11 +1139,11 @@ export function WholesaleMarketScreen() {
                     <div>{bulk} stems</div>
                     <div>{totalCost} 🌼</div>
                     {discount > 0 && (
-                      <div style={{ color: '#6A9A50', fontSize: '10px' }}>
+                      <div style={{ color: '#6A9A50', fontSize: '9px' }}>
                         -{(discount * 100).toFixed(0)}%
                       </div>
                     )}
-                    <div style={{ color: canAffordThisBulk ? '#666' : '#c45d5d', fontSize: '9px', marginTop: '4px' }}>
+                    <div style={{ color: canAffordThisBulk ? '#666' : '#c45d5d', fontSize: '8px', marginTop: '2px' }}>
                       {canAffordThisBulk ? `→ ${remainingAfterPurchase}/50` : '❌ exceeds limit'}
                     </div>
                   </button>
@@ -1156,27 +1156,27 @@ export function WholesaleMarketScreen() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px',
-                marginBottom: '12px',
-                padding: '12px',
+                gap: '8px',
+                marginBottom: '8px',
+                padding: '8px',
                 background: 'rgba(0,0,0,0.05)',
                 borderRadius: '4px',
               }}
             >
-              <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', flex: 1 }}>
-                Custom qty:
+              <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#666', flex: 1 }}>
+                Qty:
               </span>
               <button
                 onClick={() => setSelectedBulk(Math.max(1, selectedBulk - 1))}
                 style={{
-                  width: '36px',
-                  height: '36px',
+                  width: '30px',
+                  height: '30px',
                   padding: 0,
                   background: '#DDD',
                   border: 'none',
                   borderRadius: '4px',
                   cursor: 'pointer',
-                  fontSize: '18px',
+                  fontSize: '14px',
                   fontWeight: 'bold',
                 }}
               >
@@ -1184,14 +1184,14 @@ export function WholesaleMarketScreen() {
               </button>
               <div
                 style={{
-                  minWidth: '60px',
+                  minWidth: '50px',
                   textAlign: 'center',
-                  fontSize: '16px',
+                  fontSize: '12px',
                   fontWeight: 'bold',
                   color: '#2A1408',
                 }}
               >
-                {selectedBulk} stems
+                {selectedBulk}
               </div>
               <button
                 onClick={() => {
@@ -1199,14 +1199,14 @@ export function WholesaleMarketScreen() {
                   setSelectedBulk(Math.min(maxRemaining, selectedBulk + 1));
                 }}
                 style={{
-                  width: '36px',
-                  height: '36px',
+                  width: '30px',
+                  height: '30px',
                   padding: 0,
                   background: (selectedBulk + 1) > Math.max(0, 50 - (dailyPurchases[selectedFlower!] || 0)) ? '#CCC' : '#DDD',
                   border: 'none',
                   borderRadius: '4px',
                   cursor: (selectedBulk + 1) > Math.max(0, 50 - (dailyPurchases[selectedFlower!] || 0)) ? 'not-allowed' : 'pointer',
-                  fontSize: '18px',
+                  fontSize: '14px',
                   fontWeight: 'bold',
                 }}
               >
@@ -1237,7 +1237,7 @@ export function WholesaleMarketScreen() {
               const isBuyAllDisabled = insufficientCoinsForAll || !canBuyAll || maxAvailable <= 0;
 
               return (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <button
                     onClick={() => handleBuyFlowers()}
                     disabled={isDisabled}
