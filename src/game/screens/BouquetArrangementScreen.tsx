@@ -356,12 +356,12 @@ export function BouquetArrangementScreen() {
                   const name = getFlowerOrGreeneryName(item.flowerId);
                   const handleMissingIngredientClick = () => {
                     if (!ok) {
-                      // Collect all missing ingredients for this recipe
+                      // Collect all missing ingredients for this recipe (pass total needed, shop will calc remaining)
                       const allMissing = missing
                         .filter((m) => m.have < m.needed)
                         .map((m) => ({
                           flowerId: m.flowerId,
-                          quantity: m.needed - m.have,
+                          quantity: m.needed,
                         }));
                       setNeededFlowers(allMissing);
                       RundotGameAPI.analytics.recordCustomEvent('missing_ingredients_shop_navigation', {
@@ -434,12 +434,12 @@ export function BouquetArrangementScreen() {
                 <div style={{ marginTop: '8px' }}>
                   <button
                     onClick={() => {
-                      // Collect all missing ingredients for this recipe
+                      // Collect all missing ingredients for this recipe (pass total needed, shop will calc remaining)
                       const allMissing = missing
                         .filter((m) => m.have < m.needed)
                         .map((m) => ({
                           flowerId: m.flowerId,
-                          quantity: m.needed - m.have,
+                          quantity: m.needed,
                         }));
                       setNeededFlowers(allMissing);
                       setCurrentScreen('wholesale');
