@@ -79,7 +79,6 @@ export function BouquetArrangementScreen() {
   const handleMakeBouquet = () => {
     if (!localRecipeId || !canMake) return;
     selectRecipe(localRecipeId, fulfillOrderId ?? undefined);
-    storeRecipeSelection(undefined);
     RundotGameAPI.analytics.recordCustomEvent('bouquet_arrangement_complete', {
       recipeId: localRecipeId,
     });
