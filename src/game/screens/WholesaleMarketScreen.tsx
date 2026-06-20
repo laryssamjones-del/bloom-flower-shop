@@ -8,6 +8,7 @@ import { ScreenNavigation } from '../components/ScreenNavigation';
 import { generateSpecialDelivery } from '../components/SpecialDeliveryOverlay';
 import { openPlatformStore, getRunbucksBalance } from '../../services/iap';
 import ExclusiveBoxRevealOverlay from './ExclusiveBoxRevealOverlay';
+import deliveryTruckImage from '../../assets/delivery-truck.png';
 
 type BulkOption = 1 | 5 | 10 | 20;
 
@@ -827,7 +828,7 @@ export function WholesaleMarketScreen() {
                 </div>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '10px' }}>
                   <img
-                    src="/delivery-truck.png"
+                    src={deliveryTruckImage}
                     alt="Delivery Truck"
                     style={{
                       width: '100px',
@@ -882,7 +883,7 @@ export function WholesaleMarketScreen() {
                 </div>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '10px' }}>
                   <img
-                    src="/delivery-truck.png"
+                    src={deliveryTruckImage}
                     alt="Deluxe Delivery Truck"
                     style={{
                       width: '50px',
