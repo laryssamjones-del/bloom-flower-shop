@@ -172,8 +172,6 @@ export function TutorialModal({
             <button
               onClick={onPreviousStep}
               style={{
-                flex: 1,
-                minWidth: '70px',
                 padding: '10px 20px',
                 background: '#D4A574',
                 color: '#FFF',
@@ -184,15 +182,13 @@ export function TutorialModal({
                 fontWeight: 'bold',
               }}
             >
-              ← Back
+              Back
             </button>
           )}
 
           <button
             onClick={() => onNextStep(currentStep + 1)}
             style={{
-              flex: 1,
-              minWidth: '70px',
               padding: '10px 20px',
               background: '#D4A574',
               color: '#FFF',
