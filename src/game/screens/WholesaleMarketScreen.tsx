@@ -1060,22 +1060,22 @@ export function WholesaleMarketScreen() {
             bottom: 0,
             left: 0,
             right: 0,
-            padding: '8px',
+            padding: '6px',
             background: 'rgba(255,255,255,0.95)',
             borderTop: '2px solid rgba(0,0,0,0.1)',
-            maxHeight: '220px',
+            maxHeight: '140px',
             overflow: 'auto',
             zIndex: 10,
           }}
         >
           <div
             style={{
-              padding: '8px',
+              padding: '6px',
               background: 'rgba(255,255,255,0.5)',
               borderRadius: '6px',
             }}
           >
-            <h3 style={{ margin: '0 0 6px 0', fontSize: '12px' }}>
+            <h3 style={{ margin: '0 0 4px 0', fontSize: '11px' }}>
               {selectedFlower && getItem(selectedFlower)?.name}
             </h3>
 
@@ -1084,27 +1084,27 @@ export function WholesaleMarketScreen() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                marginBottom: '8px',
-                padding: '8px',
+                gap: '6px',
+                marginBottom: '6px',
+                padding: '6px',
                 background: 'rgba(0,0,0,0.05)',
                 borderRadius: '4px',
               }}
             >
-              <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#666', flex: 1 }}>
+              <span style={{ fontSize: '9px', fontWeight: 'bold', color: '#666', flex: 1 }}>
                 Qty:
               </span>
               <button
                 onClick={() => setSelectedBulk(Math.max(1, selectedBulk - 1))}
                 style={{
-                  width: '30px',
-                  height: '30px',
+                  width: '26px',
+                  height: '26px',
                   padding: 0,
                   background: '#DDD',
                   border: 'none',
                   borderRadius: '4px',
                   cursor: 'pointer',
-                  fontSize: '14px',
+                  fontSize: '12px',
                   fontWeight: 'bold',
                 }}
               >
@@ -1112,9 +1112,9 @@ export function WholesaleMarketScreen() {
               </button>
               <div
                 style={{
-                  minWidth: '50px',
+                  minWidth: '40px',
                   textAlign: 'center',
-                  fontSize: '12px',
+                  fontSize: '11px',
                   fontWeight: 'bold',
                   color: '#2A1408',
                 }}
@@ -1127,14 +1127,14 @@ export function WholesaleMarketScreen() {
                   setSelectedBulk(Math.min(maxRemaining, selectedBulk + 1));
                 }}
                 style={{
-                  width: '30px',
-                  height: '30px',
+                  width: '26px',
+                  height: '26px',
                   padding: 0,
                   background: (selectedBulk + 1) > Math.max(0, 50 - (dailyPurchases[selectedFlower!] || 0)) ? '#CCC' : '#DDD',
                   border: 'none',
                   borderRadius: '4px',
                   cursor: (selectedBulk + 1) > Math.max(0, 50 - (dailyPurchases[selectedFlower!] || 0)) ? 'not-allowed' : 'pointer',
-                  fontSize: '14px',
+                  fontSize: '12px',
                   fontWeight: 'bold',
                 }}
               >
@@ -1165,19 +1165,19 @@ export function WholesaleMarketScreen() {
               const isBuyAllDisabled = insufficientCoinsForAll || !canBuyAll || maxAvailable <= 0;
 
               return (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <button
                     onClick={() => handleBuyFlowers()}
                     disabled={isDisabled}
                     style={{
                       width: '100%',
-                      padding: '10px',
+                      padding: '8px',
                       background: isDisabled ? '#CCC' : '#6A9A50',
                       color: '#FFF',
                       border: 'none',
                       borderRadius: '4px',
                       cursor: isDisabled ? 'not-allowed' : 'pointer',
-                      fontSize: '12px',
+                      fontSize: '11px',
                       fontWeight: 'bold',
                     }}
                   >
