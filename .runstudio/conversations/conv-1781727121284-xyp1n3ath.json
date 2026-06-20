@@ -48995,11 +48995,29 @@
       "timestamp": 1781973169567,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1781973263593",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "2ShelfNPCCustomizer.tsx:33 ✓ Shelf NPC config saved to localStorage: {\"height\":420,\"bottomOffset\":0,\"rightOffset\":0}",
+      "timestamp": 1781973263593,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781973277153-pfsyff86c",
+      "role": "assistant",
+      "content": "Aha! I found the issue! Look at what's being saved:\n\n```\n{\"height\":420,\"bottomOffset\":0,\"rightOffset\":0}\n```\n\nThese are the **DEFAULT values**, not the adjusted values you set! This means **the drag handler isn't updating the config state properly** when you move the NPC.\n\nWhen you drag the NPC in the customizer, it should update those numbers, but it's not. The state isn't changing.\n\n**Quick question:** When you drag the NPC in the customizer preview, does the NPC actually move on screen? Or does it stay in the same place?\n\nThis will tell me if the drag is working at all. If the NPC moves when you drag it but those values don't change, then the issue is that the config state isn't being updated during the drag.",
+      "isShownToUser": true,
+      "timestamp": 1781973277274,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781973169610,
-  "tokenUsage": 85799,
+  "updatedAt": 1781973277350,
+  "tokenUsage": 86606,
   "script": "default",
   "claudeSessionId": "57cb0000-401d-450c-a8d5-dfb762752dc9"
 }
