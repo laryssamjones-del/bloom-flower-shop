@@ -221,7 +221,7 @@ export function ShopScreen() {
   // Handle NPC accept: create an order from the visit
   const handleNPCAccept = () => {
     if (!activeVisit) return;
-    const order = createOrder();
+    const order = createOrder(activeVisit.npcImage);
     setActiveVisit(null);
     if (order) {
       RundotGameAPI.analytics.recordCustomEvent('npc_order_accepted', {

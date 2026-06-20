@@ -147,7 +147,7 @@ interface GameStoreActions {
   sellBouquet: (bouquetId: string, priceOverride?: number) => boolean;
 
   // Order management
-  createOrder: () => Order | null;
+  createOrder: (npcImage?: string) => Order | null;
   completeOrder: (orderId: string, reward: number) => void;
   removeOrder: (orderId: string) => void;
   getPendingOrders: () => Order[];
@@ -446,28 +446,8 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     if (fulfillOrderId) {
       const order = state.pendingOrders.find((o) => o.id === fulfillOrderId);
       if (order) {
-        // NPC images for thank you animation
-        const npcImages = [
-          './npcs/npc-young-woman-01.png',
-          './npcs/npc-young-woman-02.png',
-          './npcs/npc-young-woman-03.png',
-          './npcs/npc-young-woman-04.png',
-          './npcs/npc-woman-braid-glasses.png',
-          './npcs/npc-elder-woman-white-hair.png',
-          './npcs/npc-elder-woman-grey-curly.png',
-          './npcs/npc-woman-auburn-curly.png',
-          './npcs/npc-woman-curly-afro.png',
-          './npcs/npc-woman-dark-updo.png',
-          './npcs/npc-man-bald-beard.png',
-          './npcs/npc-man-black-hair-linen.png',
-          './npcs/npc-man-brown-hair-sweater.png',
-          './npcs/npc-man-curly-hair.png',
-          './npcs/npc-man-grey-beard-blue.png',
-          './npcs/npc-man-grey-hair-navy.png',
-          './npcs/npc-man-locs-sweater.png',
-          './npcs/npc-nonbinary-mint-hair.png',
-        ];
-        const randomCustomerImage = npcImages[Math.floor(Math.random() * npcImages.length)];
+        // Use the NPC image from the order for consistency
+        const customerImage = order.npcImage;
 
         set((s) => ({
           pendingOrders: s.pendingOrders.filter((o) => o.id !== fulfillOrderId),
@@ -478,7 +458,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
           selectedRecipeId: undefined,
           fulfillOrderId: undefined,
           orderJustCompleted: true,
-          completedOrderCustomerImage: randomCustomerImage,
+          completedOrderCustomerImage: customerImage,
           currentScreen: 'shop',
           lastUpdated: Date.now(),
         }));
@@ -634,7 +614,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
   },
 
   // Order management
-  createOrder: () => {
+  createOrder: (npcImage?: string) => {
     const state = get();
 
     // Don't create orders if there are already 10 pending
@@ -673,6 +653,37 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       }
     }
 
+    // Use provided NPC image or pick a random one
+    const NPC_IMAGES = [
+      './npcs/npc-young-woman-01.png',
+      './npcs/npc-young-woman-02.png',
+      './npcs/npc-young-woman-03.png',
+      './npcs/npc-young-woman-04.png',
+      './npcs/npc-woman-braid-glasses.png',
+      './npcs/npc-elder-woman-white-hair.png',
+      './npcs/npc-elder-woman-grey-curly.png',
+      './npcs/npc-woman-auburn-curly.png',
+      './npcs/npc-woman-auburn-curly-yellow-blouse.png',
+      './npcs/npc-woman-black-braid-cream-sweater.png',
+      './npcs/npc-woman-black-coily-denim-jacket.png',
+      './npcs/npc-woman-silver-hair-sage-cardigan.png',
+      './npcs/npc-woman-curly-afro.png',
+      './npcs/npc-woman-dark-updo.png',
+      './npcs/npc-man-bald-beard.png',
+      './npcs/npc-man-black-hair-linen.png',
+      './npcs/npc-man-brown-hair-sweater.png',
+      './npcs/npc-man-curly-hair.png',
+      './npcs/npc-man-grey-beard-blue.png',
+      './npcs/npc-man-grey-hair-navy.png',
+      './npcs/npc-man-locs-sweater.png',
+      './npcs/npc-man-black-fade-tan-jacket.png',
+      './npcs/npc-man-black-wavy-denim-shirt.png',
+      './npcs/npc-man-blonde-curly-lilac-sweater.png',
+      './npcs/npc-man-red-hair-navy-sweater.png',
+      './npcs/npc-nonbinary-mint-hair.png',
+    ];
+    const finalNpcImage = npcImage || NPC_IMAGES[Math.floor(Math.random() * NPC_IMAGES.length)]!;
+
     const order: Order = {
       id: `order-${Date.now()}-${Math.random()}`,
       customerId: `customer-${Date.now()}`,
@@ -684,6 +695,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       reward: recipe.sellPrice,
       status: 'pending',
       createdAt: Date.now(),
+      npcImage: finalNpcImage,
     };
 
     set((s) => ({

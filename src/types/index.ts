@@ -67,6 +67,7 @@ export interface Order {
   reward: number;
   status: 'pending' | 'completed';
   createdAt: number;
+  npcImage: string; // NPC character image for consistent appearance
 }
 
 export interface MysteryBouquetItem {
