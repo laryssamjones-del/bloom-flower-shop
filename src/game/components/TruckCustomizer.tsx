@@ -221,7 +221,7 @@ export function TruckCustomizer({ onClose }: Props) {
       <div
         style={{
           position: 'absolute',
-          top: config.topOffset,
+          top: `${config.topOffset}px`,
           right: `${config.rightOffset}%`,
           transform: 'translateX(50%)',
           display: 'flex',
