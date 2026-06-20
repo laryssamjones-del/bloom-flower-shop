@@ -1079,79 +1079,7 @@ export function WholesaleMarketScreen() {
               {selectedFlower && getItem(selectedFlower)?.name}
             </h3>
 
-            {/* Daily limit indicator */}
-            {selectedFlower && (
-              <div
-                style={{
-                  fontSize: '10px',
-                  color: '#666',
-                  marginBottom: '8px',
-                  padding: '6px',
-                  background: 'rgba(0,0,0,0.05)',
-                  borderRadius: '4px',
-                }}
-              >
-                <div>📊 Daily limit: {dailyPurchases[selectedFlower] || 0}/50 stems bought</div>
-                <div style={{ color: (dailyPurchases[selectedFlower] || 0) >= 40 ? '#c45d5d' : '#666' }}>
-                  Remaining today: {Math.max(0, 50 - (dailyPurchases[selectedFlower] || 0))} stems
-                </div>
-              </div>
-            )}
-
-            {/* Bulk options */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: '6px',
-                marginBottom: '8px',
-              }}
-            >
-              {([1, 5, 10, 20] as BulkOption[]).map((bulk) => {
-                const item = selectedFlower ? getItem(selectedFlower) : null;
-                if (!item) return null;
-                const baseCost = item.pricePerStem * bulk;
-                const discount = BULK_DISCOUNTS[bulk];
-                const totalCost = Math.round(baseCost * (1 - discount));
-                const isBulkSelected = selectedBulk === bulk;
-
-                // Calculate remaining limit after this purchase
-                const alreadyBought = dailyPurchases[selectedFlower!] || 0;
-                const remainingAfterPurchase = 50 - (alreadyBought + bulk);
-                const canAffordThisBulk = remainingAfterPurchase >= 0;
-
-                return (
-                  <button
-                    key={bulk}
-                    onClick={() => setSelectedBulk(bulk)}
-                    style={{
-                      padding: '6px',
-                      background: isBulkSelected ? '#C8B8A0' : '#DDD',
-                      color: '#2A1408',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '10px',
-                      fontWeight: 'bold',
-                      opacity: canAffordThisBulk ? 1 : 0.5,
-                    }}
-                  >
-                    <div>{bulk} stems</div>
-                    <div>{totalCost} 🌼</div>
-                    {discount > 0 && (
-                      <div style={{ color: '#6A9A50', fontSize: '9px' }}>
-                        -{(discount * 100).toFixed(0)}%
-                      </div>
-                    )}
-                    <div style={{ color: canAffordThisBulk ? '#666' : '#c45d5d', fontSize: '8px', marginTop: '2px' }}>
-                      {canAffordThisBulk ? `→ ${remainingAfterPurchase}/50` : '❌ exceeds limit'}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Custom quantity controls */}
+{/* Custom quantity controls */}
             <div
               style={{
                 display: 'flex',
@@ -1255,26 +1183,6 @@ export function WholesaleMarketScreen() {
                   >
                     {buttonText}
                   </button>
-
-                  {maxAvailable > 0 && (
-                    <button
-                      onClick={() => handleBuyFlowers(maxAvailable)}
-                      disabled={isBuyAllDisabled}
-                      style={{
-                        width: '100%',
-                        padding: '10px',
-                        background: isBuyAllDisabled ? '#CCC' : '#C8956E',
-                        color: '#FFF',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: isBuyAllDisabled ? 'not-allowed' : 'pointer',
-                        fontSize: '11px',
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      {insufficientCoinsForAll ? `❌ Can't afford all (${buyAllCost} 🌼)` : `🌟 Buy All ${maxAvailable} (${buyAllCost} 🌼)`}
-                    </button>
-                  )}
                 </div>
               );
             })()
