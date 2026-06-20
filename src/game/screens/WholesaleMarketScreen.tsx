@@ -588,7 +588,7 @@ export function WholesaleMarketScreen() {
           overflow: 'auto',
           WebkitOverflowScrolling: 'touch',
           padding: '12px',
-          paddingTop: selectedFlower ? '155px' : '12px',
+          paddingBottom: selectedFlower ? '155px' : '12px',
         }}
       >
         <div
@@ -1093,14 +1093,14 @@ export function WholesaleMarketScreen() {
         <div
           style={{
             position: 'fixed',
-            top: '172px',
+            bottom: '0',
             left: '50%',
             transform: 'translateX(-50%)',
             width: 'calc(100% - 32px)',
             maxWidth: '400px',
             padding: '6px',
             background: 'rgba(255,255,255,0.95)',
-            borderBottom: '2px solid rgba(0,0,0,0.1)',
+            borderTop: '2px solid rgba(0,0,0,0.1)',
             maxHeight: '145px',
             overflow: 'auto',
             zIndex: 10,
