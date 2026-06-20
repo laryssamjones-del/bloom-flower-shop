@@ -28,12 +28,7 @@ export function TutorialModal({
     {
       title: '',
       message:
-        'You will also be able to fulfill customer orders and earn Petal Coins to buy more flowers from the shop!',
-    },
-    {
-      title: '',
-      message:
-        'Fulfill orders, create bouquets and sell them to customers. Each bouquet sold gets you closer to leveling up to unlock rewards and higher tier bouquets!',
+        'Your task is to buy flowers, create beautiful bouquets (that can be displayed on your shelf), and fulfill customer orders.',
     },
     {
       title: '📱 Explore the tabs below!',
@@ -69,7 +64,7 @@ export function TutorialModal({
   ];
 
   const current = tutorials[currentStep] || tutorials[0];
-  const isLastStep = currentStep === 10;
+  const isLastStep = currentStep === 9;
 
   return (
     <div
@@ -211,7 +206,7 @@ export function TutorialModal({
             color: '#999',
           }}
         >
-          Step {currentStep + 1} of 11
+          Step {currentStep + 1} of 10
         </div>
       </div>
     </div>
