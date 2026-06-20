@@ -1184,8 +1184,6 @@ export function WholesaleMarketScreen() {
             {selectedFlower && getItem(selectedFlower) && (
             (() => {
               const item = getItem(selectedFlower)!;
-              const alreadyBought = dailyPurchases[selectedFlower] || 0;
-              const maxAvailable = 50 - alreadyBought;
 
               // Current selected amount
               const discount = getDiscount(selectedBulk);
@@ -1194,13 +1192,6 @@ export function WholesaleMarketScreen() {
               const insufficientCoins = coins < totalCost;
               const isDisabled = insufficientCoins || !canBuy;
               const buttonText = !canBuy ? '❌ Daily limit reached' : insufficientCoins ? '❌ Not enough coins' : `💚 Buy ${selectedBulk} stems`;
-
-              // Buy all calculation
-              const buyAllDiscount = getDiscount(maxAvailable);
-              const buyAllCost = Math.round(item.pricePerStem * maxAvailable * (1 - buyAllDiscount));
-              const canBuyAll = checkDailyLimit(selectedFlower, maxAvailable).canBuy;
-              const insufficientCoinsForAll = coins < buyAllCost;
-              const isBuyAllDisabled = insufficientCoinsForAll || !canBuyAll || maxAvailable <= 0;
 
               return (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>

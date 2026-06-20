@@ -18,12 +18,6 @@ function isTierUnlocked(tier: BouquetTier, cumulativeSold: number): boolean {
   return cumulativeSold >= tierDef.unlockedAt;
 }
 
-// Get the unlock requirement for a tier
-function getTierUnlockRequirement(tier: BouquetTier): number {
-  const tierDef = FLOWER_TIERS.find((t) => t.tier === tier);
-  return tierDef?.unlockedAt ?? 0;
-}
-
 function getFlowerOrGreeneryName(flowerId: string): string {
   const flower = FLOWERS[flowerId];
   if (flower) return flower.name;

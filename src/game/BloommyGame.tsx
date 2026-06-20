@@ -8,7 +8,6 @@ import { BouquetArrangementScreen } from './screens/BouquetArrangementScreen';
 import { WrappingScreen } from './screens/WrappingScreen';
 import { InventoryScreen } from './screens/InventoryScreen';
 import { OrdersScreen } from './screens/OrdersScreen';
-import { NotificationBell } from './components/NotificationBell';
 import { TutorialModal } from './components/TutorialModal';
 
 // Module-level telemetry registration (runs once on import)
@@ -156,7 +155,6 @@ export function BloommyGame() {
           />
         )}
       </div>
-      <NotificationBell />
     </div>
   );
 }

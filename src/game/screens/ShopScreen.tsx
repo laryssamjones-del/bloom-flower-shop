@@ -22,6 +22,9 @@ import { TruckCustomizer } from '../components/TruckCustomizer';
 import { FlowerUnlockNotification } from '../components/FlowerUnlockNotification';
 import { OrderThankYouOverlay } from '../components/OrderThankYouOverlay';
 import { SettingsModal } from '../components/SettingsModal';
+import { NotificationBell } from '../components/NotificationBell';
+import { NotificationCenter } from '../components/NotificationCenter';
+import { NotificationPopup } from '../components/NotificationPopup';
 import { Bouquet } from '../../types';
 import { BOUQUET_RECIPES, isBouquetUnlocked } from '../../data/bouquets';
 import { getCurrentLevel, getLevelProgress } from '../../data/progression';
@@ -47,12 +50,29 @@ export function ShopScreen() {
   const orderJustCompleted = useGameStore((s) => s.orderJustCompleted);
   const completedOrderCustomerImage = useGameStore((s) => s.completedOrderCustomerImage);
   const addUnclaimedReward = useGameStore((s) => s.addUnclaimedReward);
+  const addNotification = useGameStore((s) => s.addNotification);
+  const unclaimedRewards = useGameStore((s) => s.unclaimedRewards);
 
   // Background music
   const { volume: musicVolume, setVolume: setMusicVolume, isMuted: isMusicMuted, toggleMute: toggleMusicMute } = useBackgroundMusic('/petals-on-repeat.mp3');
 
   // Settings modal
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Notification system
+  const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
+  const [pendingPopupNotifications, setPendingPopupNotifications] = useState<Array<{
+    id: string;
+    title: string;
+    message: string;
+    emoji: string;
+  }>>([]);
+  const [currentPopupNotification, setCurrentPopupNotification] = useState<{
+    id: string;
+    title: string;
+    message: string;
+    emoji: string;
+  } | null>(null);
 
   const [longPressId, setLongPressId] = useState<string | null>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -82,21 +102,64 @@ export function ShopScreen() {
     if (currentUnlock === null && pendingUnlockNotifications.length > 0) {
       const nextUnlock = pendingUnlockNotifications[0] ?? null;
       setCurrentUnlock(nextUnlock);
+
+      // Also add to popup notifications
+      if (nextUnlock) {
+        const notificationId = `bouquet_unlocked_${Date.now()}`;
+        addNotification('bouquet_unlocked', '🌸 New Bouquet Unlocked!', 'A new bouquet design is now available!', true);
+        setPendingPopupNotifications((prev) => [
+          ...prev,
+          {
+            id: notificationId,
+            title: '🌸 New Bouquet Unlocked!',
+            message: 'A new bouquet design is now available!',
+            emoji: '🌸',
+          },
+        ]);
+      }
+
       RundotGameAPI.analytics.recordCustomEvent('flower_unlocked', {
         flowerId: nextUnlock,
       });
     }
-  }, [currentUnlock, pendingUnlockNotifications]);
+  }, [currentUnlock, pendingUnlockNotifications, addNotification]);
 
   const handleUnlockNotificationComplete = () => {
     setPendingUnlockNotifications((prev) => prev.slice(1));
     setCurrentUnlock(null);
   };
 
+  // Manage popup notification queue (show one at a time)
+  useEffect(() => {
+    if (currentPopupNotification === null && pendingPopupNotifications.length > 0) {
+      const nextNotification = pendingPopupNotifications[0]!;
+      setCurrentPopupNotification(nextNotification);
+    }
+  }, [currentPopupNotification, pendingPopupNotifications]);
+
+  const handlePopupNotificationComplete = () => {
+    setPendingPopupNotifications((prev) => prev.slice(1));
+    setCurrentPopupNotification(null);
+  };
+
+  // Track unclaimed rewards and trigger silent notification
+  const previousUnclaimedRewardsRef = useRef<Set<number>>(new Set());
+  useEffect(() => {
+    const newRewards = unclaimedRewards.filter((level) => !previousUnclaimedRewardsRef.current.has(level));
+
+    if (newRewards.length > 0) {
+      // Trigger silent notification (goes directly to notification center)
+      addNotification('claim_rewards', '🎁 Rewards Waiting', `You have unclaimed rewards from level ${newRewards[0]}!`, false);
+      RundotGameAPI.analytics.recordCustomEvent('unclaimed_rewards_notification', {
+        levels: newRewards,
+      });
+      previousUnclaimedRewardsRef.current = new Set(unclaimedRewards);
+    }
+  }, [unclaimedRewards, addNotification]);
+
   // Track level-up events
   const previousLevelRef = useRef<number>(getCurrentLevel(cumulativeBouquetsSold));
   const hasInitializedRewardsRef = useRef(false);
-  const unclaimedRewards = useGameStore((s) => s.unclaimedRewards);
 
   useEffect(() => {
     const currentLevel = getCurrentLevel(cumulativeBouquetsSold);
@@ -111,18 +174,32 @@ export function ShopScreen() {
       }
     }
 
-    // On level up, add the new level's reward
+    // On level up, add the new level's reward and trigger notification
     if (currentLevel > previousLevelRef.current) {
       if (!unclaimedRewards.includes(currentLevel)) {
         addUnclaimedReward(currentLevel);
       }
+
+      // Add pop-up notification for level up
+      const notificationId = `level_up_${Date.now()}`;
+      addNotification('level_up', '🎉 Level Up!', `You've reached Level ${currentLevel}!`, true);
+      setPendingPopupNotifications((prev) => [
+        ...prev,
+        {
+          id: notificationId,
+          title: '🎉 Level Up!',
+          message: `You've reached Level ${currentLevel}!`,
+          emoji: '🎉',
+        },
+      ]);
+
       RundotGameAPI.analytics.recordCustomEvent('player_leveled_up', {
         newLevel: currentLevel,
         bouquetsSold: cumulativeBouquetsSold,
       });
       previousLevelRef.current = currentLevel;
     }
-  }, [cumulativeBouquetsSold, unclaimedRewards, addUnclaimedReward]);
+  }, [cumulativeBouquetsSold, unclaimedRewards, addUnclaimedReward, addNotification]);
 
   // Active NPC visit (order requests)
   const [activeVisit, setActiveVisit] = useState<NPCVisit | null>(null);
@@ -224,6 +301,8 @@ export function ShopScreen() {
     const order = createOrder(activeVisit.npcImage);
     setActiveVisit(null);
     if (order) {
+      // Trigger silent notification for order pending
+      addNotification('order_pending', '📋 Order Pending', `${activeVisit.recipeName} needs to be fulfilled!`, false);
       RundotGameAPI.analytics.recordCustomEvent('npc_order_accepted', {
         recipeId: activeVisit.recipeId,
         recipeName: activeVisit.recipeName,
@@ -520,47 +599,60 @@ export function ShopScreen() {
         position: 'relative',
       }}
     >
-      {/* Level display — top-left */}
+      {/* Top bar with level, notification bell, and coins */}
       <div
         style={{
           position: 'absolute',
           top: '12px',
-          left: '12px',
+          left: 0,
+          right: 0,
           zIndex: 10,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
-          fontSize: '14px',
-          fontWeight: 'bold',
-          color: '#C09840',
-          background: '#F5F1E8',
-          border: '2px solid #C09840',
-          borderRadius: '50px',
-          padding: '8px 14px',
-          minWidth: '180px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-          whiteSpace: 'nowrap',
+          justifyContent: 'space-between',
+          paddingLeft: '12px',
+          paddingRight: '12px',
         }}
       >
-        <span style={{ fontSize: '18px' }}>⭐</span>
-        <span>Level {getCurrentLevel(cumulativeBouquetsSold)} ({getLevelProgress(cumulativeBouquetsSold)[0]}/{getLevelProgress(cumulativeBouquetsSold)[1]})</span>
-      </div>
+        {/* Level display — left */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            color: '#C09840',
+            background: '#F5F1E8',
+            border: '2px solid #C09840',
+            borderRadius: '50px',
+            padding: '8px 14px',
+            minWidth: '180px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          <span style={{ fontSize: '18px' }}>⭐</span>
+          <span>Level {getCurrentLevel(cumulativeBouquetsSold)} ({getLevelProgress(cumulativeBouquetsSold)[0]}/{getLevelProgress(cumulativeBouquetsSold)[1]})</span>
+        </div>
 
-      {/* Top bar with coin and RunBucks counters */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '12px',
-          right: '12px',
-          zIndex: 10,
-          display: 'flex',
-          gap: '12px',
-          flexDirection: 'column',
-          alignItems: 'flex-end',
-        }}
-      >
-        <CoinCounter />
+        {/* Notification Bell — center */}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+          <NotificationBell onOpen={() => setIsNotificationCenterOpen(true)} />
+        </div>
+
+        {/* Coin Counter — right */}
+        <div
+          style={{
+            display: 'flex',
+            gap: '12px',
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+          }}
+        >
+          <CoinCounter />
+        </div>
       </div>
 
 
@@ -768,6 +860,19 @@ export function ShopScreen() {
         isMusicMuted={isMusicMuted}
         onToggleMusicMute={toggleMusicMute}
       />
+
+      {/* Notification Center Modal */}
+      <NotificationCenter isOpen={isNotificationCenterOpen} onClose={() => setIsNotificationCenterOpen(false)} />
+
+      {/* Notification Popup */}
+      {currentPopupNotification && (
+        <NotificationPopup
+          title={currentPopupNotification.title}
+          message={currentPopupNotification.message}
+          emoji={currentPopupNotification.emoji}
+          onComplete={handlePopupNotificationComplete}
+        />
+      )}
 
       {/* Bottom Tab Navigation */}
       <div

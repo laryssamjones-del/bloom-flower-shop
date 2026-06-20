@@ -115,7 +115,8 @@ export interface GameState {
   completedOrders: Order[];
 
   // Notifications
-  lastNotification: string | null;
+  notifications: Notification[];
+  lastNotification: string | null; // deprecated - kept for compatibility
 
   // Progression
   unlockedFlowers: Set<string>;
@@ -197,4 +198,14 @@ export interface MysteryBoxReveal {
   boxType: 'seasonal' | 'rare-bloom' | 'grand-florist';
   bouquets: Bouquet[];
   totalValue: number;
+}
+
+export interface Notification {
+  id: string;
+  type: 'level_up' | 'bouquet_unlocked' | 'claim_rewards' | 'order_pending';
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: number;
+  showPopup: boolean; // whether to show as pop-up animation
 }

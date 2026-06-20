@@ -9,6 +9,7 @@ import {
   Order,
   MysteryBouquetItem,
   BouquetTier,
+  Notification,
 } from '../types';
 import { FLOWERS, INITIAL_UNLOCKED_FLOWERS, CUSTOMER_MOODS } from '../constants/flowers';
 import { BOUQUET_RECIPES, getRecipeById, isBouquetUnlocked } from '../data/bouquets';
@@ -54,6 +55,7 @@ const createInitialState = (): ShopState => ({
   completedOrders: [],
 
   // Notifications
+  notifications: [],
   lastNotification: null,
 
   // Progression
@@ -193,6 +195,12 @@ interface GameStoreActions {
   addUnclaimedReward: (level: number) => void;
   claimLevelReward: (level: number) => void;
   getUnclaimedRewardCount: () => number;
+
+  // Notifications
+  addNotification: (type: Notification['type'], title: string, message: string, showPopup: boolean) => void;
+  markNotificationAsRead: (notificationId: string) => void;
+  removeNotification: (notificationId: string) => void;
+  getUnreadNotificationCount: () => number;
 
   // Shelf Layout
   saveShelfLayoutConfig: (config: {
@@ -1150,6 +1158,44 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
 
   getUnclaimedRewardCount: () => {
     return get().unclaimedRewards.length;
+  },
+
+  // Notifications
+  addNotification: (type: Notification['type'], title: string, message: string, showPopup: boolean) => {
+    const notificationId = `notification-${Date.now()}-${Math.random()}`;
+    const notification: Notification = {
+      id: notificationId,
+      type,
+      title,
+      message,
+      isRead: false,
+      createdAt: Date.now(),
+      showPopup,
+    };
+    set((s) => ({
+      notifications: [...s.notifications, notification],
+      lastUpdated: Date.now(),
+    }));
+  },
+
+  markNotificationAsRead: (notificationId: string) => {
+    set((s) => ({
+      notifications: s.notifications.map((notif) =>
+        notif.id === notificationId ? { ...notif, isRead: true } : notif
+      ),
+      lastUpdated: Date.now(),
+    }));
+  },
+
+  removeNotification: (notificationId: string) => {
+    set((s) => ({
+      notifications: s.notifications.filter((notif) => notif.id !== notificationId),
+      lastUpdated: Date.now(),
+    }));
+  },
+
+  getUnreadNotificationCount: () => {
+    return get().notifications.filter((notif) => !notif.isRead).length;
   },
 
   saveShelfLayoutConfig: (config) => {
