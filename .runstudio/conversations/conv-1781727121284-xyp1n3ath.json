@@ -47137,11 +47137,29 @@
       "timestamp": 1781970374544,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1781970448869",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "don't make any more private builds at this time.",
+      "timestamp": 1781970448869,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781970453187-7r14ufch0",
+      "role": "assistant",
+      "content": "Got it! I won't create any more private builds unless you ask. Just let me know when you're ready or if you need any other changes! 🎮",
+      "isShownToUser": true,
+      "timestamp": 1781970453381,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781970374585,
-  "tokenUsage": 36887,
+  "updatedAt": 1781970453421,
+  "tokenUsage": 36983,
   "script": "default",
   "claudeSessionId": "57cb0000-401d-450c-a8d5-dfb762752dc9"
 }
