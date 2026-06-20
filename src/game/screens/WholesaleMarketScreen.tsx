@@ -400,7 +400,20 @@ export function WholesaleMarketScreen() {
         }}
       >
         <h1 style={{ margin: 0, fontSize: '18px' }}>🛍️ Shop</h1>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <div
+            style={{
+              padding: '6px 12px',
+              background: 'rgba(255,255,255,0.4)',
+              borderRadius: '4px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              color: '#333',
+            }}
+          >
+            {coins} 🌼
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
           <button
             onClick={() => setShowPremiumModal(true)}
             style={{
@@ -430,6 +443,7 @@ export function WholesaleMarketScreen() {
           >
             Back to Shop
           </button>
+          </div>
         </div>
       </div>
 
