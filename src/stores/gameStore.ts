@@ -951,6 +951,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       unlockedWrappings: state.unlockedWrappings,
       cumulativeBouquetsSold: state.cumulativeBouquetsSold,
       unlockedTiers: Array.from(state.unlockedTiers),
+      unclaimedRewards: state.unclaimedRewards,
     };
 
     // Save to localStorage first for quick access
@@ -1001,6 +1002,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
           unlockedWrappings: Array.isArray(data['unlockedWrappings']) ? (data['unlockedWrappings'] as WrappingPaperType[]) : ['plain-white', 'kraft'],
           cumulativeBouquetsSold: typeof data['cumulativeBouquetsSold'] === 'number' ? (data['cumulativeBouquetsSold'] as number) : 0,
           unlockedTiers,
+          unclaimedRewards: Array.isArray(data['unclaimedRewards']) ? (data['unclaimedRewards'] as number[]) : [],
           lastUpdated: Date.now(),
         });
       }
@@ -1024,6 +1026,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
             unlockedFlowers,
             unlockedTiers,
             cumulativeBouquetsSold: parsed.cumulativeBouquetsSold ?? 0,
+            unclaimedRewards: parsed.unclaimedRewards ?? [],
             lastUpdated: Date.now(),
           });
         } catch {

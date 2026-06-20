@@ -95,17 +95,34 @@ export function ShopScreen() {
 
   // Track level-up events
   const previousLevelRef = useRef<number>(getCurrentLevel(cumulativeBouquetsSold));
+  const hasInitializedRewardsRef = useRef(false);
+  const unclaimedRewards = useGameStore((s) => s.unclaimedRewards);
+
   useEffect(() => {
     const currentLevel = getCurrentLevel(cumulativeBouquetsSold);
+
+    // On first load, ensure all rewards up to current level are available
+    if (!hasInitializedRewardsRef.current) {
+      hasInitializedRewardsRef.current = true;
+      for (let level = 1; level <= currentLevel; level++) {
+        if (!unclaimedRewards.includes(level)) {
+          addUnclaimedReward(level);
+        }
+      }
+    }
+
+    // On level up, add the new level's reward
     if (currentLevel > previousLevelRef.current) {
-      addUnclaimedReward(currentLevel);
+      if (!unclaimedRewards.includes(currentLevel)) {
+        addUnclaimedReward(currentLevel);
+      }
       RundotGameAPI.analytics.recordCustomEvent('player_leveled_up', {
         newLevel: currentLevel,
         bouquetsSold: cumulativeBouquetsSold,
       });
       previousLevelRef.current = currentLevel;
     }
-  }, [cumulativeBouquetsSold, addUnclaimedReward]);
+  }, [cumulativeBouquetsSold, unclaimedRewards, addUnclaimedReward]);
 
   // Active NPC visit (order requests)
   const [activeVisit, setActiveVisit] = useState<NPCVisit | null>(null);
