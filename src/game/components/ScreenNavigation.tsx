@@ -37,8 +37,8 @@ export function ScreenNavigation({ currentScreen }: ScreenNavigationProps) {
             border: '1px solid rgba(0,0,0,0.1)',
             borderRadius: '4px',
             cursor: 'pointer',
-            fontSize: '12px',
-            fontWeight: '500',
+            fontSize: '14px',
+            fontWeight: '700',
             transition: 'all 0.2s',
           }}
           onMouseEnter={(e) => {
