@@ -51848,11 +51848,93 @@
       "timestamp": 1781985769175,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1781985854488",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "can you bring back the dev tools, i have to fix my NPCs and my display shelf AGAIN",
+      "timestamp": 1781985854489,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781985861975-wxsw8mh3m",
+      "role": "assistant",
+      "content": "I'll bring back the dev tools so you can customize your NPCs and shelf. Let me restore those buttons:",
+      "isShownToUser": true,
+      "timestamp": 1781985862431,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781985862715-1du5wybxm",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1781985862715,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1781985868474-w74zz1zo7",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1781985868474,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1781985871129-povrkq1de",
+      "role": "assistant",
+      "content": "Using tool: Grep",
+      "isShownToUser": true,
+      "timestamp": 1781985871129,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Grep"
+      }
+    },
+    {
+      "id": "1781985876518-uhafak6q5",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1781985876518,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1781985878888-gts9azfbx",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1781985878888,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1781985903634-f85z6hzrf",
+      "role": "assistant",
+      "content": "Done! Version 1.14.0 is live with the dev tools restored. You now have the Layout, NPC, Shelf NPC, and Truck customization buttons back in the top-left corner of the shop screen. 🛠️\n\n**Updated link:**\n```\nhttps://w.run/u/LmhZLmvuDkbnEzTIHPZ0/private\n```\n\nGo ahead and customize your NPCs and shelf display!",
+      "isShownToUser": true,
+      "timestamp": 1781985904455,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781985769225,
-  "tokenUsage": 47298,
+  "updatedAt": 1781985904509,
+  "tokenUsage": 49663,
   "script": "default",
   "claudeSessionId": "e11b6acc-9ae5-4405-872e-e735025635c2"
 }
