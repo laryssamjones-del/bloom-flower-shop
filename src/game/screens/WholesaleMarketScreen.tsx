@@ -1122,27 +1122,27 @@ export function WholesaleMarketScreen() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                marginBottom: '6px',
-                padding: '6px',
+                gap: '10px',
+                marginBottom: '8px',
+                padding: '10px',
                 background: 'rgba(0,0,0,0.05)',
                 borderRadius: '4px',
               }}
             >
-              <span style={{ fontSize: '9px', fontWeight: 'bold', color: '#666', flex: 1 }}>
+              <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#666', flex: 1 }}>
                 Qty:
               </span>
               <button
                 onClick={() => setSelectedBulk(Math.max(1, selectedBulk - 1))}
                 style={{
-                  width: '26px',
-                  height: '26px',
+                  width: '40px',
+                  height: '40px',
                   padding: 0,
                   background: '#DDD',
                   border: 'none',
                   borderRadius: '4px',
                   cursor: 'pointer',
-                  fontSize: '12px',
+                  fontSize: '18px',
                   fontWeight: 'bold',
                 }}
               >
@@ -1150,9 +1150,9 @@ export function WholesaleMarketScreen() {
               </button>
               <div
                 style={{
-                  minWidth: '40px',
+                  minWidth: '50px',
                   textAlign: 'center',
-                  fontSize: '11px',
+                  fontSize: '18px',
                   fontWeight: 'bold',
                   color: '#2A1408',
                 }}
@@ -1165,14 +1165,14 @@ export function WholesaleMarketScreen() {
                   setSelectedBulk(Math.min(maxRemaining, selectedBulk + 1));
                 }}
                 style={{
-                  width: '26px',
-                  height: '26px',
+                  width: '40px',
+                  height: '40px',
                   padding: 0,
                   background: (selectedBulk + 1) > Math.max(0, 50 - (dailyPurchases[selectedFlower!] || 0)) ? '#CCC' : '#DDD',
                   border: 'none',
                   borderRadius: '4px',
                   cursor: (selectedBulk + 1) > Math.max(0, 50 - (dailyPurchases[selectedFlower!] || 0)) ? 'not-allowed' : 'pointer',
-                  fontSize: '12px',
+                  fontSize: '18px',
                   fontWeight: 'bold',
                 }}
               >
@@ -1200,13 +1200,13 @@ export function WholesaleMarketScreen() {
                     disabled={isDisabled}
                     style={{
                       width: '100%',
-                      padding: '8px',
+                      padding: '14px',
                       background: isDisabled ? '#CCC' : '#6A9A50',
                       color: '#FFF',
                       border: 'none',
                       borderRadius: '4px',
                       cursor: isDisabled ? 'not-allowed' : 'pointer',
-                      fontSize: '11px',
+                      fontSize: '16px',
                       fontWeight: 'bold',
                     }}
                   >
