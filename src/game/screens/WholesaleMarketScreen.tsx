@@ -588,7 +588,6 @@ export function WholesaleMarketScreen() {
           overflow: 'auto',
           WebkitOverflowScrolling: 'touch',
           padding: '12px',
-          paddingBottom: selectedFlower ? '300px' : '12px', // Make room for fixed purchase panel
         }}
       >
         <div
@@ -1093,15 +1092,15 @@ export function WholesaleMarketScreen() {
         <div
           style={{
             position: 'fixed',
-            bottom: '0',
+            top: '150px',
             left: '50%',
             transform: 'translateX(-50%)',
             width: '90%',
             maxWidth: '420px',
             padding: '6px',
             background: 'rgba(255,255,255,0.95)',
-            borderTop: '2px solid rgba(0,0,0,0.1)',
-            maxHeight: '130px',
+            borderBottom: '2px solid rgba(0,0,0,0.1)',
+            maxHeight: '110px',
             overflow: 'auto',
             zIndex: 10,
           }}
@@ -1122,27 +1121,27 @@ export function WholesaleMarketScreen() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px',
-                marginBottom: '8px',
-                padding: '10px',
+                gap: '8px',
+                marginBottom: '6px',
+                padding: '8px',
                 background: 'rgba(0,0,0,0.05)',
                 borderRadius: '4px',
               }}
             >
-              <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#666', flex: 1 }}>
+              <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', flex: 1 }}>
                 Qty:
               </span>
               <button
                 onClick={() => setSelectedBulk(Math.max(1, selectedBulk - 1))}
                 style={{
-                  width: '40px',
-                  height: '40px',
+                  width: '32px',
+                  height: '32px',
                   padding: 0,
                   background: '#DDD',
                   border: 'none',
                   borderRadius: '4px',
                   cursor: 'pointer',
-                  fontSize: '18px',
+                  fontSize: '14px',
                   fontWeight: 'bold',
                 }}
               >
@@ -1150,9 +1149,9 @@ export function WholesaleMarketScreen() {
               </button>
               <div
                 style={{
-                  minWidth: '50px',
+                  minWidth: '45px',
                   textAlign: 'center',
-                  fontSize: '18px',
+                  fontSize: '14px',
                   fontWeight: 'bold',
                   color: '#2A1408',
                 }}
@@ -1165,14 +1164,14 @@ export function WholesaleMarketScreen() {
                   setSelectedBulk(Math.min(maxRemaining, selectedBulk + 1));
                 }}
                 style={{
-                  width: '40px',
-                  height: '40px',
+                  width: '32px',
+                  height: '32px',
                   padding: 0,
                   background: (selectedBulk + 1) > Math.max(0, 50 - (dailyPurchases[selectedFlower!] || 0)) ? '#CCC' : '#DDD',
                   border: 'none',
                   borderRadius: '4px',
                   cursor: (selectedBulk + 1) > Math.max(0, 50 - (dailyPurchases[selectedFlower!] || 0)) ? 'not-allowed' : 'pointer',
-                  fontSize: '18px',
+                  fontSize: '14px',
                   fontWeight: 'bold',
                 }}
               >
@@ -1200,13 +1199,13 @@ export function WholesaleMarketScreen() {
                     disabled={isDisabled}
                     style={{
                       width: '100%',
-                      padding: '14px',
+                      padding: '10px',
                       background: isDisabled ? '#CCC' : '#6A9A50',
                       color: '#FFF',
                       border: 'none',
                       borderRadius: '4px',
                       cursor: isDisabled ? 'not-allowed' : 'pointer',
-                      fontSize: '16px',
+                      fontSize: '13px',
                       fontWeight: 'bold',
                     }}
                   >
