@@ -120,7 +120,19 @@ export function ShopScreen() {
 
   // Layout editor
   const [editingLayout, setEditingLayout] = useState(false);
-  const [shelfConfig, setShelfConfig] = useState<ShelfLayoutConfig>(() => loadShelfLayoutConfig());
+  const storedShelfLayoutConfig = useGameStore((s) => s.shelfLayoutConfig);
+  const [shelfConfig, setShelfConfig] = useState<ShelfLayoutConfig>(() => {
+    // Try to use stored config first, fall back to localStorage
+    if (storedShelfLayoutConfig) {
+      return {
+        shelves: storedShelfLayoutConfig.shelves,
+        gap: storedShelfLayoutConfig.gap,
+        bouquetWidth: storedShelfLayoutConfig.bouquetWidth,
+        bouquetHeight: storedShelfLayoutConfig.bouquetHeight,
+      };
+    }
+    return loadShelfLayoutConfig();
+  });
 
   // NPC customizer
   const [customizingNPC, setCustomizingNPC] = useState(false);

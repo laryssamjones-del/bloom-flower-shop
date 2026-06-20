@@ -130,6 +130,14 @@ export interface GameState {
   // Rewards
   unclaimedRewards: number[]; // Array of levels that have unclaimed rewards
 
+  // Shelf Layout
+  shelfLayoutConfig?: {
+    shelves: Array<{ x: number; y: number }>;
+    gap: number;
+    bouquetWidth: number;
+    bouquetHeight: number;
+  };
+
   // Meta
   lastUpdated: number;
   sessionStarted: number;

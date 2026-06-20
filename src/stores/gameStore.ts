@@ -84,6 +84,9 @@ const createInitialState = (): ShopState => ({
   completedOrderCustomerImage: undefined,
   pendingBoxReveal: undefined,
 
+  // Shelf Layout
+  shelfLayoutConfig: undefined,
+
   // Tutorial
   tutorialCompleted: false,
   tutorialCurrentStep: 0,
@@ -183,6 +186,14 @@ interface GameStoreActions {
   addUnclaimedReward: (level: number) => void;
   claimLevelReward: (level: number) => void;
   getUnclaimedRewardCount: () => number;
+
+  // Shelf Layout
+  saveShelfLayoutConfig: (config: {
+    shelves: Array<{ x: number; y: number }>;
+    gap: number;
+    bouquetWidth: number;
+    bouquetHeight: number;
+  }) => void;
 
   // Tutorial
   setTutorialStep: (step: number) => void;
@@ -1078,6 +1089,13 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
 
   getUnclaimedRewardCount: () => {
     return get().unclaimedRewards.length;
+  },
+
+  saveShelfLayoutConfig: (config) => {
+    set({
+      shelfLayoutConfig: config,
+      lastUpdated: Date.now(),
+    });
   },
 
   completeTutorial: () => {

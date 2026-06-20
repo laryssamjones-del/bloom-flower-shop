@@ -38,7 +38,7 @@ export function loadShelfLayoutConfig(): ShelfLayoutConfig {
   return DEFAULT_CONFIG;
 }
 
-function saveShelfLayoutConfig(config: ShelfLayoutConfig) {
+function saveToLocalStorage(config: ShelfLayoutConfig) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
 }
 
@@ -69,6 +69,7 @@ export function ShelfLayoutEditor({ onClose }: Props) {
 
   // Show actual shelf bouquets in the preview if available
   const shelfBouquets = useGameStore((s) => s.shelfBouquets);
+  const saveShelfLayoutConfig = useGameStore((s) => s.saveShelfLayoutConfig);
 
   const onHandlePointerDown = (e: React.PointerEvent<HTMLDivElement>, idx: number) => {
     e.preventDefault();
@@ -122,7 +123,14 @@ export function ShelfLayoutEditor({ onClose }: Props) {
   };
 
   const handleSave = () => {
-    saveShelfLayoutConfig(config);
+    // Save to both localStorage (for quick loading) and game store (for persistence)
+    saveToLocalStorage(config);
+    saveShelfLayoutConfig({
+      shelves: config.shelves,
+      gap: config.gap,
+      bouquetWidth: config.bouquetWidth,
+      bouquetHeight: config.bouquetHeight,
+    });
     onClose();
   };
 
