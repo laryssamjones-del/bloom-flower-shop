@@ -179,8 +179,8 @@ export function ShelfNPCCustomizer({ onClose }: Props) {
       <div
         style={{
           position: 'absolute',
-          bottom: config.bottomOffset,
-          right: config.rightOffset,
+          bottom: `${config.bottomOffset}px`,
+          right: `${config.rightOffset}%`,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-end',
