@@ -35,7 +35,9 @@ export function WholesaleMarketScreen() {
   const setShoppingForOrderId = useGameStore((s) => s.setShoppingForOrderId);
   const neededFlowerId = useGameStore((s) => s.neededFlowerId);
   const neededFlowerQuantity = useGameStore((s) => s.neededFlowerQuantity);
+  const neededFlowersList = useGameStore((s) => s.neededFlowersList);
   const setNeededFlower = useGameStore((s) => s.setNeededFlower);
+  const setNeededFlowers = useGameStore((s) => s.setNeededFlowers);
   const inventory = useGameStore((s) => s.inventory);
 
   const [selectedFlower, setSelectedFlower] = useState<string | null>(null);
@@ -81,8 +83,13 @@ export function WholesaleMarketScreen() {
       }
     }
 
-    // From arrangement shopping
-    if (neededFlowerId && neededFlowerQuantity) {
+    // From arrangement shopping (multiple flowers)
+    if (neededFlowersList && neededFlowersList.length > 0) {
+      neededFlowersList.forEach((item: { flowerId: string; quantity: number }) => {
+        map.set(item.flowerId, item.quantity);
+      });
+    } else if (neededFlowerId && neededFlowerQuantity) {
+      // Fallback to single flower (backward compatibility)
       map.set(neededFlowerId, neededFlowerQuantity);
     }
 
@@ -97,6 +104,9 @@ export function WholesaleMarketScreen() {
       }
       if (neededFlowerId) {
         setNeededFlower(undefined, 0);
+      }
+      if (neededFlowersList && neededFlowersList.length > 0) {
+        setNeededFlowers([]);
       }
     };
   }, []);

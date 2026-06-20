@@ -42,7 +42,7 @@ function getFlowerOrGreenerySprite(flowerId: string): string {
 
 export function BouquetArrangementScreen() {
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
-  const setNeededFlower = useGameStore((s) => s.setNeededFlower);
+  const setNeededFlowers = useGameStore((s) => s.setNeededFlowers);
   const selectedRecipeId = useGameStore((s) => s.selectedRecipeId);
   const fulfillOrderId = useGameStore((s) => s.fulfillOrderId);
   const canMakeRecipe = useGameStore((s) => s.canMakeRecipe);
@@ -356,11 +356,17 @@ export function BouquetArrangementScreen() {
                   const name = getFlowerOrGreeneryName(item.flowerId);
                   const handleMissingIngredientClick = () => {
                     if (!ok) {
-                      const neededAmount = item.needed - item.have;
-                      setNeededFlower(item.flowerId, neededAmount);
-                      RundotGameAPI.analytics.recordCustomEvent('missing_ingredient_shop_navigation', {
-                        flowerId: item.flowerId,
-                        neededQuantity: neededAmount,
+                      // Collect all missing ingredients for this recipe
+                      const allMissing = missing
+                        .filter((m) => m.have < m.needed)
+                        .map((m) => ({
+                          flowerId: m.flowerId,
+                          quantity: m.needed - m.have,
+                        }));
+                      setNeededFlowers(allMissing);
+                      RundotGameAPI.analytics.recordCustomEvent('missing_ingredients_shop_navigation', {
+                        recipeId: localRecipeId,
+                        missingCount: allMissing.length,
                       });
                       setCurrentScreen('wholesale');
                     }
@@ -427,7 +433,17 @@ export function BouquetArrangementScreen() {
                 You're missing some ingredients. Visit the Shop to buy what you need!
                 <div style={{ marginTop: '8px' }}>
                   <button
-                    onClick={() => setCurrentScreen('wholesale')}
+                    onClick={() => {
+                      // Collect all missing ingredients for this recipe
+                      const allMissing = missing
+                        .filter((m) => m.have < m.needed)
+                        .map((m) => ({
+                          flowerId: m.flowerId,
+                          quantity: m.needed - m.have,
+                        }));
+                      setNeededFlowers(allMissing);
+                      setCurrentScreen('wholesale');
+                    }}
                     style={{
                       padding: '6px 16px',
                       background: '#F39C12',

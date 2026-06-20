@@ -148,6 +148,7 @@ export interface ShopState extends GameState {
   shoppingForOrderId?: string;  // if shopping for flowers to fulfill a specific order
   neededFlowerId?: string;      // if shopping for a specific flower for arrangement
   neededFlowerQuantity?: number; // quantity needed for that flower
+  neededFlowersList: Array<{ flowerId: string; quantity: number }>; // multiple flowers needed for arrangement
   orderJustCompleted?: boolean; // flag to show order thank you animation
   completedOrderCustomerImage?: string; // NPC image for thank you animation
   // Exclusive mystery box reveal animation

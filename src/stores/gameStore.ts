@@ -75,6 +75,7 @@ const createInitialState = (): ShopState => ({
   shoppingForOrderId: undefined,
   neededFlowerId: undefined,
   neededFlowerQuantity: 0,
+  neededFlowersList: [] as Array<{ flowerId: string; quantity: number }>,
   orderJustCompleted: false,
   completedOrderCustomerImage: undefined,
   pendingBoxReveal: undefined,
@@ -141,6 +142,7 @@ interface GameStoreActions {
   setShoppingForOrderId: (orderId?: string) => void;
   getOrderForShopping: (orderId: string) => Order | undefined;
   setNeededFlower: (flowerId?: string, quantity?: number) => void;
+  setNeededFlowers: (flowers: Array<{ flowerId: string; quantity: number }>) => void;
 
   // Mystery box management
   purchaseMysteryBox: () => boolean;
@@ -690,6 +692,10 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
 
   setNeededFlower: (flowerId?: string, quantity?: number) => {
     set({ neededFlowerId: flowerId, neededFlowerQuantity: quantity ?? 0 });
+  },
+
+  setNeededFlowers: (flowers: Array<{ flowerId: string; quantity: number }>) => {
+    set({ neededFlowersList: flowers });
   },
 
   getOrderForShopping: (orderId: string) => {
