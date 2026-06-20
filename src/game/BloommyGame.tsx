@@ -81,11 +81,11 @@ export function BloommyGame() {
   }, []);
 
   // Safe-area padding applied inline (values come from SDK at runtime)
+  // Only apply padding where needed to avoid creating empty space on mobile
   const safeAreaPadding = {
-    paddingTop: safeArea.top,
-    paddingBottom: safeArea.bottom,
-    paddingLeft: safeArea.left,
-    paddingRight: safeArea.right,
+    paddingTop: Math.max(0, safeArea.top),
+    paddingLeft: Math.max(0, safeArea.left),
+    paddingRight: Math.max(0, safeArea.right),
   };
 
   if (isLoading) {
