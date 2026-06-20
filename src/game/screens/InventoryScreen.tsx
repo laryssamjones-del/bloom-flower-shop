@@ -101,16 +101,19 @@ export function InventoryScreen() {
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <button
             onClick={() => setShowRewardsModal(true)}
+            disabled={getUnclaimedRewardCount() === 0}
             style={{
               padding: '8px 12px',
-              background: '#F39C12',
+              background: getUnclaimedRewardCount() > 0 ? '#F39C12' : '#A9A9A9',
               color: '#FFF',
               border: 'none',
               borderRadius: '4px',
-              cursor: 'pointer',
+              cursor: getUnclaimedRewardCount() > 0 ? 'pointer' : 'not-allowed',
               fontSize: '12px',
               fontWeight: 'bold',
               position: 'relative',
+              opacity: getUnclaimedRewardCount() > 0 ? 1 : 0.7,
+              transition: 'all 0.3s ease',
             }}
           >
             🎁 Claim Rewards
@@ -125,6 +128,7 @@ export function InventoryScreen() {
                   background: '#E74C3C',
                   borderRadius: '50%',
                   border: '2px solid #FFF',
+                  animation: 'pulse 2s infinite',
                 }}
               />
             )}
@@ -572,6 +576,13 @@ export function InventoryScreen() {
           </div>
         )}
       </div>
+
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.6; }
+        }
+      `}</style>
     </div>
   );
 }
