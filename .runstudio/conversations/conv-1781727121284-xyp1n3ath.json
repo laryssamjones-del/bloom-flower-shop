@@ -51686,11 +51686,71 @@
       "timestamp": 1781984933877,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1781985203176",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "no, i didn't want it to reduce in size. i just want it to be wide enough that it fills the 16:9 mobile ratio. does that make sense?",
+      "timestamp": 1781985203176,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781985212354-cx66rhhvs",
+      "role": "assistant",
+      "content": "Ah, I understand! You want the purchase bar to fill the width of the mobile 16:9 viewport properly. Let me adjust it so it fills the mobile width correctly:",
+      "isShownToUser": true,
+      "timestamp": 1781985212827,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781985213321-dwh3jfycd",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1781985213321,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1781985218252-tp6dw4wt4",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1781985218252,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1781985221249-sbxfjzt1j",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1781985221249,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1781985246891-qjtl32jhl",
+      "role": "assistant",
+      "content": "Perfect! Version 1.12.0 is live. I removed the maxWidth constraint so the purchase bar now fills the full width of the mobile 16:9 viewport (with just 16px margins on the sides). It should now display consistently across all views! 📱\n\n**Updated link:**\n```\nhttps://w.run/u/LmhZLmvuDkbnEzTIHPZ0/private\n```",
+      "isShownToUser": true,
+      "timestamp": 1781985247571,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781984933917,
-  "tokenUsage": 42993,
+  "updatedAt": 1781985247614,
+  "tokenUsage": 44549,
   "script": "default",
   "claudeSessionId": "e11b6acc-9ae5-4405-872e-e735025635c2"
 }

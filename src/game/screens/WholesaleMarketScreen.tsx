@@ -1097,7 +1097,6 @@ export function WholesaleMarketScreen() {
             left: '50%',
             transform: 'translateX(-50%)',
             width: 'calc(100% - 32px)',
-            maxWidth: '340px',
             padding: '6px',
             background: 'rgba(255,255,255,0.95)',
             borderTop: '2px solid rgba(0,0,0,0.1)',
