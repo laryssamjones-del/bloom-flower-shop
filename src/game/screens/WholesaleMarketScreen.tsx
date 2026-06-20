@@ -267,8 +267,8 @@ export function WholesaleMarketScreen() {
     // Deduct run bucks
     const state = useGameStore.getState();
     if (state.premiumCurrency >= DELUXE_DELIVERY_COST) {
-      // Generate delivery and save to localStorage (45 flowers + 8 deluxe bouquets at 3x price)
-      const delivery = generateSpecialDelivery(45, 8, 'deluxe', true, 3);
+      // Generate delivery and save to localStorage (45 flowers + 8 deluxe bouquets at 2x price)
+      const delivery = generateSpecialDelivery(45, 8, 'deluxe', true, 2);
       localStorage.setItem('activeDelivery', JSON.stringify(delivery));
 
       // Deduct the cost directly via Zustand
@@ -818,7 +818,7 @@ export function WholesaleMarketScreen() {
                   />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: '10px', color: '#666', marginBottom: '2px' }}>
-                      45 flowers + 8 Deluxe bouquets (worth 3x 💰)
+                      45 flowers + 8 Deluxe bouquets (worth 2x 💰)
                     </div>
                     <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#DA70D6' }}>
                       Cost: {DELUXE_DELIVERY_COST} 💎
