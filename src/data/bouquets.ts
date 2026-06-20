@@ -13,6 +13,7 @@ export interface BouquetRecipe {
   ingredients: RecipeIngredient[];
   imageUrl: string;
   totalStems: number;
+  unlockedAt: number; // cumulative bouquets sold to unlock this bouquet
 }
 
 export const BOUQUET_RECIPES: BouquetRecipe[] = [
@@ -29,6 +30,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/sunshine-bunch.png',
     totalStems: 5,
+    unlockedAt: 0,
   },
   {
     id: 'lavender-dream',
@@ -42,6 +44,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/lavender-dream.png',
     totalStems: 4,
+    unlockedAt: 0,
   },
   {
     id: 'golden-meadow',
@@ -56,6 +59,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/golden-meadow.png',
     totalStems: 6,
+    unlockedAt: 0,
   },
   {
     id: 'spring-cosmos',
@@ -69,6 +73,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/spring-cosmos.png',
     totalStems: 6,
+    unlockedAt: 0,
   },
   {
     id: 'wheat-and-herb',
@@ -109,6 +114,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/tulip-garden.png',
     totalStems: 5,
+    unlockedAt: 40,
   },
   {
     id: 'violet-anemone',
@@ -123,6 +129,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/violet-anemone.png',
     totalStems: 5,
+    unlockedAt: 40,
   },
   {
     id: 'poppy-field',
@@ -137,6 +144,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/poppy-field.png',
     totalStems: 6,
+    unlockedAt: 40,
   },
   {
     id: 'carnation-kiss',
@@ -150,6 +158,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/carnation-kiss.png',
     totalStems: 6,
+    unlockedAt: 80,
   },
   {
     id: 'marigold-sunrise',
@@ -163,6 +172,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/marigold-sunrise.png',
     totalStems: 7,
+    unlockedAt: 80,
   },
   {
     id: 'tulip-and-lilac',
@@ -176,6 +186,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/tulip-and-lilac.png',
     totalStems: 4,
+    unlockedAt: 140,
   },
   {
     id: 'sweet-meadow',
@@ -190,6 +201,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/sweet-meadow.png',
     totalStems: 7,
+    unlockedAt: 140,
   },
 
   // ── PREMIUM ───────────────────────────────────────────────────────────────
@@ -206,6 +218,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/golden-luxury.png',
     totalStems: 6,
+    unlockedAt: 140,
   },
   {
     id: 'rose-garden',
@@ -220,6 +233,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/rose-garden.png',
     totalStems: 6,
+    unlockedAt: 140,
   },
   {
     id: 'peony-blush',
@@ -234,6 +248,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/peony-blush.png',
     totalStems: 5,
+    unlockedAt: 140,
   },
   {
     id: 'lily-orchid',
@@ -248,6 +263,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/lily-orchid.png',
     totalStems: 5,
+    unlockedAt: 230,
   },
   {
     id: 'hydrangea-cloud',
@@ -262,6 +278,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/hydrangea-cloud.png',
     totalStems: 5,
+    unlockedAt: 230,
   },
   {
     id: 'lisianthus-and-rose',
@@ -276,6 +293,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/lisianthus-rose.png',
     totalStems: 5,
+    unlockedAt: 350,
   },
   {
     id: 'tropical-sunset',
@@ -290,6 +308,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/tropical-sunset.png',
     totalStems: 6,
+    unlockedAt: 350,
   },
   {
     id: 'orchard-blossom',
@@ -304,6 +323,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/orchard-blossom.png',
     totalStems: 5,
+    unlockedAt: 350,
   },
 
   // ── DELUXE ────────────────────────────────────────────────────────────────
@@ -320,6 +340,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/cherry-blossom-dream.png',
     totalStems: 5,
+    unlockedAt: 350,
   },
   {
     id: 'protea-statement',
@@ -334,6 +355,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/protea-statement.png',
     totalStems: 5,
+    unlockedAt: 350,
   },
   {
     id: 'midnight-poppy',
@@ -348,6 +370,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/midnight-poppy.png',
     totalStems: 6,
+    unlockedAt: 500,
   },
   {
     id: 'enchanted-lilac',
@@ -362,6 +385,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/enchanted-lilac.png',
     totalStems: 6,
+    unlockedAt: 500,
   },
   {
     id: 'grand-opulence',
@@ -378,6 +402,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/grand-opulence.png',
     totalStems: 7,
+    unlockedAt: 500,
   },
   {
     id: 'moonlit-garden',
@@ -393,6 +418,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/moonlit-garden.png',
     totalStems: 6,
+    unlockedAt: 680,
   },
   {
     id: 'autumn-ember',
@@ -409,6 +435,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/autumn-ember.png',
     totalStems: 9,
+    unlockedAt: 680,
   },
   {
     id: 'rose-orchid-luxe',
@@ -423,6 +450,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/rose-and-orchid-luxe.png',
     totalStems: 6,
+    unlockedAt: 680,
   },
   {
     id: 'woodland-crown',
@@ -439,6 +467,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/woodland-crown.png',
     totalStems: 9,
+    unlockedAt: 680,
   },
 ];
 
@@ -458,4 +487,20 @@ export const TIER_COLORS: Record<BouquetTier, string> = {
 
 export function getRecipeById(id: string): BouquetRecipe | undefined {
   return BOUQUET_RECIPES.find((r) => r.id === id);
+}
+
+/**
+ * Check if a bouquet recipe is unlocked at a given bouquet sales count
+ */
+export function isBouquetUnlocked(recipeId: string, cumulativeBouquetsSold: number): boolean {
+  const recipe = getRecipeById(recipeId);
+  return recipe ? cumulativeBouquetsSold >= recipe.unlockedAt : false;
+}
+
+/**
+ * Get the bouquet count at which a recipe unlocks
+ */
+export function getBouquetUnlockThreshold(recipeId: string): number {
+  const recipe = getRecipeById(recipeId);
+  return recipe?.unlockedAt ?? 0;
 }

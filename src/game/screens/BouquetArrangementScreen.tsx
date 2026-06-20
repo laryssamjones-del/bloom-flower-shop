@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { FLOWERS } from '../../constants/flowers';
 import { GREENERY } from '../../constants/flowers';
-import { BOUQUET_RECIPES, getRecipeById, TIER_LABELS, TIER_COLORS, BouquetTier } from '../../data/bouquets';
+import { BOUQUET_RECIPES, getRecipeById, TIER_LABELS, TIER_COLORS, BouquetTier, isBouquetUnlocked, getBouquetUnlockThreshold } from '../../data/bouquets';
 import { FLOWER_TIERS } from '../../data/progression';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { ScreenNavigation } from '../components/ScreenNavigation';
@@ -196,31 +196,33 @@ export function BouquetArrangementScreen() {
           >
             {filteredRecipes.map((recipe) => {
               const tierUnlocked = isTierUnlocked(recipe.tier, cumulativeBouquetsSold);
-              const canMakeThis = tierUnlocked && canMakeRecipe(recipe.id);
+              const bouquetUnlocked = isBouquetUnlocked(recipe.id, cumulativeBouquetsSold);
+              const isUnlocked = tierUnlocked && bouquetUnlocked;
+              const canMakeThis = isUnlocked && canMakeRecipe(recipe.id);
               const invCount = recipe.ingredients.reduce((sum, ing) => {
                 const inv = inventory.find((i) => i.flowerId === ing.flowerId);
                 return sum + Math.min(inv ? inv.quantity : 0, ing.quantity);
               }, 0);
               const totalNeeded = recipe.ingredients.reduce((s, i) => s + i.quantity, 0);
-              const hasPartial = tierUnlocked && invCount > 0 && !canMakeThis;
-              const unlockRequirement = getTierUnlockRequirement(recipe.tier);
+              const hasPartial = isUnlocked && invCount > 0 && !canMakeThis;
+              const unlockRequirement = getBouquetUnlockThreshold(recipe.id);
 
               return (
                 <button
                   key={recipe.id}
-                  onClick={() => tierUnlocked && handlePickRecipe(recipe.id)}
-                  disabled={!tierUnlocked}
+                  onClick={() => isUnlocked && handlePickRecipe(recipe.id)}
+                  disabled={!isUnlocked}
                   style={{
-                    background: !tierUnlocked
+                    background: !isUnlocked
                       ? 'rgba(0,0,0,0.25)'
                       : canMakeThis
                       ? 'rgba(255,255,255,0.9)'
                       : hasPartial
                       ? 'rgba(255,255,255,0.6)'
                       : 'rgba(255,255,255,0.4)',
-                    border: `2px solid ${!tierUnlocked ? '#999' : TIER_COLORS[recipe.tier]}`,
+                    border: `2px solid ${!isUnlocked ? '#999' : TIER_COLORS[recipe.tier]}`,
                     borderRadius: '8px',
-                    cursor: tierUnlocked ? 'pointer' : 'not-allowed',
+                    cursor: isUnlocked ? 'pointer' : 'not-allowed',
                     padding: '8px',
                     display: 'flex',
                     flexDirection: 'column',
@@ -228,12 +230,12 @@ export function BouquetArrangementScreen() {
                     gap: '4px',
                     textAlign: 'center',
                     animation: canMakeThis ? 'readyGlow 2s ease-in-out infinite' : 'none',
-                    opacity: tierUnlocked ? 1 : 0.5,
-                    filter: tierUnlocked ? 'none' : 'grayscale(100%) brightness(0.8)',
+                    opacity: isUnlocked ? 1 : 0.5,
+                    filter: isUnlocked ? 'none' : 'grayscale(100%) brightness(0.8)',
                     position: 'relative',
                   }}
                 >
-                  {!tierUnlocked && (
+                  {!isUnlocked && (
                     <div
                       style={{
                         position: 'absolute',
@@ -275,12 +277,12 @@ export function BouquetArrangementScreen() {
                   <div style={{ fontSize: '11px', color: '#6A9A50', fontWeight: 'bold' }}>
                     {recipe.sellPrice} 🌼
                   </div>
-                  {!tierUnlocked && (
+                  {!isUnlocked && (
                     <div style={{ fontSize: '9px', color: '#666', fontWeight: 'bold' }}>
-                      Unlock @ {unlockRequirement} sales
+                      Unlocks at {unlockRequirement} bouquets
                     </div>
                   )}
-                  {tierUnlocked && canMakeThis && (
+                  {isUnlocked && canMakeThis && (
                     <div style={{ fontSize: '10px', color: '#6A9A50' }}>✅ Ready to make!</div>
                   )}
                   {hasPartial && (
