@@ -87,6 +87,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/wheat-and-herb.png',
     totalStems: 5,
+    unlockedAt: 0,
   },
   {
     id: 'daisy-and-fern',
@@ -99,6 +100,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     ],
     imageUrl: './bouquets/daisy-and-fern.png',
     totalStems: 6,
+    unlockedAt: 0,
   },
 
   // ── STANDARD ──────────────────────────────────────────────────────────────
