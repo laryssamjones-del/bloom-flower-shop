@@ -37843,11 +37843,24 @@
       "timestamp": 1781926921481,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "1781926924310-2duyrt7z6",
+      "role": "system",
+      "content": "Compacting project...",
+      "isShownToUser": true,
+      "timestamp": 1781926924310,
+      "type": "compaction",
+      "metadata": {
+        "compaction": {
+          "trigger": "auto"
+        }
+      }
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781926921525,
-  "tokenUsage": 103710,
+  "updatedAt": 1781927027547,
+  "tokenUsage": 0,
   "script": "default",
   "claudeSessionId": "e57a1710-6ad2-4bf3-9c9c-fac350f9623e"
 }
