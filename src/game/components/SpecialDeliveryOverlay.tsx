@@ -122,8 +122,8 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
         style={{
           position: 'absolute',
           top: truckConfig.topOffset,
-          left: `${truckConfig.leftOffset}%`,
-          transform: 'translateX(-50%)',
+          right: `${truckConfig.rightOffset}%`,
+          transform: 'translateX(50%)',
           animation: isSliding ? 'slideInTruck 0.6s ease-out forwards, shakeTruck 0.5s ease-in-out 0.6s' : 'none',
           pointerEvents: 'all',
           zIndex: 151,
@@ -132,26 +132,26 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
         <style>{`
           @keyframes slideInTruck {
             from {
-              transform: translateX(-50%) translateY(-100%);
+              transform: translateX(50%) translateY(-100%);
               opacity: 0;
             }
             to {
-              transform: translateX(-50%) translateY(0);
+              transform: translateX(50%) translateY(0);
               opacity: 1;
             }
           }
 
           @keyframes shakeTruck {
-            0%, 100% { transform: translateX(-50%) translateY(0) rotate(0deg); }
-            10% { transform: translateX(-50%) translateY(-3px) rotate(-1deg); }
-            20% { transform: translateX(-50%) translateY(3px) rotate(1deg); }
-            30% { transform: translateX(-50%) translateY(-3px) rotate(-1deg); }
-            40% { transform: translateX(-50%) translateY(3px) rotate(1deg); }
-            50% { transform: translateX(-50%) translateY(-2px) rotate(-0.5deg); }
-            60% { transform: translateX(-50%) translateY(2px) rotate(0.5deg); }
-            70% { transform: translateX(-50%) translateY(-1px) rotate(0); }
-            80% { transform: translateX(-50%) translateY(1px) rotate(0); }
-            90% { transform: translateX(-50%) translateY(0) rotate(0); }
+            0%, 100% { transform: translateX(50%) translateY(0) rotate(0deg); }
+            10% { transform: translateX(50%) translateY(-3px) rotate(-1deg); }
+            20% { transform: translateX(50%) translateY(3px) rotate(1deg); }
+            30% { transform: translateX(50%) translateY(-3px) rotate(-1deg); }
+            40% { transform: translateX(50%) translateY(3px) rotate(1deg); }
+            50% { transform: translateX(50%) translateY(-2px) rotate(-0.5deg); }
+            60% { transform: translateX(50%) translateY(2px) rotate(0.5deg); }
+            70% { transform: translateX(50%) translateY(-1px) rotate(0); }
+            80% { transform: translateX(50%) translateY(1px) rotate(0); }
+            90% { transform: translateX(50%) translateY(0) rotate(0); }
           }
         `}</style>
 

@@ -158,7 +158,7 @@ export interface GameState {
   truckCustomizationConfig?: {
     width: number;
     topOffset: number;
-    leftOffset: number;
+    rightOffset: number;
   };
 
   // Meta

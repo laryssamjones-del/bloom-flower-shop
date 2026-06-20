@@ -235,7 +235,7 @@ interface GameStoreActions {
   saveTruckCustomizationConfig: (config: {
     width: number;
     topOffset: number;
-    leftOffset: number;
+    rightOffset: number;
   }) => void;
 
   // Tutorial

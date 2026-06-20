@@ -4,19 +4,19 @@ import { useGameStore } from '../../stores/gameStore';
 // Mobile ratio constraints (9:16)
 const MOBILE_RATIO = 9 / 16; // 0.5625
 const MOBILE_SAFE_AREA_WIDTH = MOBILE_RATIO * 100; // ~56.25% of viewport width
-const MOBILE_MIN_LEFT = (100 - MOBILE_SAFE_AREA_WIDTH) / 2; // ~21.875%
-const MOBILE_MAX_LEFT = MOBILE_MIN_LEFT + MOBILE_SAFE_AREA_WIDTH; // ~78.125%
+const MOBILE_MIN_RIGHT = (100 - MOBILE_SAFE_AREA_WIDTH) / 2; // ~21.875%
+const MOBILE_MAX_RIGHT = MOBILE_MIN_RIGHT + MOBILE_SAFE_AREA_WIDTH; // ~78.125%
 
 export interface TruckCustomizationConfig {
   width: number; // px
   topOffset: number; // px from top
-  leftOffset: number; // px from left (center relative)
+  rightOffset: number; // % from right
 }
 
 const DEFAULT_CONFIG: TruckCustomizationConfig = {
   width: 80,
   topOffset: 0,
-  leftOffset: 50, // center (within safe area)
+  rightOffset: 10, // 10% from right
 };
 
 const STORAGE_KEY = 'bloomy_truck_customization';
@@ -71,7 +71,7 @@ export function TruckCustomizer({ onClose }: Props) {
     truckDragStartRef.current = {
       x: e.clientX,
       y: e.clientY,
-      offsetX: config.leftOffset,
+      offsetX: config.rightOffset,
       offsetY: config.topOffset,
     };
     setDraggingTruck(true);
@@ -106,15 +106,15 @@ export function TruckCustomizer({ onClose }: Props) {
         // Use viewport width for percentage calculation to match delivery overlay positioning
         const viewportWidth = window.innerWidth;
         const percentageChange = (dx / viewportWidth) * 100;
-        const newLeftOffset = Math.max(
-          MOBILE_MIN_LEFT,
-          Math.min(MOBILE_MAX_LEFT, truckDragStartRef.current.offsetX + percentageChange)
+        const newRightOffset = Math.max(
+          MOBILE_MIN_RIGHT,
+          Math.min(MOBILE_MAX_RIGHT, truckDragStartRef.current.offsetX - percentageChange)
         );
         const newTopOffset = Math.max(0, truckDragStartRef.current.offsetY + dy);
 
         setConfig((prev) => ({
           ...prev,
-          leftOffset: newLeftOffset,
+          rightOffset: newRightOffset,
           topOffset: newTopOffset,
         }));
       }
@@ -133,7 +133,7 @@ export function TruckCustomizer({ onClose }: Props) {
     saveTruckCustomizationConfig({
       width: config.width,
       topOffset: config.topOffset,
-      leftOffset: config.leftOffset,
+      rightOffset: config.rightOffset,
     });
     onClose();
   };
@@ -216,8 +216,8 @@ export function TruckCustomizer({ onClose }: Props) {
         style={{
           position: 'absolute',
           top: config.topOffset,
-          left: `${config.leftOffset}%`,
-          transform: 'translateX(-50%)',
+          right: `${config.rightOffset}%`,
+          transform: 'translateX(50%)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -319,22 +319,22 @@ export function TruckCustomizer({ onClose }: Props) {
           </button>
         </div>
 
-        {/* Left offset control */}
+        {/* Right offset control */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
           <button
             onClick={() =>
-              setConfig((p) => ({ ...p, leftOffset: Math.max(MOBILE_MIN_LEFT, p.leftOffset - 2) }))
+              setConfig((p) => ({ ...p, rightOffset: Math.max(MOBILE_MIN_RIGHT, p.rightOffset - 2) }))
             }
             style={btnBase}
           >
             −
           </button>
           <span style={{ fontSize: '12px', flex: 1, textAlign: 'center' }}>
-            Left Gap: {Math.round(config.leftOffset)}%
+            Right Gap: {Math.round(config.rightOffset)}%
           </span>
           <button
             onClick={() =>
-              setConfig((p) => ({ ...p, leftOffset: Math.min(MOBILE_MAX_LEFT, p.leftOffset + 2) }))
+              setConfig((p) => ({ ...p, rightOffset: Math.min(MOBILE_MAX_RIGHT, p.rightOffset + 2) }))
             }
             style={btnBase}
           >
@@ -344,9 +344,9 @@ export function TruckCustomizer({ onClose }: Props) {
 
         {/* Position info */}
         <div style={{ fontSize: '10px', color: '#999', textAlign: 'center', lineHeight: 1.4 }}>
-          <div>Position: {Math.round(config.leftOffset)}% from left</div>
+          <div>Position: {Math.round(config.rightOffset)}% from right</div>
           <div style={{ fontSize: '9px', color: '#BBB', marginTop: '4px' }}>
-            Mobile safe area: {Math.round(MOBILE_MIN_LEFT)}% — {Math.round(MOBILE_MAX_LEFT)}%
+            Mobile safe area: {Math.round(MOBILE_MIN_RIGHT)}% — {Math.round(MOBILE_MAX_RIGHT)}%
           </div>
         </div>
 
