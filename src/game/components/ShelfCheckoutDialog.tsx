@@ -49,17 +49,7 @@ export function ShelfCheckoutDialog({
   const npcRightOffset = npcConfig?.rightOffset || 0;
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 5000,
-      }}
-    >
+    <>
       {/* NPC positioned on right-bottom (same as order NPCs) */}
       <div
         style={{
@@ -97,6 +87,10 @@ export function ShelfCheckoutDialog({
       {/* Dialog modal (compact, matching order NPC styling) */}
       <div
         style={{
+          position: 'absolute',
+          bottom: `${npcHeight + npcBottomOffset - 80}px`,
+          left: '50%',
+          transform: 'translateX(-50%)',
           background: '#FFFDF5',
           border: '1.5px solid #E8C5A0',
           borderRadius: '14px',
@@ -113,6 +107,7 @@ export function ShelfCheckoutDialog({
           display: 'flex',
           flexDirection: 'column',
           gap: '6px',
+          zIndex: 9,
         }}
       >
         {/* Message text */}
@@ -212,6 +207,6 @@ export function ShelfCheckoutDialog({
           </button>
         )}
       </div>
-    </div>
+    </>
   );
 }
