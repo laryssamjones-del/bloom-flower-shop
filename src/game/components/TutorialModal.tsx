@@ -21,8 +21,7 @@ export function TutorialModal({
     },
     {
       title: '',
-      message:
-        'You are the owner of your very own floral shop! What you do is buy flowers which you will be able to arrange into a beautiful bouquet, and then you can display it on the shelf for customers to buy.',
+      message: 'You are the owner of your own floral shop!',
     },
     {
       title: '',
