@@ -748,64 +748,6 @@ export function ShopScreen() {
         </div>
       </div>
 
-      {/* Customization tools */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '12px',
-          left: '12px',
-          display: 'flex',
-          gap: '8px',
-          zIndex: 11,
-        }}
-      >
-        <button
-          onClick={() => setEditingLayout(true)}
-          style={{
-            padding: '8px 12px',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            background: '#F5E6D8',
-            border: '1.5px solid #D4A57C',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            color: '#8B5E3C',
-          }}
-        >
-          Layout
-        </button>
-        <button
-          onClick={() => setCustomizingNPC(true)}
-          style={{
-            padding: '8px 12px',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            background: '#F5E6D8',
-            border: '1.5px solid #D4A57C',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            color: '#8B5E3C',
-          }}
-        >
-          NPC
-        </button>
-        <button
-          onClick={() => setCustomizingShelfNPC(true)}
-          style={{
-            padding: '8px 12px',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            background: '#F5E6D8',
-            border: '1.5px solid #D4A57C',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            color: '#8B5E3C',
-          }}
-        >
-          Shelf NPC
-        </button>
-      </div>
-
       {/* Shelf bouquet display — positioned via saved layout config */}
       {shelfRows.map((row, rowIdx) => {
         const shelfPos = shelfConfig.shelves[rowIdx];
