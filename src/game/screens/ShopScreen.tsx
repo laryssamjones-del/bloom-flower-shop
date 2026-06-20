@@ -28,6 +28,7 @@ import { NotificationPopup } from '../components/NotificationPopup';
 import { Bouquet } from '../../types';
 import { BOUQUET_RECIPES, isBouquetUnlocked } from '../../data/bouquets';
 import { getCurrentLevel, getLevelProgress } from '../../data/progression';
+import { FLOWERS } from '../../constants/flowers';
 import shopBackground from '/bloomy_shop_background.png';
 
 // NPC visits: a customer slides in every 15–45 seconds
@@ -52,6 +53,7 @@ export function ShopScreen() {
   const addUnclaimedReward = useGameStore((s) => s.addUnclaimedReward);
   const addNotification = useGameStore((s) => s.addNotification);
   const unclaimedRewards = useGameStore((s) => s.unclaimedRewards);
+  const addCoins = useGameStore((s) => s.addCoins);
 
   // Background music
   const { volume: musicVolume, setVolume: setMusicVolume, isMuted: isMusicMuted, toggleMute: toggleMusicMute } = useBackgroundMusic('/petals-on-repeat.mp3');
@@ -76,6 +78,9 @@ export function ShopScreen() {
 
   const [longPressId, setLongPressId] = useState<string | null>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Delete confirmation dialog
+  const [pendingDeleteBouquetId, setPendingDeleteBouquetId] = useState<string | null>(null);
 
   // Track flower unlocks for notifications
   const [pendingUnlockNotifications, setPendingUnlockNotifications] = useState<string[]>([]);
@@ -570,10 +575,37 @@ export function ShopScreen() {
     }
   };
 
-  const handleDelete = (bouquetId: string) => {
-    removeBouquetFromShelf(bouquetId);
-    setLongPressId(null);
-    RundotGameAPI.analytics.recordCustomEvent('bouquet_deleted', { bouquetId });
+  // Calculate total cost of ingredients for a bouquet
+  const calculateBouquetCost = (bouquet: Bouquet): number => {
+    let totalCost = 0;
+    for (const stem of bouquet.stems) {
+      const flower = FLOWERS[stem.flowerId];
+      if (flower) {
+        totalCost += flower.pricePerStem;
+      }
+    }
+    return totalCost;
+  };
+
+  const handleConfirmDelete = () => {
+    if (pendingDeleteBouquetId) {
+      const bouquet = shelfBouquets.find((b) => b.id === pendingDeleteBouquetId);
+      if (bouquet) {
+        const refundAmount = calculateBouquetCost(bouquet);
+        addCoins(refundAmount);
+        removeBouquetFromShelf(pendingDeleteBouquetId);
+        RundotGameAPI.analytics.recordCustomEvent('bouquet_deleted', {
+          bouquetId: pendingDeleteBouquetId,
+          refundAmount,
+        });
+      }
+      setPendingDeleteBouquetId(null);
+      setLongPressId(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setPendingDeleteBouquetId(null);
   };
 
   const handleEditorClose = () => {
@@ -796,29 +828,91 @@ export function ShopScreen() {
                   />
                 </div>
 
-                {/* Delete button shown on long-press */}
+                {/* Delete confirmation shown on long-press */}
                 {longPressId === bouquet.id && (
-                  <button
-                    onClick={() => handleDelete(bouquet.id)}
+                  <div
                     style={{
                       position: 'absolute',
                       top: '50%',
                       left: '50%',
                       transform: 'translate(-50%, -50%)',
-                      background: '#C0392B',
-                      color: '#FFF',
-                      border: 'none',
-                      borderRadius: '6px',
-                      padding: '8px 12px',
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
+                      background: '#FFFDF5',
+                      border: '2px solid #E8C5A0',
+                      borderRadius: '12px',
+                      padding: '14px 16px',
+                      maxWidth: '220px',
+                      textAlign: 'center',
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
                       zIndex: 20,
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '10px',
                     }}
                   >
-                    🗑️ Delete
-                  </button>
+                    <div
+                      style={{
+                        fontSize: '13px',
+                        color: '#4A2C17',
+                        fontWeight: '600',
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      Would you like to delete your bouquet? All costs for ingredients will be refunded.
+                    </div>
+                    <div
+                      style={{
+                        display: 'flex',
+                        gap: '8px',
+                        justifyContent: 'center',
+                        marginTop: '6px',
+                      }}
+                    >
+                      <button
+                        onClick={handleCancelDelete}
+                        style={{
+                          background: '#F5E6D8',
+                          border: '1.5px solid #D4A57C',
+                          borderRadius: '18px',
+                          padding: '6px 14px',
+                          cursor: 'pointer',
+                          fontSize: '11px',
+                          fontWeight: 'bold',
+                          color: '#6A4C3A',
+                          transition: 'all 0.2s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#E8D5C5';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = '#F5E6D8';
+                        }}
+                      >
+                        Not now
+                      </button>
+                      <button
+                        onClick={handleConfirmDelete}
+                        style={{
+                          background: '#C0392B',
+                          border: '1.5px solid #A93226',
+                          borderRadius: '18px',
+                          padding: '6px 14px',
+                          cursor: 'pointer',
+                          fontSize: '11px',
+                          fontWeight: 'bold',
+                          color: '#FFF',
+                          transition: 'all 0.2s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#A93226';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = '#C0392B';
+                        }}
+                      >
+                        Yes
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
             ))}
