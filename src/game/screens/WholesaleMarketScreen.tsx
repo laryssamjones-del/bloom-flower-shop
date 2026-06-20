@@ -1113,8 +1113,8 @@ export function WholesaleMarketScreen() {
               borderRadius: '6px',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-              <h3 style={{ margin: 0, fontSize: '11px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 'bold' }}>
                 {selectedFlower && getItem(selectedFlower)?.name}
               </h3>
               <button
