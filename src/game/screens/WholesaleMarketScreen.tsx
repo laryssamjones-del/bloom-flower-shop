@@ -430,7 +430,12 @@ export function WholesaleMarketScreen() {
             💎 Premium
           </button>
           <button
-            onClick={() => setCurrentScreen('shop')}
+            onClick={() => {
+              // If shopping for an order, return to arrangement to complete the order
+              // Otherwise, return to home shop
+              const screen = shoppingForOrderId ? 'arrangement' : 'shop';
+              setCurrentScreen(screen);
+            }}
             style={{
               padding: '8px 12px',
               background: '#B8A890',
@@ -441,7 +446,7 @@ export function WholesaleMarketScreen() {
               fontSize: '12px',
             }}
           >
-            Back to Home
+            {shoppingForOrderId ? 'Back to Order' : 'Back to Home'}
           </button>
           </div>
         </div>
