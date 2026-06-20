@@ -483,6 +483,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
           lastUpdated: Date.now(),
         }));
         state.addCoins(price);
+        playChaChingSound();
         return bouquet;
       }
     }
