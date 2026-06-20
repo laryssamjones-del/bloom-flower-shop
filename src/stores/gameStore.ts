@@ -17,6 +17,7 @@ import { EXCLUSIVE_BOX_COSTS } from '../data/exclusiveBouquets';
 import { generateExclusiveBoxContents } from '../data/mysteryBoxContents';
 import { getUnlockedFlowersAt } from '../data/progression';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
+import { playChaChingSound, playSuccessSound } from '../services/audio';
 
 const STARTING_COINS = 300;
 const MAX_INVENTORY_STEMS = 200;
@@ -595,6 +596,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     const price = priceOverride || bouquet.sellPrice;
     state.addCoins(price);
     state.removeBouquetFromShelf(bouquetId);
+    playChaChingSound();
 
     const newCumulativeSales = state.cumulativeBouquetsSold + 1;
     const newUnlockedFlowers = new Set(state.unlockedFlowers);
@@ -723,6 +725,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     }));
 
     state.addCoins(reward);
+    playChaChingSound();
   },
 
   removeOrder: (orderId: string) => {
@@ -793,6 +796,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     if (!bouquet) return false;
 
     state.addCoins(bouquet.sellPrice);
+    playChaChingSound();
     set((s) => ({
       mysteryBouquets: s.mysteryBouquets.filter((b) => b.id !== bouquetId),
       totalCustomersServed: s.totalCustomersServed + 1,
@@ -880,6 +884,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
 
     const sellPrice = bouquetInInventory?.sellPrice || bouquetOnShelf?.sellPrice || 0;
     state.addCoins(sellPrice);
+    playChaChingSound();
 
     set((s) => ({
       exclusiveBouquets: s.exclusiveBouquets.filter((b) => b.id !== bouquetId),
@@ -1126,6 +1131,8 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       coinsAwarded: rewardCoins,
       bouquetRecipe: randomBouquet.id,
     });
+
+    playSuccessSound();
   },
 
   getUnclaimedRewardCount: () => {
