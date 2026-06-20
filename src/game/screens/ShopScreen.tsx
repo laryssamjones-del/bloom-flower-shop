@@ -79,9 +79,6 @@ export function ShopScreen() {
   const [longPressId, setLongPressId] = useState<string | null>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Delete confirmation dialog
-  const [pendingDeleteBouquetId, setPendingDeleteBouquetId] = useState<string | null>(null);
-
   // Track flower unlocks for notifications
   const [pendingUnlockNotifications, setPendingUnlockNotifications] = useState<string[]>([]);
   const [currentUnlock, setCurrentUnlock] = useState<string | null>(null);
@@ -588,24 +585,23 @@ export function ShopScreen() {
   };
 
   const handleConfirmDelete = () => {
-    if (pendingDeleteBouquetId) {
-      const bouquet = shelfBouquets.find((b) => b.id === pendingDeleteBouquetId);
+    if (longPressId) {
+      const bouquet = shelfBouquets.find((b) => b.id === longPressId);
       if (bouquet) {
         const refundAmount = calculateBouquetCost(bouquet);
         addCoins(refundAmount);
-        removeBouquetFromShelf(pendingDeleteBouquetId);
+        removeBouquetFromShelf(longPressId);
         RundotGameAPI.analytics.recordCustomEvent('bouquet_deleted', {
-          bouquetId: pendingDeleteBouquetId,
+          bouquetId: longPressId,
           refundAmount,
         });
       }
-      setPendingDeleteBouquetId(null);
       setLongPressId(null);
     }
   };
 
   const handleCancelDelete = () => {
-    setPendingDeleteBouquetId(null);
+    setLongPressId(null);
   };
 
   const handleEditorClose = () => {
