@@ -695,72 +695,7 @@ export function ShopScreen() {
       </div>
 
 
-      {/* Edit Layout button — top-left */}
-      <div style={{ position: 'fixed', top: '20px', left: '20px', display: 'flex', gap: '12px', zIndex: 10000 }}>
-          <button
-            onClick={() => {
-              setEditingLayout(true);
-              RundotGameAPI.analytics.recordCustomEvent('shelf_layout_editor_opened');
-            }}
-            style={{
-              background: '#FFD700',
-              border: '3px solid #000',
-              borderRadius: '8px',
-              padding: '10px 16px',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              boxShadow: '0 6px 16px rgba(0,0,0,0.4)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
-          >
-            ⚙️ Layout
-          </button>
-          <button
-            onClick={() => {
-              setCustomizingNPC(true);
-              RundotGameAPI.analytics.recordCustomEvent('npc_customizer_opened');
-            }}
-            style={{
-              background: '#FFD700',
-              border: '3px solid #000',
-              borderRadius: '8px',
-              padding: '10px 16px',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              boxShadow: '0 6px 16px rgba(0,0,0,0.4)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
-          >
-            👤 NPC
-          </button>
-          <button
-            onClick={() => {
-              setCustomizingTruck(true);
-              RundotGameAPI.analytics.recordCustomEvent('truck_customizer_opened');
-            }}
-            style={{
-              background: '#FFD700',
-              border: '3px solid #000',
-              borderRadius: '8px',
-              padding: '10px 16px',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              boxShadow: '0 6px 16px rgba(0,0,0,0.4)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
-          >
-            🚚 Truck
-          </button>
-        </div>
+      {/* Customization tools hidden for production */}
 
       {/* Shelf bouquet display — positioned via saved layout config */}
       {shelfRows.map((row, rowIdx) => {
