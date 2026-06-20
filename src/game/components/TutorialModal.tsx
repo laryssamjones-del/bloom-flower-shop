@@ -50,7 +50,7 @@ export function TutorialModal({
       message: 'Arrange is where you can create beautiful bouquets.',
     },
     {
-      title: '🏪 Market',
+      title: '🌱 Market',
       message:
         'Market is where you can buy flowers to create bouquets and is also where you will find the Premium Shop.',
     },
