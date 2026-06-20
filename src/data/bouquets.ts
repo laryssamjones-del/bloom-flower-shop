@@ -22,7 +22,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'daisy-and-fern',
     name: 'Daisy & Fern',
     tier: 'budget',
-    sellPrice: 14,
+    sellPrice: 39,
     ingredients: [
       { flowerId: 'daisy', quantity: 4 },
       { flowerId: 'fern', quantity: 2 },
@@ -35,7 +35,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'wheat-and-herb',
     name: 'Wheat & Herb',
     tier: 'budget',
-    sellPrice: 16,
+    sellPrice: 31,
     ingredients: [
       { flowerId: 'dried_wheat', quantity: 3 },
       { flowerId: 'eucalyptus', quantity: 1 },
@@ -49,7 +49,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'sunshine-bunch',
     name: 'Sunshine Bunch',
     tier: 'budget',
-    sellPrice: 18,
+    sellPrice: 25,
     ingredients: [
       { flowerId: 'daisy', quantity: 3 },
       { flowerId: 'babys_breath', quantity: 1 },
@@ -63,7 +63,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'spring-cosmos',
     name: 'Spring Cosmos',
     tier: 'budget',
-    sellPrice: 20,
+    sellPrice: 39,
     ingredients: [
       { flowerId: 'cosmos', quantity: 3 },
       { flowerId: 'daisy', quantity: 2 },
@@ -77,7 +77,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'lavender-dream',
     name: 'Lavender Dream',
     tier: 'budget',
-    sellPrice: 22,
+    sellPrice: 31,
     ingredients: [
       { flowerId: 'lavender', quantity: 1 },
       { flowerId: 'daisy', quantity: 2 },
@@ -91,7 +91,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'golden-meadow',
     name: 'Golden Meadow',
     tier: 'budget',
-    sellPrice: 24,
+    sellPrice: 34,
     ingredients: [
       { flowerId: 'sunflower', quantity: 1 },
       { flowerId: 'marigold', quantity: 2 },
@@ -108,7 +108,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'marigold-sunrise',
     name: 'Marigold Sunrise',
     tier: 'standard',
-    sellPrice: 28,
+    sellPrice: 39,
     ingredients: [
       { flowerId: 'marigold', quantity: 3 },
       { flowerId: 'cosmos', quantity: 2 },
@@ -122,7 +122,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'carnation-kiss',
     name: 'Carnation Kiss',
     tier: 'standard',
-    sellPrice: 30,
+    sellPrice: 42,
     ingredients: [
       { flowerId: 'carnation', quantity: 3 },
       { flowerId: 'sweet_pea', quantity: 2 },
@@ -136,7 +136,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'tulip-garden',
     name: 'Tulip Garden',
     tier: 'standard',
-    sellPrice: 32,
+    sellPrice: 45,
     ingredients: [
       { flowerId: 'tulip', quantity: 3 },
       { flowerId: 'carnation', quantity: 1 },
@@ -150,7 +150,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'sweet-meadow',
     name: 'Sweet Meadow',
     tier: 'standard',
-    sellPrice: 33,
+    sellPrice: 46,
     ingredients: [
       { flowerId: 'sweet_pea', quantity: 2 },
       { flowerId: 'cosmos', quantity: 2 },
@@ -180,7 +180,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'tulip-and-lilac',
     name: 'Tulip & Lilac',
     tier: 'standard',
-    sellPrice: 36,
+    sellPrice: 50,
     ingredients: [
       { flowerId: 'tulip', quantity: 2 },
       { flowerId: 'lilac', quantity: 1 },
@@ -194,7 +194,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'poppy-field',
     name: 'Poppy Field',
     tier: 'standard',
-    sellPrice: 38,
+    sellPrice: 53,
     ingredients: [
       { flowerId: 'poppy', quantity: 2 },
       { flowerId: 'cosmos', quantity: 2 },
@@ -211,7 +211,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'golden-luxury',
     name: 'Golden Luxury',
     tier: 'premium',
-    sellPrice: 52,
+    sellPrice: 73,
     ingredients: [
       { flowerId: 'sunflower', quantity: 1 },
       { flowerId: 'rose', quantity: 2 },
@@ -226,7 +226,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'lisianthus-and-rose',
     name: 'Lisianthus & Rose',
     tier: 'premium',
-    sellPrice: 54,
+    sellPrice: 76,
     ingredients: [
       { flowerId: 'lisianthus', quantity: 2 },
       { flowerId: 'rose', quantity: 1 },
@@ -241,7 +241,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'orchard-blossom',
     name: 'Orchard Blossom',
     tier: 'premium',
-    sellPrice: 55,
+    sellPrice: 77,
     ingredients: [
       { flowerId: 'cherry_blossom', quantity: 1 },
       { flowerId: 'tulip', quantity: 2 },
@@ -256,7 +256,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'hydrangea-cloud',
     name: 'Hydrangea Cloud',
     tier: 'premium',
-    sellPrice: 56,
+    sellPrice: 78,
     ingredients: [
       { flowerId: 'hydrangea', quantity: 1 },
       { flowerId: 'white_rose', quantity: 2 },
@@ -271,7 +271,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'rose-garden',
     name: 'Rose Garden',
     tier: 'premium',
-    sellPrice: 58,
+    sellPrice: 81,
     ingredients: [
       { flowerId: 'rose', quantity: 2 },
       { flowerId: 'white_rose', quantity: 2 },
@@ -286,7 +286,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'tropical-sunset',
     name: 'Tropical Sunset',
     tier: 'premium',
-    sellPrice: 60,
+    sellPrice: 84,
     ingredients: [
       { flowerId: 'protea', quantity: 1 },
       { flowerId: 'marigold', quantity: 3 },
@@ -301,7 +301,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'peony-blush',
     name: 'Peony Blush',
     tier: 'premium',
-    sellPrice: 62,
+    sellPrice: 87,
     ingredients: [
       { flowerId: 'peony', quantity: 1 },
       { flowerId: 'ranunculus', quantity: 2 },
@@ -316,7 +316,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'lily-orchid',
     name: 'Lily & Orchid',
     tier: 'premium',
-    sellPrice: 64,
+    sellPrice: 126,
     ingredients: [
       { flowerId: 'lily', quantity: 1 },
       { flowerId: 'orchid', quantity: 1 },
@@ -333,7 +333,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'enchanted-lilac',
     name: 'Enchanted Lilac',
     tier: 'deluxe',
-    sellPrice: 82,
+    sellPrice: 115,
     ingredients: [
       { flowerId: 'lilac', quantity: 2 },
       { flowerId: 'peony', quantity: 1 },
@@ -348,7 +348,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'cherry-blossom-dream',
     name: 'Cherry Blossom Dream',
     tier: 'deluxe',
-    sellPrice: 85,
+    sellPrice: 119,
     ingredients: [
       { flowerId: 'cherry_blossom', quantity: 1 },
       { flowerId: 'ranunculus', quantity: 2 },
@@ -363,7 +363,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'midnight-poppy',
     name: 'Midnight Poppy',
     tier: 'deluxe',
-    sellPrice: 88,
+    sellPrice: 123,
     ingredients: [
       { flowerId: 'poppy', quantity: 2 },
       { flowerId: 'anemone', quantity: 2 },
@@ -378,7 +378,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'woodland-crown',
     name: 'Woodland Crown',
     tier: 'deluxe',
-    sellPrice: 88,
+    sellPrice: 123,
     ingredients: [
       { flowerId: 'anemone', quantity: 2 },
       { flowerId: 'sweet_pea', quantity: 2 },
@@ -395,7 +395,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'autumn-ember',
     name: 'Autumn Ember',
     tier: 'deluxe',
-    sellPrice: 90,
+    sellPrice: 126,
     ingredients: [
       { flowerId: 'protea', quantity: 1 },
       { flowerId: 'poppy', quantity: 2 },
@@ -412,7 +412,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'protea-statement',
     name: 'Protea Statement',
     tier: 'deluxe',
-    sellPrice: 92,
+    sellPrice: 129,
     ingredients: [
       { flowerId: 'protea', quantity: 1 },
       { flowerId: 'rose', quantity: 2 },
@@ -427,7 +427,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'rose-orchid-luxe',
     name: 'Rose & Orchid Luxe',
     tier: 'deluxe',
-    sellPrice: 95,
+    sellPrice: 133,
     ingredients: [
       { flowerId: 'rose', quantity: 3 },
       { flowerId: 'orchid', quantity: 1 },
@@ -442,7 +442,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'moonlit-garden',
     name: 'Moonlit Garden',
     tier: 'deluxe',
-    sellPrice: 96,
+    sellPrice: 134,
     ingredients: [
       { flowerId: 'white_rose', quantity: 2 },
       { flowerId: 'hydrangea', quantity: 1 },
@@ -458,7 +458,7 @@ export const BOUQUET_RECIPES: BouquetRecipe[] = [
     id: 'grand-opulence',
     name: 'Grand Opulence',
     tier: 'deluxe',
-    sellPrice: 110,
+    sellPrice: 154,
     ingredients: [
       { flowerId: 'rose', quantity: 2 },
       { flowerId: 'peony', quantity: 1 },
