@@ -176,7 +176,7 @@ export function ShelfCheckoutDialog({
                 e.currentTarget.style.background = '#D4A574';
               }}
             >
-              Buy ✓
+              Sell ✓
             </button>
           </div>
         )}
