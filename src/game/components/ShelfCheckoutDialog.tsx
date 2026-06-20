@@ -65,9 +65,10 @@ export function ShelfCheckoutDialog({
           position: 'fixed',
           bottom: `${npcBottomOffset}px`,
           right: '0',
-          maxWidth: '280px',
+          maxWidth: '240px',
           height: `${npcHeight}px`,
-          width: 'auto',
+          width: '100%',
+          overflow: 'hidden',
           animation:
             phase === 'asking'
               ? 'npcSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)'
