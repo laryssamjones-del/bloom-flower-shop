@@ -65,8 +65,9 @@ export function TutorialModal({
         'Sell bouquets to level up and unlock new bouquets! Don\'t forget to claim your level up rewards as well!',
     },
     {
-      title: 'Have fun!',
-      message: '',
+      title: '',
+      message:
+        'That is all for now! Go ahead and start making your first bouquet! Have fun!',
     },
   ];
 
