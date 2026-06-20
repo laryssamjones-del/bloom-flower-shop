@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Bouquet } from '../../types';
 import { useGameStore } from '../../stores/gameStore';
 
@@ -18,7 +18,34 @@ export function ShelfCheckoutDialog({
   onDecline,
 }: ShelfCheckoutDialogProps) {
   const [phase, setPhase] = useState<DialogPhase>('asking');
+  const [timeRemaining, setTimeRemaining] = useState(15);
+  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const autoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const npcConfig = useGameStore((s) => s.npcCustomizationConfig);
+
+  // Handle 15-second countdown and auto-dismiss
+  useEffect(() => {
+    if (phase === 'asking') {
+      countdownIntervalRef.current = setInterval(() => {
+        setTimeRemaining((prev) => {
+          if (prev <= 1) {
+            // Time's up - auto-dismiss
+            if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+            setPhase('closing');
+            if (autoTimeoutRef.current) clearTimeout(autoTimeoutRef.current);
+            autoTimeoutRef.current = setTimeout(() => onDecline(), 500);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => {
+        if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+      };
+    }
+    return undefined;
+  }, [phase, onDecline]);
 
   // Auto-close when phase is 'closing' after a delay
   useEffect(() => {
@@ -123,6 +150,24 @@ export function ShelfCheckoutDialog({
           {phase === 'confirming' && `Sell for ${bouquet.sellPrice} 🌼?`}
           {phase === 'closing' && 'Thanks!'}
         </div>
+
+        {/* Timer display in asking phase */}
+        {phase === 'asking' && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '11px',
+              color: timeRemaining <= 3 ? '#C85A3A' : '#999',
+              fontWeight: 'bold',
+              opacity: 0.8,
+            }}
+          >
+            <span>⏱️</span>
+            <span>{timeRemaining}s</span>
+          </div>
+        )}
 
         {/* Buttons (compact, matching order NPC buttons) */}
         {phase === 'asking' && (
