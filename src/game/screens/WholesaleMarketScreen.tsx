@@ -96,6 +96,31 @@ export function WholesaleMarketScreen() {
     return map;
   })();
 
+  // Auto-return to arrangement when all ingredients for an order are purchased
+  useEffect(() => {
+    // Only auto-return if shopping for an order
+    if (!shoppingForOrderId) return;
+
+    // Check if all needed flowers are in inventory
+    let allIngredientsObtained = true;
+    for (const [flowerId, neededQty] of neededFlowersMap) {
+      const inventoryItem = inventory.find((item) => item.flowerId === flowerId);
+      const haveQty = inventoryItem ? inventoryItem.quantity : 0;
+      if (haveQty < neededQty) {
+        allIngredientsObtained = false;
+        break;
+      }
+    }
+
+    // If all ingredients are obtained, auto-return to arrangement
+    if (allIngredientsObtained && neededFlowersMap.size > 0) {
+      // Small delay to ensure UI updates smoothly
+      setTimeout(() => {
+        setCurrentScreen('arrangement');
+      }, 500);
+    }
+  }, [inventory, neededFlowersMap, shoppingForOrderId, setCurrentScreen]);
+
   // Clear shopping context on unmount
   useEffect(() => {
     return () => {
