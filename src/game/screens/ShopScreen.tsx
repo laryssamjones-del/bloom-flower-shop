@@ -5,7 +5,7 @@ import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { CoinCounter } from '../components/CoinCounter';
 import { BottomTabNavigation } from '../components/BottomTabNavigation';
 import { CustomerNPCOverlay, NPCVisit, createNPCVisit } from '../components/CustomerNPCOverlay';
-import { ShelfPurchaseNPC } from '../components/ShelfPurchaseNPC';
+import { ShelfCheckoutDialog } from '../components/ShelfCheckoutDialog';
 import {
   ShelfLayoutEditor,
   loadShelfLayoutConfig,
@@ -111,11 +111,12 @@ export function ShopScreen() {
   const [activeVisit, setActiveVisit] = useState<NPCVisit | null>(null);
   const npcTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Shelf purchase NPC
+  // Shelf purchase NPC (checkout dialog)
   const [shelfPurchaseNPC, setShelfPurchaseNPC] = useState<{
     npcImage: string;
     bouquet: Bouquet;
   } | null>(null);
+  const [shelfCheckoutInProgress, setShelfCheckoutInProgress] = useState(false);
   const shelfPurchaseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Layout editor
@@ -211,13 +212,25 @@ export function ShopScreen() {
     setActiveVisit(null);
   };
 
-  // Shelf purchase NPC - shows an NPC complimenting and buying a bouquet every 60-120 seconds
+  // Shelf purchase NPC - shows a checkout dialog every 60-120 seconds
+  // Only appears if no other NPCs are active (order requests, delivery trucks)
   const scheduleNextShelfPurchase = () => {
     const delay = 60000 + Math.random() * 60000;
     shelfPurchaseTimerRef.current = setTimeout(() => {
       const bouquets = useGameStore.getState().shelfBouquets;
-      // Don't spawn if another NPC is already visible
-      if (bouquets.length > 0 && !shelfPurchaseNPC && !activeVisit) {
+      // Only spawn if:
+      // 1. There are bouquets on shelf
+      // 2. No active order NPC
+      // 3. No active delivery truck
+      // 4. No shelf checkout currently in progress
+      // 5. No shelf purchase NPC currently showing
+      if (
+        bouquets.length > 0 &&
+        !activeVisit &&
+        !activeDelivery &&
+        !shelfCheckoutInProgress &&
+        !shelfPurchaseNPC
+      ) {
         const randomBouquet = bouquets[Math.floor(Math.random() * bouquets.length)];
         if (randomBouquet) {
           const NPC_IMAGES = [
@@ -246,7 +259,18 @@ export function ShopScreen() {
           ];
           const randomNPC = NPC_IMAGES[Math.floor(Math.random() * NPC_IMAGES.length)]!;
           setShelfPurchaseNPC({ npcImage: randomNPC, bouquet: randomBouquet });
+          setShelfCheckoutInProgress(true);
+
+          RundotGameAPI.analytics.recordCustomEvent('shelf_checkout_started', {
+            bouquetId: randomBouquet.id,
+            price: randomBouquet.sellPrice,
+            recipeName: randomBouquet.recipeName,
+          });
         }
+      } else if (bouquets.length > 0 && (activeVisit || activeDelivery || shelfCheckoutInProgress)) {
+        // If blocked by another NPC, reschedule check in 5 seconds
+        scheduleNextShelfPurchase();
+        return;
       }
       scheduleNextShelfPurchase();
     }, delay);
@@ -259,15 +283,41 @@ export function ShopScreen() {
     };
   }, []);
 
-  const handleShelfPurchaseComplete = () => {
+  // Handle checkout confirmation
+  const handleShelfCheckoutConfirm = () => {
     if (shelfPurchaseNPC) {
       sellBouquet(shelfPurchaseNPC.bouquet.id);
-      RundotGameAPI.analytics.recordCustomEvent('shelf_bouquet_sold', {
+
+      RundotGameAPI.analytics.recordCustomEvent('shelf_checkout_completed', {
+        bouquetId: shelfPurchaseNPC.bouquet.id,
+        price: shelfPurchaseNPC.bouquet.sellPrice,
+        recipeName: shelfPurchaseNPC.bouquet.recipeName,
+      });
+
+      // Wait for NPC animation to finish, then clear state and schedule next one
+      setTimeout(() => {
+        setShelfPurchaseNPC(null);
+        setShelfCheckoutInProgress(false);
+        scheduleNextShelfPurchase();
+      }, 2000);
+    }
+  };
+
+  // Handle checkout decline
+  const handleShelfCheckoutDecline = () => {
+    if (shelfPurchaseNPC) {
+      RundotGameAPI.analytics.recordCustomEvent('shelf_checkout_declined', {
         bouquetId: shelfPurchaseNPC.bouquet.id,
         price: shelfPurchaseNPC.bouquet.sellPrice,
       });
     }
-    setShelfPurchaseNPC(null);
+
+    // Wait for NPC animation to finish, then clear state and schedule next one
+    setTimeout(() => {
+      setShelfPurchaseNPC(null);
+      setShelfCheckoutInProgress(false);
+      scheduleNextShelfPurchase();
+    }, 2000);
   };
 
   // Schedule special deliveries (8 hours)
@@ -654,12 +704,13 @@ export function ShopScreen() {
         />
       )}
 
-      {/* NPC Shelf Purchase */}
+      {/* Shelf Checkout Dialog */}
       {shelfPurchaseNPC && (
-        <ShelfPurchaseNPC
+        <ShelfCheckoutDialog
           npcImage={shelfPurchaseNPC.npcImage}
           bouquet={shelfPurchaseNPC.bouquet}
-          onComplete={handleShelfPurchaseComplete}
+          onConfirm={handleShelfCheckoutConfirm}
+          onDecline={handleShelfCheckoutDecline}
         />
       )}
 
