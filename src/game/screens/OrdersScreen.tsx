@@ -75,8 +75,8 @@ export function OrdersScreen() {
           onClick={() => setCurrentScreen('shop')}
           style={{
             padding: '8px 12px',
-            background: '#B8A890',
-            color: '#F5E6D3',
+            background: '#4A90E2',
+            color: '#FFF',
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
