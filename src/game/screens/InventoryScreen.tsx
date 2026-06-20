@@ -99,24 +99,36 @@ export function InventoryScreen() {
       >
         <h1 style={{ margin: 0, fontSize: '18px' }}>📦 Inventory</h1>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          {getUnclaimedRewardCount() > 0 && (
-            <button
-              onClick={() => setShowRewardsModal(true)}
-              style={{
-                padding: '8px 12px',
-                background: '#F39C12',
-                color: '#FFF',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                position: 'relative',
-              }}
-            >
-              🎁 Claim Rewards ({getUnclaimedRewardCount()})
-            </button>
-          )}
+          <button
+            onClick={() => setShowRewardsModal(true)}
+            style={{
+              padding: '8px 12px',
+              background: '#F39C12',
+              color: '#FFF',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              position: 'relative',
+            }}
+          >
+            🎁 Claim Rewards
+            {getUnclaimedRewardCount() > 0 && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '2px',
+                  right: '2px',
+                  width: '10px',
+                  height: '10px',
+                  background: '#E74C3C',
+                  borderRadius: '50%',
+                  border: '2px solid #FFF',
+                }}
+              />
+            )}
+          </button>
           <button
             onClick={() => setCurrentScreen('shop')}
             style={{
@@ -445,7 +457,7 @@ export function InventoryScreen() {
         )}
 
         {/* Claim Rewards Modal */}
-        {showRewardsModal && unclaimedRewards.length > 0 && (
+        {showRewardsModal && (
           <div
             style={{
               position: 'fixed',
@@ -474,11 +486,18 @@ export function InventoryScreen() {
               <h2 style={{ margin: '0 0 16px 0', color: '#333', textAlign: 'center' }}>
                 🎁 Level Up Rewards!
               </h2>
-              <div style={{ fontSize: '14px', color: '#666', marginBottom: '16px', textAlign: 'center' }}>
-                You have {unclaimedRewards.length} unclaimed reward(s)
-              </div>
 
-              {unclaimedRewards.map((level) => {
+              {unclaimedRewards.length === 0 ? (
+                <div style={{ fontSize: '14px', color: '#666', textAlign: 'center', padding: '20px 0' }}>
+                  No rewards available yet. Keep selling bouquets to level up! 🌸
+                </div>
+              ) : (
+                <>
+                  <div style={{ fontSize: '14px', color: '#666', marginBottom: '16px', textAlign: 'center' }}>
+                    You have {unclaimedRewards.length} unclaimed reward(s)
+                  </div>
+
+                  {unclaimedRewards.map((level) => {
                 const rewardCoins = 150 + Math.floor(level / 5) * 10;
                 return (
                   <div
@@ -529,6 +548,8 @@ export function InventoryScreen() {
                   </div>
                 );
               })}
+                </>
+              )}
 
               <button
                 onClick={() => setShowRewardsModal(false)}
