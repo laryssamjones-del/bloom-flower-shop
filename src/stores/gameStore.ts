@@ -1021,7 +1021,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
   completeTutorial: () => {
     set({
       tutorialCompleted: true,
-      tutorialCurrentStep: 10,
+      tutorialCurrentStep: 11,
       lastUpdated: Date.now(),
     });
   },

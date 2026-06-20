@@ -126,8 +126,8 @@ export function BloommyGame() {
             isOpen={shouldShowTutorial}
             currentStep={tutorialCurrentStep}
             onNextStep={(nextStep) => {
-              if (nextStep <= 9) {
-                // Still on a step (0-9)
+              if (nextStep <= 10) {
+                // Still on a step (0-10)
                 setTutorialStep(nextStep);
                 RundotGameAPI.analytics.recordCustomEvent('tutorial_step_completed', {
                   step: nextStep,

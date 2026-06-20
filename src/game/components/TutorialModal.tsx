@@ -60,13 +60,18 @@ export function TutorialModal({
         'Settings is where you can adjust the music volume and where you can reset the game.',
     },
     {
+      title: '⭐ Level Up!',
+      message:
+        'Sell bouquets to level up and unlock new bouquets! Don\'t forget to claim your level up rewards as well!',
+    },
+    {
       title: 'Have fun!',
       message: '',
     },
   ];
 
   const current = tutorials[currentStep] || tutorials[0];
-  const isLastStep = currentStep === 9;
+  const isLastStep = currentStep === 10;
 
   return (
     <div
@@ -208,7 +213,7 @@ export function TutorialModal({
             color: '#999',
           }}
         >
-          Step {currentStep + 1} of 10
+          Step {currentStep + 1} of 11
         </div>
       </div>
     </div>
