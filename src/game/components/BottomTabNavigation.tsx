@@ -14,7 +14,7 @@ export function BottomTabNavigation({ onSettingsClick }: BottomTabNavigationProp
     { screen: 'inventory' as const, label: '📦 Inventory' },
     { screen: 'orders' as const, label: '📋 Orders', badge: hasOrders },
     { screen: 'arrangement' as const, label: '💐 Arrange' },
-    { screen: 'wholesale' as const, label: '🌱 Market' },
+    { screen: 'wholesale' as const, label: '🏪 Market' },
   ];
 
   return (
