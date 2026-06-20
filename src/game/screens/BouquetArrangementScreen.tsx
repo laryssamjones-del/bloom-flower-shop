@@ -279,7 +279,7 @@ export function BouquetArrangementScreen() {
                   </div>
                   {!isUnlocked && (
                     <div style={{ fontSize: '9px', color: '#666', fontWeight: 'bold' }}>
-                      Unlocks at {unlockRequirement} bouquets
+                      Unlocks at {unlockRequirement} bouquets sold
                     </div>
                   )}
                   {isUnlocked && canMakeThis && (
