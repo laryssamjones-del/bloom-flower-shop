@@ -102,23 +102,6 @@ export function TutorialModal({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Skip Button */}
-        <button
-          onClick={onSkip}
-          style={{
-            position: 'absolute',
-            top: '12px',
-            right: '12px',
-            background: 'transparent',
-            border: 'none',
-            fontSize: '20px',
-            cursor: 'pointer',
-            padding: '4px 8px',
-          }}
-        >
-          ✕
-        </button>
-
         {/* Title */}
         {current!.title && (
           <h2
