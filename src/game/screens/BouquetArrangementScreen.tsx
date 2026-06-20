@@ -138,7 +138,7 @@ export function BouquetArrangementScreen() {
             fontSize: '12px',
           }}
         >
-          {phase === 'check-ingredients' && !selectedRecipeId ? '← Recipes' : 'Back'}
+          {phase === 'check-ingredients' && !selectedRecipeId ? '← Recipes' : 'Back to Home'}
         </button>
       </div>
 

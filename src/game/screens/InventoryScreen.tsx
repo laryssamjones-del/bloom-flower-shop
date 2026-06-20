@@ -141,7 +141,7 @@ export function InventoryScreen() {
               fontSize: '12px',
             }}
           >
-            Back to Shop
+            Back to Home
           </button>
         </div>
       </div>

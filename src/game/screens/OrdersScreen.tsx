@@ -83,7 +83,7 @@ export function OrdersScreen() {
             fontSize: '12px',
           }}
         >
-          Back to Shop
+          Back to Home
         </button>
       </div>
 
