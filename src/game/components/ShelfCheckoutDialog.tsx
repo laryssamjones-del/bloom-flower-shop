@@ -89,163 +89,123 @@ export function ShelfCheckoutDialog({
         />
       </div>
 
-      {/* Dialog modal (centered) */}
+      {/* Dialog modal (compact, matching order NPC styling) */}
       <div
         style={{
-          background: '#F5F1E8',
-          border: '3px solid #D4A574',
-          borderRadius: '12px',
-          padding: '24px 20px',
-          maxWidth: '320px',
-          width: '90%',
+          background: '#FFFDF5',
+          border: '1.5px solid #E8C5A0',
+          borderRadius: '14px',
+          padding: '8px 11px',
+          maxWidth: '200px',
           textAlign: 'center',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
           animation:
             phase === 'asking'
               ? 'bubblePop 0.35s cubic-bezier(0.68, -0.55, 0.27, 1.55)'
               : 'none',
           opacity: phase === 'closing' ? 0 : 1,
           transition: 'opacity 0.5s ease-in',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '6px',
         }}
       >
-        {/* Chat bubble message */}
+        {/* Message text */}
         <div
           style={{
-            background: 'rgba(255, 255, 255, 0.8)',
-            border: '2px solid #D4A574',
-            borderRadius: '8px',
-            padding: '12px 16px',
-            marginBottom: '16px',
-            fontSize: '14px',
-            color: '#333',
+            fontSize: '12px',
+            color: '#4A2C17',
             fontWeight: '500',
+            lineHeight: 1.3,
           }}
         >
           {phase === 'asking' && "I'd like to buy this bouquet."}
-          {phase === 'confirming' && `I'd like to buy this bouquet.`}
+          {phase === 'confirming' && `Sell for ${bouquet.sellPrice} 🌼?`}
           {phase === 'closing' && 'Thanks!'}
         </div>
 
-        {/* Bouquet preview */}
-        {(phase === 'asking' || phase === 'confirming') && (
+        {/* Buttons (compact, matching order NPC buttons) */}
+        {phase === 'asking' && (
           <div
             style={{
-              marginBottom: '16px',
-              padding: '12px',
-              background: 'rgba(255, 255, 255, 0.4)',
-              borderRadius: '8px',
               display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '8px',
+              gap: '6px',
+              justifyContent: 'center',
+              marginTop: '4px',
             }}
           >
-            {bouquet.thumbnailUrl ? (
-              <img
-                src={bouquet.thumbnailUrl}
-                alt={bouquet.recipeName || 'Bouquet'}
-                style={{
-                  width: '80px',
-                  height: '80px',
-                  objectFit: 'contain',
-                }}
-              />
-            ) : (
-              <div style={{ fontSize: '48px' }}>💐</div>
-            )}
-            <div style={{ fontSize: '12px', color: '#666', fontWeight: 'bold' }}>
-              {bouquet.recipeName || 'Custom Bouquet'}
-            </div>
-            <div style={{ fontSize: '13px', color: '#6A9A50', fontWeight: 'bold' }}>
-              {bouquet.sellPrice} 🌼
-            </div>
-          </div>
-        )}
-
-        {/* Buttons */}
-        <div
-          style={{
-            display: 'flex',
-            gap: '12px',
-            flexDirection: 'column',
-          }}
-        >
-          {phase === 'asking' && (
-            <>
-              <button
-                onClick={handleDeclareClick}
-                style={{
-                  padding: '12px 16px',
-                  background: 'transparent',
-                  border: '2px solid #D4A574',
-                  color: '#D4A574',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '13px',
-                  fontWeight: 'bold',
-                  transition: 'all 0.2s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#D4A574';
-                  e.currentTarget.style.color = '#FFF';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.color = '#D4A574';
-                }}
-              >
-                Come back later
-              </button>
-              <button
-                onClick={handleCheckoutClick}
-                style={{
-                  padding: '12px 16px',
-                  background: '#6A9A50',
-                  color: '#FFF',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '13px',
-                  fontWeight: 'bold',
-                  transition: 'background 0.2s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#5A8A40';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#6A9A50';
-                }}
-              >
-                Checkout
-              </button>
-            </>
-          )}
-
-          {phase === 'confirming' && (
             <button
-              onClick={handleConfirmClick}
+              onClick={handleDeclareClick}
               style={{
-                padding: '14px 16px',
-                background: '#6A9A50',
-                color: '#FFF',
-                border: 'none',
-                borderRadius: '6px',
+                background: '#F5E6D8',
+                border: '1.5px solid #D4A57C',
+                borderRadius: '18px',
+                padding: '5px 11px',
                 cursor: 'pointer',
-                fontSize: '13px',
+                fontSize: '10px',
                 fontWeight: 'bold',
+                color: '#6A4C3A',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#E8D5C5';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#F5E6D8';
+              }}
+            >
+              Not now
+            </button>
+            <button
+              onClick={handleCheckoutClick}
+              style={{
+                background: '#D4A574',
+                border: '1.5px solid #C09840',
+                borderRadius: '18px',
+                padding: '5px 11px',
+                cursor: 'pointer',
+                fontSize: '10px',
+                fontWeight: 'bold',
+                color: '#FFF',
                 transition: 'background 0.2s ease',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#5A8A40';
+                e.currentTarget.style.background = '#C09840';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#6A9A50';
+                e.currentTarget.style.background = '#D4A574';
               }}
             >
-              Sell {bouquet.recipeName || 'Bouquet'} for {bouquet.sellPrice} 🌼
+              Buy ✓
             </button>
-          )}
-        </div>
+          </div>
+        )}
+
+        {phase === 'confirming' && (
+          <button
+            onClick={handleConfirmClick}
+            style={{
+              background: '#D4A574',
+              border: '1.5px solid #C09840',
+              borderRadius: '18px',
+              padding: '5px 11px',
+              cursor: 'pointer',
+              fontSize: '10px',
+              fontWeight: 'bold',
+              color: '#FFF',
+              marginTop: '4px',
+              transition: 'background 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#C09840';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#D4A574';
+            }}
+          >
+            Confirm
+          </button>
+        )}
       </div>
     </div>
   );
