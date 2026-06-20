@@ -172,10 +172,10 @@ export function TutorialModal({
             <button
               onClick={onPreviousStep}
               style={{
-                padding: '10px 16px',
-                background: 'transparent',
-                border: '2px solid #D4A574',
-                color: '#D4A574',
+                padding: '10px 20px',
+                background: '#D4A574',
+                color: '#FFF',
+                border: 'none',
                 borderRadius: '6px',
                 cursor: 'pointer',
                 fontSize: '12px',
