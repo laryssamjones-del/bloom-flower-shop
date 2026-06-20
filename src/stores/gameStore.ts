@@ -20,7 +20,7 @@ import { getUnlockedFlowersAt } from '../data/progression';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { playChaChingSound, playSuccessSound } from '../services/audio';
 
-const STARTING_COINS = 300;
+const STARTING_COINS = 150;
 const MAX_INVENTORY_STEMS = 200;
 const STARTING_SHELF_CAPACITY = 15;
 const DAILY_PURCHASE_LIMIT = 50; // 50 stems per flower per day
