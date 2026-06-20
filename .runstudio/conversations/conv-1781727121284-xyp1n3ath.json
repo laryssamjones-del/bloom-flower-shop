@@ -48346,11 +48346,29 @@
       "timestamp": 1781971917351,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1781971947231",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "can you do a left gap shift as well?",
+      "timestamp": 1781971947231,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781971956794-sqq0w5xw7",
+      "role": "assistant",
+      "content": "I actually just added the Left Gap control to your truck customizer! 🚚 You should see it now in the Truck Customizer panel:\n\n- **Size** control (width)\n- **Top Gap** control (distance from top)\n- **Left Gap** control (distance from left) ← NEW!\n\nThe Left Gap buttons adjust by 2% each click, within the safe mobile area.\n\nDid you mean you want me to add Left Gap controls to something else as well? Like:\n- The **Shelf Layout Editor**?\n- The **NPC Customizer** (for order NPCs)?\n- The **Shelf NPC Customizer** (for shelf NPCs)?\n\nLet me know and I'll add it! 😊",
+      "isShownToUser": true,
+      "timestamp": 1781971958257,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781971917404,
-  "tokenUsage": 65662,
+  "updatedAt": 1781971958308,
+  "tokenUsage": 66202,
   "script": "default",
   "claudeSessionId": "57cb0000-401d-450c-a8d5-dfb762752dc9"
 }
