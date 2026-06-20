@@ -42,7 +42,8 @@ export function TutorialModal({
     },
     {
       title: '📋 Orders',
-      message: 'Orders is where customer orders are located.',
+      message:
+        'Orders is where customer orders are located and where you can fulfill them.',
     },
     {
       title: '🎨 Arrange',
