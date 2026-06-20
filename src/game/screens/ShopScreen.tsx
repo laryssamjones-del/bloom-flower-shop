@@ -46,6 +46,7 @@ export function ShopScreen() {
   const cumulativeBouquetsSold = useGameStore((s) => s.cumulativeBouquetsSold);
   const orderJustCompleted = useGameStore((s) => s.orderJustCompleted);
   const completedOrderCustomerImage = useGameStore((s) => s.completedOrderCustomerImage);
+  const addUnclaimedReward = useGameStore((s) => s.addUnclaimedReward);
 
   // Background music
   const { volume: musicVolume, setVolume: setMusicVolume } = useBackgroundMusic('/petals-on-repeat.mp3');
@@ -97,13 +98,14 @@ export function ShopScreen() {
   useEffect(() => {
     const currentLevel = getCurrentLevel(cumulativeBouquetsSold);
     if (currentLevel > previousLevelRef.current) {
+      addUnclaimedReward(currentLevel);
       RundotGameAPI.analytics.recordCustomEvent('player_leveled_up', {
         newLevel: currentLevel,
         bouquetsSold: cumulativeBouquetsSold,
       });
       previousLevelRef.current = currentLevel;
     }
-  }, [cumulativeBouquetsSold]);
+  }, [cumulativeBouquetsSold, addUnclaimedReward]);
 
   // Active NPC visit (order requests)
   const [activeVisit, setActiveVisit] = useState<NPCVisit | null>(null);

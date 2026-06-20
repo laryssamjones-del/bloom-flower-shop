@@ -16,6 +16,7 @@ import { MYSTERY_BOX_COST_RUN_BUCKS, getRandomMysteryBouquet } from '../data/mys
 import { EXCLUSIVE_BOX_COSTS } from '../data/exclusiveBouquets';
 import { generateExclusiveBoxContents } from '../data/mysteryBoxContents';
 import { getUnlockedFlowersAt } from '../data/progression';
+import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
 const STARTING_COINS = 300;
 const MAX_INVENTORY_STEMS = 200;
@@ -64,6 +65,9 @@ const createInitialState = (): ShopState => ({
   // Daily limits
   dailyPurchases: {},
   lastPurchaseDate: getTodayDateString(),
+
+  // Rewards
+  unclaimedRewards: [],
 
   // Meta
   lastUpdated: Date.now(),
@@ -174,6 +178,11 @@ interface GameStoreActions {
   // Utilities
   getTotalInventoryValue: () => number;
   calculateBouquetPrice: (stems: BouquetStem[]) => number;
+
+  // Rewards
+  addUnclaimedReward: (level: number) => void;
+  claimLevelReward: (level: number) => void;
+  getUnclaimedRewardCount: () => number;
 
   // Tutorial
   setTutorialStep: (step: number) => void;
@@ -1022,6 +1031,53 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
   // Tutorial
   setTutorialStep: (step: number) => {
     set({ tutorialCurrentStep: step, lastUpdated: Date.now() });
+  },
+
+  addUnclaimedReward: (level: number) => {
+    set((s) => ({
+      unclaimedRewards: [...s.unclaimedRewards, level],
+      lastUpdated: Date.now(),
+    }));
+  },
+
+  claimLevelReward: (level: number) => {
+    const rewardCoins = 150 + Math.floor(level / 5) * 10; // +10 coins every 5 levels
+
+    // Get a random bouquet (excluding exclusive bouquets)
+    const regularBouquets = BOUQUET_RECIPES;
+    const randomBouquet = regularBouquets[Math.floor(Math.random() * regularBouquets.length)]!;
+
+    // Create the reward bouquet
+    const rewardBouquet: Bouquet = {
+      id: `reward-${Date.now()}-${Math.random()}`,
+      stems: randomBouquet.ingredients.map((ing, idx) => ({
+        flowerId: ing.flowerId,
+        order: idx,
+      })),
+      wrappingPaper: 'kraft',
+      ribbonColor: 'blush',
+      sellPrice: randomBouquet.sellPrice,
+      createdAt: Date.now(),
+      recipeName: randomBouquet.name,
+    };
+
+    set((s) => ({
+      unclaimedRewards: s.unclaimedRewards.filter((l) => l !== level),
+      pendingBouquets: [...s.pendingBouquets, rewardBouquet],
+      coins: s.coins + rewardCoins,
+      totalEarned: s.totalEarned + rewardCoins,
+      lastUpdated: Date.now(),
+    }));
+
+    RundotGameAPI.analytics.recordCustomEvent('level_reward_claimed', {
+      level: level,
+      coinsAwarded: rewardCoins,
+      bouquetRecipe: randomBouquet.id,
+    });
+  },
+
+  getUnclaimedRewardCount: () => {
+    return get().unclaimedRewards.length;
   },
 
   completeTutorial: () => {

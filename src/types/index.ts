@@ -127,6 +127,9 @@ export interface GameState {
   dailyPurchases: Record<string, number>;
   lastPurchaseDate: string;
 
+  // Rewards
+  unclaimedRewards: number[]; // Array of levels that have unclaimed rewards
+
   // Meta
   lastUpdated: number;
   sessionStarted: number;

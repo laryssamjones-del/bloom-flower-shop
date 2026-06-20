@@ -13,7 +13,11 @@ export function InventoryScreen() {
   const sellExclusiveBouquet = useGameStore((s) => s.sellExclusiveBouquet);
   const displayExclusiveBouquetOnShelf = useGameStore((s) => s.displayExclusiveBouquetOnShelf);
   const displayedBouquets = useGameStore((s) => s.displayedBouquets);
+  const unclaimedRewards = useGameStore((s) => s.unclaimedRewards);
+  const getUnclaimedRewardCount = useGameStore((s) => s.getUnclaimedRewardCount);
+  const claimLevelReward = useGameStore((s) => s.claimLevelReward);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showRewardsModal, setShowRewardsModal] = useState(false);
 
   const getItem = (id: string) => FLOWERS[id] || (GREENERY as Record<string, any>)[id];
 
@@ -94,20 +98,40 @@ export function InventoryScreen() {
         }}
       >
         <h1 style={{ margin: 0, fontSize: '18px' }}>📦 Inventory</h1>
-        <button
-          onClick={() => setCurrentScreen('shop')}
-          style={{
-            padding: '8px 12px',
-            background: '#B8A890',
-            color: '#F5E6D3',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '12px',
-          }}
-        >
-          Back to Shop
-        </button>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {getUnclaimedRewardCount() > 0 && (
+            <button
+              onClick={() => setShowRewardsModal(true)}
+              style={{
+                padding: '8px 12px',
+                background: '#F39C12',
+                color: '#FFF',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                position: 'relative',
+              }}
+            >
+              🎁 Claim Rewards ({getUnclaimedRewardCount()})
+            </button>
+          )}
+          <button
+            onClick={() => setCurrentScreen('shop')}
+            style={{
+              padding: '8px 12px',
+              background: '#B8A890',
+              color: '#F5E6D3',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '12px',
+            }}
+          >
+            Back to Shop
+          </button>
+        </div>
       </div>
 
       {/* Quick Navigation */}
@@ -416,6 +440,113 @@ export function InventoryScreen() {
                   </div>
                 </button>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Claim Rewards Modal */}
+        {showRewardsModal && unclaimedRewards.length > 0 && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0,0,0,0.5)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 10000,
+            }}
+            onClick={() => setShowRewardsModal(false)}
+          >
+            <div
+              style={{
+                background: '#F5F1E8',
+                borderRadius: '12px',
+                padding: '20px',
+                maxWidth: '400px',
+                width: '90%',
+                maxHeight: '80vh',
+                overflow: 'auto',
+                border: '2px solid #D4A574',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 style={{ margin: '0 0 16px 0', color: '#333', textAlign: 'center' }}>
+                🎁 Level Up Rewards!
+              </h2>
+              <div style={{ fontSize: '14px', color: '#666', marginBottom: '16px', textAlign: 'center' }}>
+                You have {unclaimedRewards.length} unclaimed reward(s)
+              </div>
+
+              {unclaimedRewards.map((level) => {
+                const rewardCoins = 150 + Math.floor(level / 5) * 10;
+                return (
+                  <div
+                    key={level}
+                    style={{
+                      padding: '12px',
+                      background: 'rgba(243, 156, 18, 0.1)',
+                      border: '1px solid #F39C12',
+                      borderRadius: '8px',
+                      marginBottom: '12px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#333' }}>
+                        Level {level} Reward
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                        📦 Random Bouquet + {rewardCoins} 🌼
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        claimLevelReward(level);
+                        if (unclaimedRewards.length === 1) {
+                          setShowRewardsModal(false);
+                        }
+                        RundotGameAPI.analytics.recordCustomEvent('reward_claimed_from_inventory', {
+                          level,
+                        });
+                      }}
+                      style={{
+                        padding: '6px 12px',
+                        background: '#F39C12',
+                        color: '#FFF',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      Claim
+                    </button>
+                  </div>
+                );
+              })}
+
+              <button
+                onClick={() => setShowRewardsModal(false)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  background: '#B8A890',
+                  color: '#FFF',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  marginTop: '12px',
+                }}
+              >
+                Close
+              </button>
             </div>
           </div>
         )}
