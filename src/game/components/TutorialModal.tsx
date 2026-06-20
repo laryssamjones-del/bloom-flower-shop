@@ -2,6 +2,7 @@ interface TutorialModalProps {
   isOpen: boolean;
   currentStep: number;
   onNextStep: (step: number) => void;
+  onPreviousStep: () => void;
   onSkip: () => void;
 }
 
@@ -9,6 +10,7 @@ export function TutorialModal({
   isOpen,
   currentStep,
   onNextStep,
+  onPreviousStep,
   onSkip,
 }: TutorialModalProps) {
   if (!isOpen) return null;
@@ -144,8 +146,9 @@ export function TutorialModal({
         <div
           style={{
             display: 'flex',
-            gap: '12px',
+            gap: '8px',
             justifyContent: 'center',
+            alignItems: 'center',
           }}
         >
           <button
@@ -163,6 +166,25 @@ export function TutorialModal({
           >
             Skip Tutorial
           </button>
+
+          {/* Back Button - Only visible if not on first step */}
+          {currentStep > 0 && (
+            <button
+              onClick={onPreviousStep}
+              style={{
+                padding: '10px 16px',
+                background: 'transparent',
+                border: '2px solid #D4A574',
+                color: '#D4A574',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontWeight: 'bold',
+              }}
+            >
+              ← Back
+            </button>
+          )}
 
           <button
             onClick={() => onNextStep(currentStep + 1)}

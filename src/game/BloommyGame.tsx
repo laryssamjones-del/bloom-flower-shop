@@ -141,6 +141,11 @@ export function BloommyGame() {
                 });
               }
             }}
+            onPreviousStep={() => {
+              if (tutorialCurrentStep > 0) {
+                setTutorialStep(tutorialCurrentStep - 1);
+              }
+            }}
             onSkip={() => {
               completeTutorial();
               RundotGameAPI.analytics.recordCustomEvent('tutorial_skipped', {
