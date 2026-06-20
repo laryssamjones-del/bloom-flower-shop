@@ -18,6 +18,7 @@ import {
   type SpecialDelivery,
 } from '../components/SpecialDeliveryOverlay';
 import { NPCCustomizer } from '../components/NPCCustomizer';
+import { ShelfNPCCustomizer } from '../components/ShelfNPCCustomizer';
 import { TruckCustomizer } from '../components/TruckCustomizer';
 import { FlowerUnlockNotification } from '../components/FlowerUnlockNotification';
 import { OrderThankYouOverlay } from '../components/OrderThankYouOverlay';
@@ -244,6 +245,9 @@ export function ShopScreen() {
 
   // NPC customizer
   const [customizingNPC, setCustomizingNPC] = useState(false);
+
+  // Shelf NPC customizer
+  const [customizingShelfNPC, setCustomizingShelfNPC] = useState(false);
 
   // Truck customizer
   const [customizingTruck, setCustomizingTruck] = useState(false);
@@ -613,6 +617,10 @@ export function ShopScreen() {
     setCustomizingNPC(false);
   };
 
+  const handleShelfNPCCustomizerClose = () => {
+    setCustomizingShelfNPC(false);
+  };
+
   const handleTruckCustomizerClose = () => {
     setCustomizingTruck(false);
   };
@@ -735,6 +743,21 @@ export function ShopScreen() {
           }}
         >
           NPC
+        </button>
+        <button
+          onClick={() => setCustomizingShelfNPC(true)}
+          style={{
+            padding: '8px 12px',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            background: '#F5E6D8',
+            border: '1.5px solid #D4A57C',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            color: '#8B5E3C',
+          }}
+        >
+          Shelf NPC
         </button>
         <button
           onClick={() => setCustomizingTruck(true)}
@@ -988,6 +1011,9 @@ export function ShopScreen() {
 
       {/* NPC Customizer overlay */}
       {customizingNPC && <NPCCustomizer onClose={handleNPCCustomizerClose} />}
+
+      {/* Shelf NPC Customizer overlay */}
+      {customizingShelfNPC && <ShelfNPCCustomizer onClose={handleShelfNPCCustomizerClose} />}
 
       {/* Truck Customizer overlay */}
       {customizingTruck && <TruckCustomizer onClose={handleTruckCustomizerClose} />}

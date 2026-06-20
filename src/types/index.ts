@@ -147,6 +147,13 @@ export interface GameState {
     rightOffset: number;
   };
 
+  // Shelf NPC Customization
+  shelfNPCCustomizationConfig?: {
+    height: number;
+    bottomOffset: number;
+    rightOffset: number;
+  };
+
   // Truck Customization
   truckCustomizationConfig?: {
     width: number;

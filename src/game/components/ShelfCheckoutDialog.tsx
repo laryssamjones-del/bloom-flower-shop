@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Bouquet } from '../../types';
 import { useGameStore } from '../../stores/gameStore';
+import { loadShelfNPCCustomizationConfig } from './ShelfNPCCustomizer';
 
 interface ShelfCheckoutDialogProps {
   npcImage: string;
@@ -22,7 +23,8 @@ export function ShelfCheckoutDialog({
   const [isExplicitConfirm, setIsExplicitConfirm] = useState(false);
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const autoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const npcConfig = useGameStore((s) => s.npcCustomizationConfig);
+  const storedShelfNPCConfig = useGameStore((s) => s.shelfNPCCustomizationConfig);
+  const npcConfig = storedShelfNPCConfig || loadShelfNPCCustomizationConfig();
 
   // Handle 15-second countdown and auto-dismiss
   useEffect(() => {
