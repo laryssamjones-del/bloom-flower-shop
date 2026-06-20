@@ -83,6 +83,7 @@ const createInitialState = (): ShopState => ({
   // UI state
   currentScreen: 'shop',
   stemsInArrangement: [],
+  bouquetQuantityToBuild: 1,
   shoppingForOrderId: undefined,
   neededFlowerId: undefined,
   neededFlowerQuantity: 0,
@@ -133,10 +134,13 @@ interface GameStoreActions {
   createBouquet: () => Bouquet | null;
 
   // Recipe system
-  selectRecipe: (recipeId: string, fulfillOrderId?: string) => boolean;
+  selectRecipe: (recipeId: string, fulfillOrderId?: string, quantity?: number) => boolean;
   clearSelectedRecipe: () => void;
   canMakeRecipe: (recipeId: string) => boolean;
   getRecipeMissingIngredients: (recipeId: string) => Array<{ flowerId: string; needed: number; have: number }>;
+  getMaxBouquetsThatCanBeMade: (recipeId: string) => number;
+  setBouquetQuantityToBuild: (quantity: number) => void;
+  createBouquets: () => Bouquet[];
 
   // Shelf
   addBouquetToShelf: (bouquet: Bouquet) => boolean;
@@ -380,7 +384,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
   },
 
   // Recipe system
-  selectRecipe: (recipeId: string, fulfillOrderId?: string) => {
+  selectRecipe: (recipeId: string, fulfillOrderId?: string, quantity: number = 1) => {
     const recipe = getRecipeById(recipeId);
     if (!recipe) return false;
     // Build stemsInArrangement from recipe ingredients (expanded per quantity)
@@ -395,6 +399,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       selectedRecipeId: recipeId,
       fulfillOrderId,
       stemsInArrangement: stems,
+      bouquetQuantityToBuild: quantity,
     });
     return true;
   },
@@ -426,6 +431,77 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
         have: inv ? inv.quantity : 0,
       };
     });
+  },
+
+  getMaxBouquetsThatCanBeMade: (recipeId: string) => {
+    const state = get();
+    const recipe = getRecipeById(recipeId);
+    if (!recipe) return 0;
+
+    let maxBouquets = Infinity;
+    for (const ing of recipe.ingredients) {
+      const inv = state.inventory.find((i) => i.flowerId === ing.flowerId);
+      const available = inv ? inv.quantity : 0;
+      const bouquetsFromThisFlower = Math.floor(available / ing.quantity);
+      maxBouquets = Math.min(maxBouquets, bouquetsFromThisFlower);
+    }
+
+    return maxBouquets === Infinity ? 0 : maxBouquets;
+  },
+
+  setBouquetQuantityToBuild: (quantity: number) => {
+    set({ bouquetQuantityToBuild: Math.max(1, quantity) });
+  },
+
+  createBouquets: () => {
+    const state = get();
+    const stems = state.stemsInArrangement;
+    const wrapping = state.inProgressWrapping;
+    const quantity = state.bouquetQuantityToBuild;
+
+    if (stems.length === 0 || !wrapping || quantity < 1) return [];
+
+    const bouquets: Bouquet[] = [];
+
+    // Create the requested number of bouquets
+    for (let i = 0; i < quantity; i++) {
+      // Remove stems from inventory for this bouquet
+      for (const stem of stems) {
+        if (!state.removeStemsFromInventory(stem.flowerId, 1)) {
+          // If we can't remove a stem, stop creating bouquets
+          return bouquets;
+        }
+      }
+
+      // Use recipe data if a recipe is selected
+      const recipe = state.selectedRecipeId ? getRecipeById(state.selectedRecipeId) : undefined;
+      const price = recipe ? recipe.sellPrice : state.calculateBouquetPrice(stems);
+      const thumbnailUrl = recipe ? recipe.imageUrl : './bouquets/sunshine-bunch.png';
+
+      const bouquet: Bouquet = {
+        id: `bouquet-${Date.now()}-${Math.random()}-${i}`,
+        stems,
+        wrappingPaper: wrapping.wrapping,
+        ribbonColor: wrapping.ribbon,
+        sellPrice: price,
+        thumbnailUrl,
+        createdAt: Date.now(),
+        recipeName: recipe?.name,
+      };
+
+      bouquets.push(bouquet);
+    }
+
+    // Clear the arrangement and reset quantity
+    set({
+      stemsInArrangement: [],
+      inProgressWrapping: undefined,
+      selectedRecipeId: undefined,
+      bouquetQuantityToBuild: 1,
+      currentScreen: 'shop',
+    });
+
+    return bouquets;
   },
 
   // Wrapping

@@ -8,13 +8,15 @@ export function WrappingScreen() {
   const selectedRecipeId = useGameStore((s) => s.selectedRecipeId);
   const fulfillOrderId = useGameStore((s) => s.fulfillOrderId);
   const setWrappingSelection = useGameStore((s) => s.setWrappingSelection);
-  const createBouquet = useGameStore((s) => s.createBouquet);
+  const createBouquets = useGameStore((s) => s.createBouquets);
   const addBouquetToShelf = useGameStore((s) => s.addBouquetToShelf);
   const shelfBouquets = useGameStore((s) => s.shelfBouquets);
   const shelfCapacity = useGameStore((s) => s.shelfCapacity);
+  const bouquetQuantityToBuild = useGameStore((s) => s.bouquetQuantityToBuild);
 
   const [isAnimating, setIsAnimating] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const [bouquetsCreated, setBouquetsCreated] = useState(0);
 
   const activeRecipe = selectedRecipeId ? getRecipeById(selectedRecipeId) : undefined;
 
@@ -35,24 +37,32 @@ export function WrappingScreen() {
     setIsAnimating(true);
     RundotGameAPI.analytics.recordCustomEvent('wrapping_started', {
       recipeId: selectedRecipeId ?? 'none',
+      quantity: bouquetQuantityToBuild,
     });
   };
 
   const handleFinishBouquet = () => {
-    const bouquet = createBouquet();
+    const bouquets = createBouquets();
 
-    if (bouquet) {
-      RundotGameAPI.analytics.recordCustomEvent('bouquet_completed', {
-        bouquetId: bouquet.id,
-        stemCount: bouquet.stems.length,
-        sellPrice: bouquet.sellPrice,
+    if (bouquets.length > 0) {
+      RundotGameAPI.analytics.recordCustomEvent('bouquets_completed', {
+        quantity: bouquets.length,
+        totalStemCount: (bouquets[0]?.stems?.length ?? 0) * bouquets.length,
+        totalSellPrice: bouquets.reduce((sum, b) => sum + b.sellPrice, 0),
         recipeId: selectedRecipeId ?? 'none',
         forOrder: !!fulfillOrderId,
       });
 
-      // If fulfilling an order, createBouquet already navigated to 'orders' screen
-      // For self-made bouquets, add to shelf if space available, otherwise add to inventory
-      if (!fulfillOrderId) {
+      // If fulfilling an order, the first bouquet is for the order, rest go to shelf/inventory
+      let bouquetsToShelf = bouquets;
+      if (fulfillOrderId && bouquets.length > 0) {
+        // The createBouquets function already handles order completion for the first bouquet
+        // Additional bouquets should go to shelf/inventory
+        bouquetsToShelf = bouquets.slice(1);
+      }
+
+      // Add bouquets to shelf or inventory
+      for (const bouquet of bouquetsToShelf) {
         const shelfSpaceAvailable = shelfBouquets.length < shelfCapacity;
 
         if (shelfSpaceAvailable) {
@@ -65,7 +75,10 @@ export function WrappingScreen() {
             lastUpdated: Date.now(),
           }));
         }
+      }
 
+      setBouquetsCreated(bouquets.length);
+      if (!fulfillOrderId) {
         setCurrentScreen('shop');
       }
     }
@@ -102,7 +115,9 @@ export function WrappingScreen() {
         }}
       >
         <h1 style={{ margin: 0, fontSize: '18px' }}>
-          {isComplete ? '✨ It\'s Ready!' : '🎁 Arrange Your Bouquet'}
+          {isComplete
+            ? `✨ ${bouquetsCreated} Bouquet${bouquetsCreated > 1 ? 's' : ''} Ready!`
+            : `🎁 Wrapping ${bouquetQuantityToBuild} Bouquet${bouquetQuantityToBuild > 1 ? 's' : ''}`}
         </h1>
         {isComplete && (
           <button
@@ -178,7 +193,11 @@ export function WrappingScreen() {
                 )}
               </div>
               <div style={{ fontSize: '12px', color: '#666' }}>
-                {activeRecipe ? `Sells for ${activeRecipe.sellPrice} 🌼` : ''}
+                {activeRecipe
+                  ? `Sells for ${activeRecipe.sellPrice} 🌼${bouquetQuantityToBuild > 1
+                    ? ` × ${bouquetQuantityToBuild} = ${activeRecipe.sellPrice * bouquetQuantityToBuild}`
+                    : ''}`
+                  : ''}
               </div>
             </div>
           </>
@@ -304,7 +323,9 @@ export function WrappingScreen() {
                 fontWeight: 'bold',
               }}
             >
-              {fulfillOrderId ? '✓ Complete Order' : '✓ Add to Shelf'}
+              {fulfillOrderId
+                ? '✓ Complete Order'
+                : `✓ Add ${bouquetQuantityToBuild} Bouquet${bouquetQuantityToBuild > 1 ? 's' : ''} to Shelf`}
             </button>
           </>
         )}

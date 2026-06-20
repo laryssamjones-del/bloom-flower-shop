@@ -41,6 +41,7 @@ export function BouquetArrangementScreen() {
   const fulfillOrderId = useGameStore((s) => s.fulfillOrderId);
   const canMakeRecipe = useGameStore((s) => s.canMakeRecipe);
   const getRecipeMissingIngredients = useGameStore((s) => s.getRecipeMissingIngredients);
+  const getMaxBouquetsThatCanBeMade = useGameStore((s) => s.getMaxBouquetsThatCanBeMade);
   const selectRecipe = useGameStore((s) => s.selectRecipe);
   const clearSelectedRecipe = useGameStore((s) => s.clearSelectedRecipe);
   const inventory = useGameStore((s) => s.inventory);
@@ -58,6 +59,7 @@ export function BouquetArrangementScreen() {
   const [phase, setPhase] = useState<Phase>(selectedRecipeId ? 'check-ingredients' : 'pick-recipe');
   const [localRecipeId, setLocalRecipeId] = useState<string | null>(selectedRecipeId ?? null);
   const [filterTier, setFilterTier] = useState<BouquetTier | 'all'>('all');
+  const [quantityToBuild, setQuantityToBuild] = useState<number>(1);
 
   const activeRecipe = localRecipeId ? getRecipeById(localRecipeId) : null;
   const canMake = localRecipeId ? canMakeRecipe(localRecipeId) : false;
@@ -72,9 +74,10 @@ export function BouquetArrangementScreen() {
 
   const handleMakeBouquet = () => {
     if (!localRecipeId || !canMake) return;
-    selectRecipe(localRecipeId, fulfillOrderId ?? undefined);
+    selectRecipe(localRecipeId, fulfillOrderId ?? undefined, quantityToBuild);
     RundotGameAPI.analytics.recordCustomEvent('bouquet_arrangement_complete', {
       recipeId: localRecipeId,
+      quantity: quantityToBuild,
     });
     setCurrentScreen('wrapping');
   };
@@ -424,6 +427,76 @@ export function BouquetArrangementScreen() {
               </div>
             </div>
 
+            {/* Quantity selector for bulk creation */}
+            {canMake && (
+              <div
+                style={{
+                  padding: '12px',
+                  background: 'rgba(106, 154, 80, 0.1)',
+                  border: '2px solid #6A9A50',
+                  borderRadius: '8px',
+                }}
+              >
+                <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '10px', color: '#333', textAlign: 'center' }}>
+                  📦 How many bouquets?
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+                  <button
+                    onClick={() => setQuantityToBuild(Math.max(1, quantityToBuild - 1))}
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      padding: 0,
+                      background: '#6A9A50',
+                      color: '#FFF',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '18px',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    ➖
+                  </button>
+                  <div
+                    style={{
+                      minWidth: '60px',
+                      textAlign: 'center',
+                      fontSize: '24px',
+                      fontWeight: 'bold',
+                      color: '#6A9A50',
+                    }}
+                  >
+                    {quantityToBuild}
+                  </div>
+                  <button
+                    onClick={() => {
+                      const maxBouquets = getMaxBouquetsThatCanBeMade(localRecipeId!);
+                      setQuantityToBuild(Math.min(maxBouquets, quantityToBuild + 1));
+                    }}
+                    disabled={getMaxBouquetsThatCanBeMade(localRecipeId!) <= quantityToBuild}
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      padding: 0,
+                      background: getMaxBouquetsThatCanBeMade(localRecipeId!) <= quantityToBuild ? '#CCC' : '#6A9A50',
+                      color: '#FFF',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: getMaxBouquetsThatCanBeMade(localRecipeId!) <= quantityToBuild ? 'not-allowed' : 'pointer',
+                      fontSize: '18px',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    ➕
+                  </button>
+                </div>
+                <div style={{ fontSize: '11px', color: '#666', textAlign: 'center', marginTop: '8px' }}>
+                  Max: {getMaxBouquetsThatCanBeMade(localRecipeId!)} bouquets with current ingredients
+                </div>
+              </div>
+            )}
+
             {/* Missing ingredients hint */}
             {!canMake && (
               <div
@@ -492,7 +565,7 @@ export function BouquetArrangementScreen() {
                 fontWeight: 'bold',
               }}
             >
-              {canMake ? '🌸 Make Bouquet →' : '🔒 Missing Ingredients'}
+              {canMake ? `🌸 Make ${quantityToBuild} Bouquet${quantityToBuild > 1 ? 's' : ''} →` : '🔒 Missing Ingredients'}
             </button>
           </div>
         </div>

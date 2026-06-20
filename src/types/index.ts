@@ -171,6 +171,7 @@ export interface ShopState extends GameState {
   currentScreen: 'shop' | 'wholesale' | 'arrangement' | 'wrapping' | 'inventory' | 'orders';
   selectedBouquetForWrapping?: Bouquet;
   stemsInArrangement: BouquetStem[];
+  bouquetQuantityToBuild: number; // how many bouquets to create at once
   inProgressWrapping?: {
     wrapping: WrappingPaperType;
     ribbon: RibbonColor;
