@@ -52,6 +52,14 @@ export function BouquetArrangementScreen() {
   const inventory = useGameStore((s) => s.inventory);
   const cumulativeBouquetsSold = useGameStore((s) => s.cumulativeBouquetsSold);
 
+  // Store the recipe ID selection in the store so it persists when navigating away
+  const storeRecipeSelection = (recipeId: string | undefined) => {
+    useGameStore.setState({
+      selectedRecipeId: recipeId,
+      lastUpdated: Date.now(),
+    });
+  };
+
   // If a recipe is already selected (e.g. from orders screen), start in ingredient check phase
   const [phase, setPhase] = useState<Phase>(selectedRecipeId ? 'check-ingredients' : 'pick-recipe');
   const [localRecipeId, setLocalRecipeId] = useState<string | null>(selectedRecipeId ?? null);
@@ -63,6 +71,7 @@ export function BouquetArrangementScreen() {
 
   const handlePickRecipe = (recipeId: string) => {
     setLocalRecipeId(recipeId);
+    storeRecipeSelection(recipeId);
     setPhase('check-ingredients');
     RundotGameAPI.analytics.recordCustomEvent('recipe_selected', { recipeId });
   };
@@ -70,6 +79,7 @@ export function BouquetArrangementScreen() {
   const handleMakeBouquet = () => {
     if (!localRecipeId || !canMake) return;
     selectRecipe(localRecipeId, fulfillOrderId ?? undefined);
+    storeRecipeSelection(undefined);
     RundotGameAPI.analytics.recordCustomEvent('bouquet_arrangement_complete', {
       recipeId: localRecipeId,
     });
@@ -80,8 +90,10 @@ export function BouquetArrangementScreen() {
     if (phase === 'check-ingredients' && !selectedRecipeId) {
       setPhase('pick-recipe');
       setLocalRecipeId(null);
+      storeRecipeSelection(undefined);
     } else {
       clearSelectedRecipe();
+      storeRecipeSelection(undefined);
       setCurrentScreen(fulfillOrderId ? 'orders' : 'shop');
     }
   };
