@@ -15,13 +15,13 @@ export interface ShelfLayoutConfig {
 
 const DEFAULT_CONFIG: ShelfLayoutConfig = {
   shelves: [
-    { x: 50, y: 35 },
-    { x: 50, y: 55 },
-    { x: 50, y: 65 },
+    { x: 48, y: 24 },
+    { x: 48, y: 33 },
+    { x: 48, y: 42 },
   ],
   gap: 4,
-  bouquetWidth: 70,
-  bouquetHeight: 90,
+  bouquetWidth: 75,
+  bouquetHeight: 75,
 };
 
 const STORAGE_KEY = 'bloommy_shelf_layout_v2';
