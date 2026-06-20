@@ -40466,11 +40466,71 @@
       "timestamp": 1781931419815,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1781931682010",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "okay so now when does the next bouquets unlock? is it still like every 5 levels, 2-3 new bouquets unlock? is that the system or no?",
+      "timestamp": 1781931682010,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781931688360-bmosqf51z",
+      "role": "assistant",
+      "content": "Let me check the bouquet unlock system to see how it's currently set up:",
+      "isShownToUser": true,
+      "timestamp": 1781931689021,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1781931689740-20ja1w88o",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1781931689740,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1781931692281-5hvehlbct",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1781931692281,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1781931698183-rlrsdrbar",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1781931698183,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1781931701574-ap4jis2h8",
+      "role": "assistant",
+      "content": "Based on what I found in the code, the current bouquet unlock system is **tier-based**, not individual bouquet unlocks. Here's how it works:\n\n## **Current Bouquet Unlock System:**\n\n**Budget Tier** (Available from start - Level 1)\n- 6 bouquets unlocked immediately\n\n**Standard Tier** (Unlocks at 40 bouquets sold - Level 2)\n- 7 additional bouquets unlock all at once\n\n**Premium Tier** (Unlocks at 140 bouquets sold - Level 3)\n- 8 additional bouquets unlock all at once\n\n**Deluxe Tier** (Unlocks at 350 bouquets sold - Level 4)\n- 9 additional bouquets unlock all at once\n\nSo it's **not** that 2-3 bouquets unlock every 5 levels. Instead, **entire tiers** of bouquets unlock at major milestone thresholds (40, 140, 350 bouquets sold).\n\nWhen you level up:\n- **Level 1→2**: All Standard tier bouquets become available (7 new options)\n- **Level 2→3**: All Premium tier bouquets become available (8 new options)\n- **Level 3→4**: All Deluxe tier bouquets become available (9 new options)\n\nWould you like me to change this system to unlock individual bouquets more gradually (like 2-3 bouquets every 5 levels or some other pattern)?",
+      "isShownToUser": true,
+      "timestamp": 1781931703880,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1781931419902,
-  "tokenUsage": 69678,
+  "updatedAt": 1781931703930,
+  "tokenUsage": 71366,
   "script": "default",
   "claudeSessionId": "e57a1710-6ad2-4bf3-9c9c-fac350f9623e"
 }
