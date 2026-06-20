@@ -87,6 +87,9 @@ const createInitialState = (): ShopState => ({
   // Shelf Layout
   shelfLayoutConfig: undefined,
 
+  // NPC Customization
+  npcCustomizationConfig: undefined,
+
   // Tutorial
   tutorialCompleted: false,
   tutorialCurrentStep: 0,
@@ -193,6 +196,13 @@ interface GameStoreActions {
     gap: number;
     bouquetWidth: number;
     bouquetHeight: number;
+  }) => void;
+
+  // NPC Customization
+  saveNPCCustomizationConfig: (config: {
+    height: number;
+    bottomOffset: number;
+    rightOffset: number;
   }) => void;
 
   // Tutorial
@@ -1094,6 +1104,13 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
   saveShelfLayoutConfig: (config) => {
     set({
       shelfLayoutConfig: config,
+      lastUpdated: Date.now(),
+    });
+  },
+
+  saveNPCCustomizationConfig: (config) => {
+    set({
+      npcCustomizationConfig: config,
       lastUpdated: Date.now(),
     });
   },

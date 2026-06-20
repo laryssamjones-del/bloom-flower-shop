@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { useGameStore } from '../../stores/gameStore';
 
 export interface NPCCustomizationConfig {
   height: number; // px
@@ -25,7 +26,7 @@ export function loadNPCCustomizationConfig(): NPCCustomizationConfig {
   return DEFAULT_CONFIG;
 }
 
-export function saveNPCCustomizationConfig(config: NPCCustomizationConfig) {
+function saveToLocalStorage(config: NPCCustomizationConfig) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
 }
 
@@ -38,6 +39,7 @@ export function NPCCustomizer({ onClose }: Props) {
   const [draggingNPC, setDraggingNPC] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const npcDragStartRef = useRef({ x: 0, y: 0, offsetX: 0, offsetY: 0 });
+  const saveNPCCustomizationConfig = useGameStore((s) => s.saveNPCCustomizationConfig);
 
   const handleNPCDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -79,7 +81,13 @@ export function NPCCustomizer({ onClose }: Props) {
   }, []);
 
   const handleSave = () => {
-    saveNPCCustomizationConfig(config);
+    // Save to both localStorage (for quick loading) and game store (for persistence)
+    saveToLocalStorage(config);
+    saveNPCCustomizationConfig({
+      height: config.height,
+      bottomOffset: config.bottomOffset,
+      rightOffset: config.rightOffset,
+    });
     onClose();
   };
 

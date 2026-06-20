@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { loadNPCCustomizationConfig } from './NPCCustomizer';
+import { useGameStore } from '../../stores/gameStore';
 
 const NPC_IMAGES = [
   // Young women
@@ -74,7 +75,14 @@ export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOv
   const [phase, setPhase] = useState<'entering' | 'visible' | 'leaving'>('entering');
   const [showDeclineLine, setShowDeclineLine] = useState<string | null>(null);
   const [timeRemaining, setTimeRemaining] = useState(15);
-  const npcConfig = useMemo(() => loadNPCCustomizationConfig(), []);
+  const storedNPCConfig = useGameStore((s) => s.npcCustomizationConfig);
+  const npcConfig = useMemo(() => {
+    // Use stored config if available, fall back to localStorage
+    if (storedNPCConfig) {
+      return storedNPCConfig;
+    }
+    return loadNPCCustomizationConfig();
+  }, [storedNPCConfig]);
   const autoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
 

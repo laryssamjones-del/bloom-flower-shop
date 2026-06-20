@@ -138,6 +138,13 @@ export interface GameState {
     bouquetHeight: number;
   };
 
+  // NPC Customization
+  npcCustomizationConfig?: {
+    height: number;
+    bottomOffset: number;
+    rightOffset: number;
+  };
+
   // Meta
   lastUpdated: number;
   sessionStarted: number;

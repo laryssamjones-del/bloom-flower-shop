@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Bouquet } from '../../types';
 import { loadNPCCustomizationConfig } from './NPCCustomizer';
+import { useGameStore } from '../../stores/gameStore';
 
 const COMPLIMENT_TEMPLATES = [
   (name: string) => `I love this ${name}! 🌸`,
@@ -19,7 +20,14 @@ interface ShelfPurchaseNPCProps {
 
 export function ShelfPurchaseNPC({ npcImage, bouquet, onComplete }: ShelfPurchaseNPCProps) {
   const [phase, setPhase] = useState<'entering' | 'visible' | 'sold' | 'leaving'>('entering');
-  const npcConfig = useMemo(() => loadNPCCustomizationConfig(), []);
+  const storedNPCConfig = useGameStore((s) => s.npcCustomizationConfig);
+  const npcConfig = useMemo(() => {
+    // Use stored config if available, fall back to localStorage
+    if (storedNPCConfig) {
+      return storedNPCConfig;
+    }
+    return loadNPCCustomizationConfig();
+  }, [storedNPCConfig]);
 
   // Animation sequence
   useEffect(() => {
