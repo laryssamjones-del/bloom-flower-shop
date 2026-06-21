@@ -45,6 +45,7 @@ RundotGameAPI.lifecycles.onQuit(() => RundotGameAPI.analytics.recordCustomEvent(
 
 export function ShopScreen() {
   const shelfBouquets = useGameStore((s) => s.shelfBouquets);
+  const displayedBouquets = useGameStore((s) => s.displayedBouquets);
   const sellBouquet = useGameStore((s) => s.sellBouquet);
   const removeBouquetFromShelf = useGameStore((s) => s.removeBouquetFromShelf);
   const createOrder = useGameStore((s) => s.createOrder);
@@ -667,10 +668,10 @@ export function ShopScreen() {
     setCustomizingTruck(false);
   };
 
-  // Split bouquets into rows of BOUQUETS_PER_SHELF for shelf display
-  const shelfRows: Bouquet[][] = [];
-  for (let i = 0; i < shelfBouquets.length; i += BOUQUETS_PER_SHELF) {
-    shelfRows.push(shelfBouquets.slice(i, i + BOUQUETS_PER_SHELF));
+  // Split displayed bouquets into rows of BOUQUETS_PER_SHELF for shelf display
+  const shelfRows: (Bouquet | null)[][] = [];
+  for (let i = 0; i < displayedBouquets.length; i += BOUQUETS_PER_SHELF) {
+    shelfRows.push(displayedBouquets.slice(i, i + BOUQUETS_PER_SHELF));
   }
 
   return (
@@ -763,7 +764,11 @@ export function ShopScreen() {
               zIndex: 5,
             }}
           >
-            {row.map((bouquet) => (
+            {row.map((bouquet, _idx) => {
+              // Skip rendering empty slots (null bouquets)
+              if (!bouquet) return null;
+
+              return (
               <div
                 key={bouquet.id}
                 style={{
@@ -893,7 +898,8 @@ export function ShopScreen() {
                   </div>
                 )}
               </div>
-            ))}
+            );
+            })}
           </div>
         );
       })}
