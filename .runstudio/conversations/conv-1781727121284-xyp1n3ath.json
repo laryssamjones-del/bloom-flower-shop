@@ -59814,11 +59814,29 @@
       "timestamp": 1782019249544,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782019273467",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "can you push this to public for review?",
+      "timestamp": 1782019273467,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782019281129-vcz3mzzsp",
+      "role": "assistant",
+      "content": "It's already pushed! The mobile audio fix is deployed as **v1.36.2** and is currently in review.\n\nReview link: https://w.run/silvernexus8861/bloom-flower-shop?tag=review\n\nOnce RUN.game staff approves it, it'll automatically go live to all players. The QR code above links to this review version so you can test it on mobile right now.",
+      "isShownToUser": true,
+      "timestamp": 1782019282104,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782019249591,
-  "tokenUsage": 25735,
+  "updatedAt": 1782019282162,
+  "tokenUsage": 26008,
   "script": "default",
   "claudeSessionId": "9a8841fd-95f4-4363-9004-c49155339380"
 }
