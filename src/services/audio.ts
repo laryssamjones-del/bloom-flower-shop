@@ -87,7 +87,7 @@ export function playAudio(audioPath: string, volume: number = 0.5) {
 export function playChaChingSound() {
   try {
     initializeAudioContext();
-    const audio = new Audio('./sounds/cha-ching.mp3');
+    const audio = new Audio('/sounds/cha-ching.mp3');
     audio.volume = sfxMuted ? 0 : sfxVolume;
     audio.play().catch((err) => {
       console.warn('Failed to play cha-ching sound:', err);
@@ -104,7 +104,7 @@ export function playChaChingSound() {
 export function playSuccessSound() {
   try {
     initializeAudioContext();
-    const audio = new Audio('./sounds/cha-ching.mp3');
+    const audio = new Audio('/sounds/cha-ching.mp3');
     audio.volume = sfxMuted ? 0 : sfxVolume;
     audio.play().catch((err) => {
       console.warn('Failed to play success sound:', err);
@@ -121,7 +121,7 @@ export function playSuccessSound() {
 export function playNotificationSound() {
   try {
     initializeAudioContext();
-    const audio = new Audio('./sounds/cha-ching.mp3');
+    const audio = new Audio('/sounds/cha-ching.mp3');
     audio.volume = sfxMuted ? 0 : sfxVolume;
     audio.play().catch((err) => {
       console.warn('Failed to play notification sound:', err);
