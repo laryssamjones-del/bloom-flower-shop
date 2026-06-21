@@ -58011,11 +58011,24 @@
       "timestamp": 1782015845933,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "1782015848833-rzwh2g84p",
+      "role": "system",
+      "content": "Compacting project...",
+      "isShownToUser": true,
+      "timestamp": 1782015848833,
+      "type": "compaction",
+      "metadata": {
+        "compaction": {
+          "trigger": "auto"
+        }
+      }
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782015845973,
-  "tokenUsage": 101393,
+  "updatedAt": 1782015894055,
+  "tokenUsage": 0,
   "script": "default",
   "claudeSessionId": "c442f3b4-8c04-4fda-9a7b-c3b5c394f51d"
 }
