@@ -71,10 +71,26 @@ export function playAudio(audioPath: string, volume: number = 0.5) {
   try {
     initializeAudioContext();
     const audio = new Audio(audioPath);
-    audio.volume = volume;
-    audio.play().catch((err) => {
-      console.warn(`Failed to play audio (${audioPath}):`, err);
-    });
+    audio.volume = sfxMuted ? 0 : volume;
+    audio.preload = 'auto';
+    audio.crossOrigin = 'anonymous';
+
+    // Try to play immediately
+    const attemptPlay = () => {
+      audio.play().catch((err) => {
+        console.warn(`Failed to play audio (${audioPath}):`, err);
+      });
+    };
+
+    // If audio is already loading/loaded, play immediately
+    if (audio.readyState >= 2) {
+      attemptPlay();
+    } else {
+      // Wait for audio to be ready, then play
+      audio.addEventListener('canplay', attemptPlay, { once: true });
+      // Fallback: try after short delay
+      setTimeout(attemptPlay, 300);
+    }
   } catch (err) {
     console.warn(`Failed to play audio (${audioPath}):`, err);
   }
@@ -85,16 +101,7 @@ export function playAudio(audioPath: string, volume: number = 0.5) {
  * Used when bouquets are sold or orders are completed
  */
 export function playChaChingSound() {
-  try {
-    initializeAudioContext();
-    const audio = new Audio('/sounds/cha-ching.mp3');
-    audio.volume = sfxMuted ? 0 : sfxVolume;
-    audio.play().catch((err) => {
-      console.warn('Failed to play cha-ching sound:', err);
-    });
-  } catch (err) {
-    console.warn('Failed to play cha-ching sound:', err);
-  }
+  playAudio('/sounds/cha-ching.mp3', sfxVolume);
 }
 
 /**
@@ -102,16 +109,7 @@ export function playChaChingSound() {
  * Used for level ups, rewards, etc.
  */
 export function playSuccessSound() {
-  try {
-    initializeAudioContext();
-    const audio = new Audio('/sounds/cha-ching.mp3');
-    audio.volume = sfxMuted ? 0 : sfxVolume;
-    audio.play().catch((err) => {
-      console.warn('Failed to play success sound:', err);
-    });
-  } catch (err) {
-    console.warn('Failed to play success sound:', err);
-  }
+  playAudio('/sounds/cha-ching.mp3', sfxVolume);
 }
 
 /**
@@ -119,14 +117,5 @@ export function playSuccessSound() {
  * Used when NPCs arrive, orders appear, etc.
  */
 export function playNotificationSound() {
-  try {
-    initializeAudioContext();
-    const audio = new Audio('/sounds/cha-ching.mp3');
-    audio.volume = sfxMuted ? 0 : sfxVolume;
-    audio.play().catch((err) => {
-      console.warn('Failed to play notification sound:', err);
-    });
-  } catch (err) {
-    console.warn('Failed to play notification sound:', err);
-  }
+  playAudio('/sounds/cha-ching.mp3', sfxVolume);
 }

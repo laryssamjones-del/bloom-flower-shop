@@ -42,21 +42,41 @@ export function useBackgroundMusic(audioUrl: string) {
       const audio = new Audio(audioUrl);
       audio.loop = true;
       audio.volume = volume;
+      audio.preload = 'auto';
+      audio.crossOrigin = 'anonymous';
       audioRef.current = audio;
 
-      // Aggressively try to start playing
-      const playAttempt = audio.play();
-      if (playAttempt !== undefined) {
-        playAttempt
-          .then(() => {
-            console.log('✓ Background music started playing');
-            setAutoplayBlocked(false);
-          })
-          .catch(() => {
-            // Autoplay is blocked on mobile - will resume on user interaction
-            console.log('Background music autoplay blocked (mobile). Will resume on user interaction.');
-            setAutoplayBlocked(true);
-          });
+      // Add error handling for loading failures
+      audio.addEventListener('error', () => {
+        console.error(`Failed to load background music: ${audioUrl}`);
+      });
+
+      // Wait for audio to be able to play before attempting playback
+      const attemptPlay = () => {
+        const playAttempt = audio.play();
+        if (playAttempt !== undefined) {
+          playAttempt
+            .then(() => {
+              console.log('✓ Background music started playing');
+              setAutoplayBlocked(false);
+            })
+            .catch((err) => {
+              // Autoplay is blocked on mobile - will resume on user interaction
+              console.log('Background music autoplay blocked (mobile). Will resume on user interaction.', err);
+              setAutoplayBlocked(true);
+            });
+        }
+      };
+
+      // Try to play immediately, or wait for canplay event
+      if (audio.readyState >= 2) {
+        // Audio is already loading/loaded
+        attemptPlay();
+      } else {
+        // Wait for audio to be ready
+        audio.addEventListener('canplay', attemptPlay, { once: true });
+        // Also try again after a short delay as fallback
+        setTimeout(attemptPlay, 500);
       }
     }
 
