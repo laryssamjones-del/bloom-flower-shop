@@ -480,11 +480,11 @@ export function ShopScreen() {
     }, 2000);
   };
 
-  // Schedule special deliveries (8 hours)
+  // Schedule special deliveries (4 hours)
   const scheduleNextDelivery = () => {
     if (deliveryTimerRef.current) clearTimeout(deliveryTimerRef.current);
 
-    const delay = 8 * 60 * 60 * 1000; // 8 hours
+    const delay = 4 * 60 * 60 * 1000; // 4 hours
     const nextTime = Date.now() + delay;
     localStorage.setItem('nextDeliveryTime', nextTime.toString());
 

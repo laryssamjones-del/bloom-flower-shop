@@ -45,11 +45,12 @@ export function WholesaleMarketScreen() {
   const [selectedBulk, setSelectedBulk] = useState<number>(1);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [deliverySuccessMessage, setDeliverySuccessMessage] = useState<string | null>(null);
-  const [countdownDisplay, setCountdownDisplay] = useState<string>('8:00:00');
+  const [countdownDisplay, setCountdownDisplay] = useState<string>('4:00:00');
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [storeError, setStoreError] = useState<string | null>(null);
   const [showBoxReveal, setShowBoxReveal] = useState(false);
   const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const SPEEDUP_DELIVERY_COST = 5;
 
   // Countdown timer effect
   useEffect(() => {
@@ -298,7 +299,7 @@ export function WholesaleMarketScreen() {
       }));
 
       // Schedule next delivery timer
-      const nextDeliveryTime = Date.now() + 8 * 60 * 60 * 1000;
+      const nextDeliveryTime = Date.now() + 4 * 60 * 60 * 1000;
       localStorage.setItem('nextDeliveryTime', nextDeliveryTime.toString());
 
       const successMsg = `🚚 Delivery truck incoming! ${INSTANT_DELIVERY_COST} 💎 Run Bucks spent`;
@@ -336,7 +337,7 @@ export function WholesaleMarketScreen() {
       }));
 
       // Schedule next delivery timer
-      const nextDeliveryTime = Date.now() + 8 * 60 * 60 * 1000;
+      const nextDeliveryTime = Date.now() + 4 * 60 * 60 * 1000;
       localStorage.setItem('nextDeliveryTime', nextDeliveryTime.toString());
 
       const successMsg = `🚚 DELUXE delivery truck incoming! ${DELUXE_DELIVERY_COST} 💎 Run Bucks spent`;
@@ -352,6 +353,36 @@ export function WholesaleMarketScreen() {
       setTimeout(() => {
         setCurrentScreen('shop');
       }, 500);
+    }
+  };
+
+  const handleSpeedupDelivery = () => {
+    if (premiumCurrency < SPEEDUP_DELIVERY_COST) {
+      return;
+    }
+
+    // Deduct run bucks
+    const state = useGameStore.getState();
+    if (state.premiumCurrency >= SPEEDUP_DELIVERY_COST) {
+      // Set delivery time to now (delivery arrives immediately)
+      localStorage.setItem('nextDeliveryTime', Date.now().toString());
+
+      // Deduct the cost directly via Zustand
+      useGameStore.setState((s) => ({
+        premiumCurrency: s.premiumCurrency - SPEEDUP_DELIVERY_COST,
+        lastUpdated: Date.now(),
+      }));
+
+      const successMsg = `⚡ Delivery sped up! ${SPEEDUP_DELIVERY_COST} 💎 Run Bucks spent`;
+      setDeliverySuccessMessage(successMsg);
+      setTimeout(() => setDeliverySuccessMessage(null), 3000);
+
+      RundotGameAPI.analytics.recordCustomEvent('delivery_speedup_purchased', {
+        cost: SPEEDUP_DELIVERY_COST,
+      });
+
+      // Reset countdown to trigger delivery
+      setCountdownDisplay('0:00:00');
     }
   };
 
@@ -495,11 +526,32 @@ export function WholesaleMarketScreen() {
           color: '#FFF',
           fontSize: '13px',
           fontWeight: 'bold',
-          textAlign: 'center',
           borderBottom: '2px solid rgba(255, 107, 157, 0.7)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '12px',
+          flexWrap: 'wrap',
         }}
       >
-        🚚 Special delivery truck in: {countdownDisplay}
+        <span>🚚 Special delivery truck in: {countdownDisplay}</span>
+        <button
+          onClick={handleSpeedupDelivery}
+          disabled={premiumCurrency < SPEEDUP_DELIVERY_COST}
+          style={{
+            padding: '6px 12px',
+            background: premiumCurrency < SPEEDUP_DELIVERY_COST ? '#CCC' : '#FFD700',
+            color: premiumCurrency < SPEEDUP_DELIVERY_COST ? '#999' : '#333',
+            border: 'none',
+            borderRadius: '6px',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            cursor: premiumCurrency < SPEEDUP_DELIVERY_COST ? 'not-allowed' : 'pointer',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          ⚡ Speed Up ({SPEEDUP_DELIVERY_COST} 💎)
+        </button>
       </div>
 
       {/* Order context header */}
