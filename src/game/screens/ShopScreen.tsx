@@ -500,7 +500,7 @@ export function ShopScreen() {
           deliveryId: newDelivery.id,
         });
       }
-      scheduleNextDelivery();
+      // Don't schedule next delivery yet - wait for player to accept/deny current one
     }, delay);
   };
 
