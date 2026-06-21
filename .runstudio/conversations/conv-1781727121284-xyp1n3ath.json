@@ -60060,11 +60060,29 @@
       "timestamp": 1782019541163,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782019585682",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "and is this update pushed to public for review?",
+      "timestamp": 1782019585682,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782019593190-qtsuw6jcv",
+      "role": "assistant",
+      "content": "Yes! **v1.36.3** is already pushed to public for review and is **approved**.\n\nReview link: https://w.run/silvernexus8861/bloom-flower-shop?tag=review\n\nThis version includes:\n- ✓ Mobile audio fix (audio waiting for files to load)\n- ✓ Mobile NPC delay fix (timers reset on app resume)\n- ✓ Buy button showing cost (stem quantity + cost display)\n\nIt's ready to go live!",
+      "isShownToUser": true,
+      "timestamp": 1782019594365,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782019541202,
-  "tokenUsage": 31581,
+  "updatedAt": 1782019594428,
+  "tokenUsage": 31877,
   "script": "default",
   "claudeSessionId": "9a8841fd-95f4-4363-9004-c49155339380"
 }
