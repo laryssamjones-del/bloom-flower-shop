@@ -1089,6 +1089,8 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       cumulativeBouquetsSold: state.cumulativeBouquetsSold,
       unlockedTiers: Array.from(state.unlockedTiers),
       unclaimedRewards: state.unclaimedRewards,
+      tutorialCompleted: state.tutorialCompleted,
+      tutorialCurrentStep: state.tutorialCurrentStep,
     };
 
     // Save to localStorage first for quick access
@@ -1137,6 +1139,8 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
           cumulativeBouquetsSold: typeof data['cumulativeBouquetsSold'] === 'number' ? (data['cumulativeBouquetsSold'] as number) : 0,
           unlockedTiers,
           unclaimedRewards: Array.isArray(data['unclaimedRewards']) ? (data['unclaimedRewards'] as number[]) : [],
+          tutorialCompleted: typeof data['tutorialCompleted'] === 'boolean' ? (data['tutorialCompleted'] as boolean) : false,
+          tutorialCurrentStep: typeof data['tutorialCurrentStep'] === 'number' ? (data['tutorialCurrentStep'] as number) : 0,
           lastUpdated: Date.now(),
         });
       }
@@ -1159,6 +1163,8 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
             unlockedTiers,
             cumulativeBouquetsSold: parsed.cumulativeBouquetsSold ?? 0,
             unclaimedRewards: parsed.unclaimedRewards ?? [],
+            tutorialCompleted: parsed.tutorialCompleted ?? false,
+            tutorialCurrentStep: parsed.tutorialCurrentStep ?? 0,
             lastUpdated: Date.now(),
           });
         } catch {

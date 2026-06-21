@@ -55847,11 +55847,157 @@
       "timestamp": 1782007620241,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782007750172",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "so the tutorial is popping up everytime players return back to the game. the tutorial should only show up when players are playing for the very first time. can you fix this?",
+      "timestamp": 1782007750172,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782007757596-sihj3d0mg",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1782007757596,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1782007760212-i1zo977xz",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1782007760212,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1782007764184-sr7d5whh9",
+      "role": "assistant",
+      "content": "Found the issue! The tutorial completion status is not being saved, so when players return to the game, it resets to the default (not completed). Let me fix this:",
+      "isShownToUser": true,
+      "timestamp": 1782007764507,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782007767411-75vb35rw7",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1782007767411,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1782007769442-qjugzbkfz",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1782007769442,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1782007775185-ptkpj87vm",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1782007775185,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1782007776921-xfw4mgsje",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1782007776921,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1782007788479-z7xp0me39",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1782007788479,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1782007791795-x3gwx2vtf",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1782007791795,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1782007796408-zsc3w6u4w",
+      "role": "assistant",
+      "content": "Now let me build and deploy these fixes:",
+      "isShownToUser": true,
+      "timestamp": 1782007796556,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782007796828-p8i35bize",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1782007796828,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1782007804327-oli998xay",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1782007804327,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1782007825075-5a7g8bsia",
+      "role": "assistant",
+      "content": "Done! **v1.27.0** is now deployed with the tutorial fix.\n\n## What Was Fixed:\n\n✅ **Tutorial completion status is now saved** — When players complete the tutorial and return to the game, they won't see it again\n✅ **Tutorial state persisted properly** — Both the completion flag and current step are now saved to localStorage and SDK storage\n\n**The issue was:** The tutorial completion state wasn't being saved to storage, so when players returned to the game, it would reset to the default (incomplete) state and show the tutorial again.\n\n**Updated link:**\n```\nhttps://w.run/silvernexus8861/bloom-flower-shop?tag=private\n```\n\n**QR Code:**\n```\n█▀▀▀▀▀█ ▄ █ ▀█▄█▄▄▄▀█▀█▀█ █▀▀▀▀▀█\n█ ███ █ ▄▄▄ █▀▄█▀▄ ▄▀▀ ▄▀ █ ███ █\n█ ▀▀▀ █ ▄█ ▄▄  ▄▀▀█▀ █▀▀█ █ ▀▀▀ █\n▀▀▀▀▀▀▀ ▀▄█▄▀ █▄█ █▄▀▄█ █ ▀▀▀▀▀▀▀\n█████▄▀██▀▄▀▄▄▄▀██▄▄█  █▄▀▄▀ ▀▄█▄\n ▀▄███▀█▄ ▀ ▄█▀█▀▀  █▄█▄▄▄▀▄▀▀▄▀ \n▄█▀█ █▀  █▀ ▀ ▀▀▄▀ ▄▄▄▀▄ ▀▄ ▀▀ ▄▄\n███▄▄ ▀▄▀▄▄█▀ ▄▀▄ █▄█▄   ▀▀ █ ▄▀ \n█ ▀▀▄▀▀▀   ▀▄▄▄▀██▀▄█ ▀▄ █▄█▀▄ █▄\n█▀ █▄█▀ █   ▄█▀█▀▀ ▄██▀ █▀▄▀█▀▄▀ \n▄█▀▀▄▄▀▀██  ▀ ▀ ▄▀ █▄ ▀█ ▀▄▀▀▄ █▄\n█  ▀▀▄▀▀▀ ██▀ ▄▀  ▄ ▄▄█  █   █▄▀ \n▀ ▀▀  ▀ ▄▀ ▀▄▄▄▀█▀▄█▄ ▀ █▀▀▀██▄ █\n█▀▀▀▀▀█ ▀▀█ ▄█▀█  ▀▄▄▄███ ▀ █▀▄█▄\n█ ███ █ █▀▀ ▀ ▀▀█▀▄▄▄ ▀ ▀█▀▀█▄ ▄█\n█ ▀▀▀ █ ██▀█▀ ▄██▀  ███▀ ▀▀▄▄▄▄  \n▀▀▀▀▀▀▀ ▀  ▀    ▀▀▀▀   ▀▀ ▀▀ ▀ ▀ \n```\n\nNow the tutorial will only show the first time players open the game!",
+      "isShownToUser": true,
+      "timestamp": 1782007829896,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782007620303,
-  "tokenUsage": 44393,
+  "updatedAt": 1782007829943,
+  "tokenUsage": 50127,
   "script": "default",
   "claudeSessionId": "43ea7abb-6bf6-403b-b866-e6cc8d86ef5a"
 }

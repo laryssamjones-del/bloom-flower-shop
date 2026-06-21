@@ -73,6 +73,8 @@ export function BloommyGame() {
         unlockedFlowers: Array.from(state.unlockedFlowers),
         unlockedRibbons: state.unlockedRibbons,
         unlockedWrappings: state.unlockedWrappings,
+        tutorialCompleted: state.tutorialCompleted,
+        tutorialCurrentStep: state.tutorialCurrentStep,
       };
       localStorage.setItem('bloomy-game-state', JSON.stringify(stateToPersist));
     };
