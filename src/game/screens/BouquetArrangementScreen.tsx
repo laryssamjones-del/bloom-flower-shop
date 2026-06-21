@@ -548,13 +548,31 @@ export function BouquetArrangementScreen() {
               padding: '12px',
               borderTop: '2px solid rgba(0,0,0,0.1)',
               background: 'rgba(255,255,255,0.3)',
+              display: 'flex',
+              gap: '8px',
             }}
           >
+            <button
+              onClick={handleBack}
+              style={{
+                flex: 0.3,
+                padding: '14px',
+                background: '#D4D4D4',
+                color: '#444',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '15px',
+                fontWeight: 'bold',
+              }}
+            >
+              ← Back
+            </button>
             <button
               onClick={handleMakeBouquet}
               disabled={!canMake}
               style={{
-                width: '100%',
+                flex: 1,
                 padding: '14px',
                 background: canMake ? '#6A9A50' : '#CCC',
                 color: '#FFF',
