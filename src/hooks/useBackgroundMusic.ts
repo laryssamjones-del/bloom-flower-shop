@@ -2,6 +2,29 @@ import { useEffect, useRef, useState } from 'react';
 
 // Module-level flag to track if we've already set up the user interaction handler
 let userInteractionHandlerSetUp = false;
+let audioContextInitialized = false;
+
+// Initialize audio context aggressively on page load
+function initializeAudioContext() {
+  if (!audioContextInitialized && typeof document !== 'undefined') {
+    try {
+      // Create and attempt to play a silent audio element to initialize audio context
+      const silentAudio = new Audio();
+      silentAudio.volume = 0;
+      silentAudio.src = 'data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAAA=';
+      silentAudio.play().catch(() => {
+        // Silent, ignore errors
+      });
+      audioContextInitialized = true;
+      console.log('✓ Audio context initialized');
+    } catch (err) {
+      // Ignore
+    }
+  }
+}
+
+// Initialize on module load
+initializeAudioContext();
 
 export function useBackgroundMusic(audioUrl: string) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -13,23 +36,34 @@ export function useBackgroundMusic(audioUrl: string) {
   // Initialize audio element
   useEffect(() => {
     if (!audioRef.current) {
+      // Make sure audio context is initialized
+      initializeAudioContext();
+
       const audio = new Audio(audioUrl);
       audio.loop = true;
       audio.volume = volume;
       audioRef.current = audio;
 
-      // Start playing
-      audio.play().catch(() => {
-        // Autoplay is blocked on mobile - will resume on user interaction
-        console.log('Background music autoplay blocked (mobile). Will resume on user interaction.');
-        setAutoplayBlocked(true);
-      });
+      // Aggressively try to start playing
+      const playAttempt = audio.play();
+      if (playAttempt !== undefined) {
+        playAttempt
+          .then(() => {
+            console.log('✓ Background music started playing');
+            setAutoplayBlocked(false);
+          })
+          .catch(() => {
+            // Autoplay is blocked on mobile - will resume on user interaction
+            console.log('Background music autoplay blocked (mobile). Will resume on user interaction.');
+            setAutoplayBlocked(true);
+          });
+      }
     }
 
     return () => {
       // Don't stop music on unmount - let it continue across screens
     };
-  }, [audioUrl]);
+  }, [audioUrl, volume]);
 
   // Set up ONE-TIME user interaction handler to resume audio on mobile
   useEffect(() => {

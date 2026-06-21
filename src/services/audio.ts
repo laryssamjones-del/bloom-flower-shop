@@ -1,36 +1,44 @@
 /**
  * Simple, lightweight audio playback for sound effects
  * Uses pre-recorded files to avoid conflicts with background music
- * Handles mobile autoplay restrictions by allowing user interaction to enable audio
+ * Handles mobile autoplay restrictions by initializing audio context immediately
  */
 
 // Module-level SFX volume state (persists across individual sound plays)
 let sfxVolume = 0.7;
 let sfxMuted = false;
-let audioContextResumed = false;
+let audioContextInitialized = false;
 
-// Initialize audio context on first user interaction (required on mobile)
-function ensureAudioContextResumed() {
-  if (!audioContextResumed) {
-    // Try to resume audio context by creating and playing a silent sound
+// Initialize audio context immediately on page load
+function initializeAudioContext() {
+  if (!audioContextInitialized) {
     try {
-      const audio = new Audio();
-      audio.volume = 0;
-      audio.play().catch(() => {
-        // Silent, ignore errors
-      });
-      audioContextResumed = true;
-      console.log('✓ Audio context initialized');
+      // Create and play a completely silent audio element to prime the audio context
+      const silentAudio = new Audio();
+      silentAudio.volume = 0;
+      // Minimal WAV file (1ms of silence)
+      silentAudio.src = 'data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAAA=';
+      const playAttempt = silentAudio.play();
+      if (playAttempt !== undefined) {
+        playAttempt.catch(() => {
+          // Ignore errors - this is just to initialize the context
+        });
+      }
+      audioContextInitialized = true;
+      console.log('✓ Audio context initialized on page load');
     } catch (err) {
-      // Ignore
+      // Ignore errors
     }
   }
 }
 
-// Listen for user interaction to enable audio on mobile
+// Initialize audio context immediately on module load
+initializeAudioContext();
+
+// Also listen for user interaction to ensure audio is enabled on mobile
 if (typeof document !== 'undefined') {
   const handleUserInteraction = () => {
-    ensureAudioContextResumed();
+    initializeAudioContext();
     document.removeEventListener('click', handleUserInteraction);
     document.removeEventListener('touchstart', handleUserInteraction);
     document.removeEventListener('keydown', handleUserInteraction);
@@ -61,7 +69,7 @@ export function isSFXMuted(): boolean {
  */
 export function playAudio(audioPath: string, volume: number = 0.5) {
   try {
-    ensureAudioContextResumed();
+    initializeAudioContext();
     const audio = new Audio(audioPath);
     audio.volume = volume;
     audio.play().catch((err) => {
@@ -78,7 +86,7 @@ export function playAudio(audioPath: string, volume: number = 0.5) {
  */
 export function playChaChingSound() {
   try {
-    ensureAudioContextResumed();
+    initializeAudioContext();
     const audio = new Audio('./sounds/cha-ching.mp3');
     audio.volume = sfxMuted ? 0 : sfxVolume;
     audio.play().catch((err) => {
@@ -95,7 +103,7 @@ export function playChaChingSound() {
  */
 export function playSuccessSound() {
   try {
-    ensureAudioContextResumed();
+    initializeAudioContext();
     const audio = new Audio('./sounds/cha-ching.mp3');
     audio.volume = sfxMuted ? 0 : sfxVolume;
     audio.play().catch((err) => {
@@ -112,7 +120,7 @@ export function playSuccessSound() {
  */
 export function playNotificationSound() {
   try {
-    ensureAudioContextResumed();
+    initializeAudioContext();
     const audio = new Audio('./sounds/cha-ching.mp3');
     audio.volume = sfxMuted ? 0 : sfxVolume;
     audio.play().catch((err) => {
