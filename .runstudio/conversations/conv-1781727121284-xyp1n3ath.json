@@ -56486,11 +56486,149 @@
       "timestamp": 1782012939319,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782013086131",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "next thing that i'd like you to check - so when i was testing the published game on my own, i noticed there were bouquets on the shelf even though i did not create any. when new players start playing the game, there are no bouquets displayed on the shelf, correct? the shelf needs to be empty so that players can create their own and display it themselves.",
+      "timestamp": 1782013086131,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782013102011-8w06rqj9w",
+      "role": "assistant",
+      "content": "Let me check the initial game state to see what's on the shelf when the game starts:",
+      "isShownToUser": true,
+      "timestamp": 1782013102341,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782013103109-vmrwhns18",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1782013103109,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1782013105764-2lt1lbwmg",
+      "role": "assistant",
+      "content": "Let me check the loadGameState function to see how shelf bouquets are being loaded:",
+      "isShownToUser": true,
+      "timestamp": 1782013105902,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782013106242-cs4193jbh",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1782013106242,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1782013109807-ri8e5wcsg",
+      "role": "assistant",
+      "content": "Found the issue! When loading from localStorage (the fallback path), the code is spreading all the old saved data which includes bouquets on the shelf. Let me fix this to ensure the shelf always starts empty:",
+      "isShownToUser": true,
+      "timestamp": 1782013110235,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782013113134-bicicomuk",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1782013113134,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1782013115831-6mueqjhqv",
+      "role": "assistant",
+      "content": "Let me also make sure the SDK storage path explicitly clears the shelf to be consistent:",
+      "isShownToUser": true,
+      "timestamp": 1782013116034,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782013122030-zxisc28j3",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1782013122030,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1782013123779-apa3ju7kx",
+      "role": "assistant",
+      "content": "Now let me build and deploy this fix:",
+      "isShownToUser": true,
+      "timestamp": 1782013123991,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782013124096-eutoznb8h",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1782013124096,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1782013131660-q0jjur0t7",
+      "role": "assistant",
+      "content": "Perfect! Now let me deploy this to public:",
+      "isShownToUser": true,
+      "timestamp": 1782013131852,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782013132129-pulyvwvt5",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1782013132129,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1782013154132-4gnomo9uv",
+      "role": "assistant",
+      "content": "Done! **v1.30.0** is now published with the empty shelf fix.\n\n## What was wrong:\n\nWhen loading a saved game from localStorage, the old shelf bouquets and displayed bouquets were being included in the loaded state, so existing test saves had bouquets on the shelf.\n\n## What's fixed:\n\n✅ **Shelf always starts empty** — Both SDK storage and localStorage paths now explicitly clear `shelfBouquets` and `displayedBouquets` when loading\n✅ **New players get a clean shelf** — Players can only see bouquets they create and place themselves\n✅ **Consistent behavior** — All players start with an empty shelf regardless of their save history\n\nNow when players load the game, they'll see an empty shelf and can create their own bouquets to display!",
+      "isShownToUser": true,
+      "timestamp": 1782013156115,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782012939355,
-  "tokenUsage": 62082,
+  "updatedAt": 1782013156156,
+  "tokenUsage": 65896,
   "script": "default",
   "claudeSessionId": "c442f3b4-8c04-4fda-9a7b-c3b5c394f51d"
 }
