@@ -1119,11 +1119,8 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
         const unlockedTiers = new Set<BouquetTier>(
           Array.isArray(data['unlockedTiers']) ? (data['unlockedTiers'] as BouquetTier[]) : (['budget'] as BouquetTier[])
         );
-        // Boost coins to 650 if needed
-        const coins = typeof data['coins'] === 'number' ? (data['coins'] as number) : 50;
-        const boostedCoins = coins < 650 ? 650 : coins;
         set({
-          coins: boostedCoins,
+          coins: typeof data['coins'] === 'number' ? (data['coins'] as number) : 250,
           totalEarned: typeof data['totalEarned'] === 'number' ? (data['totalEarned'] as number) : 0,
           premiumCurrency: typeof data['premiumCurrency'] === 'number' ? (data['premiumCurrency'] as number) : 0,
           inventory: Array.isArray(data['inventory']) ? (data['inventory'] as StemInInventory[]) : [],
@@ -1152,11 +1149,8 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
           const parsed = JSON.parse(saved);
           const unlockedFlowers = new Set(parsed.unlockedFlowers || []);
           const unlockedTiers = new Set(parsed.unlockedTiers || ['budget']);
-          // Boost coins to 650 if needed
-          const coins = parsed.coins < 650 ? 650 : parsed.coins;
           set({
             ...parsed,
-            coins,
             premiumCurrency: parsed.premiumCurrency ?? 0,
             mysteryBouquets: parsed.mysteryBouquets ?? [],
             pendingBouquets: parsed.pendingBouquets ?? [],
