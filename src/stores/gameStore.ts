@@ -253,6 +253,8 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
 
   // Economy
   addCoins: (amount: number) => {
+    const state = get();
+    console.log('💰 addCoins called:', { amount, previousCoins: state.coins, newCoins: state.coins + amount });
     set((state) => ({
       coins: state.coins + amount,
       totalEarned: state.totalEarned + amount,
@@ -816,7 +818,12 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     const state = get();
     const order = state.pendingOrders.find((o) => o.id === orderId);
 
-    if (!order) return;
+    console.log('🔍 completeOrder called:', { orderId, reward, orderFound: !!order, currentCoins: state.coins });
+
+    if (!order) {
+      console.warn('⚠️ Order not found!', orderId);
+      return;
+    }
 
     const newCumulativeSales = state.cumulativeBouquetsSold + 1;
     const newUnlockedFlowers = new Set(state.unlockedFlowers);
@@ -839,6 +846,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       lastUpdated: Date.now(),
     }));
 
+    console.log('✅ Order completed, adding coins:', reward);
     state.addCoins(reward);
     playChaChingSound();
   },
