@@ -109,6 +109,7 @@ export function OrdersScreen() {
           >
             <p style={{ fontSize: '14px', marginBottom: '8px' }}>No pending orders 🌸</p>
             <p style={{ fontSize: '12px', opacity: 0.7 }}>Check back soon — new orders arrive every 15–45 seconds!</p>
+            <p style={{ fontSize: '12px', opacity: 0.7, marginTop: '8px' }}>Make a bouquet while you wait! Just go to the Arrange tab!</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
