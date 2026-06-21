@@ -56076,11 +56076,215 @@
       "timestamp": 1782012540887,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782012659192",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "level up rewards are still starting at level 1 when they need to start at level 2. can you fix this and push this update to public?",
+      "timestamp": 1782012659192,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782012669388-r1358dukk",
+      "role": "assistant",
+      "content": "Let me check the level up rewards code and see what's still causing level 1 rewards to appear.",
+      "isShownToUser": true,
+      "timestamp": 1782012669712,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782012670956-tpvfcqqnb",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1782012670956,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1782012673303-e45d23c12",
+      "role": "assistant",
+      "content": "Using tool: Grep",
+      "isShownToUser": true,
+      "timestamp": 1782012673303,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Grep"
+      }
+    },
+    {
+      "id": "1782012674649-nkk8l13wn",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1782012674649,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1782012676803-jyo47arut",
+      "role": "assistant",
+      "content": "Let me search for where level up rewards are being triggered:",
+      "isShownToUser": true,
+      "timestamp": 1782012677515,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782012677760-pt9pii1kx",
+      "role": "assistant",
+      "content": "Using tool: Grep",
+      "isShownToUser": true,
+      "timestamp": 1782012677760,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Grep"
+      }
+    },
+    {
+      "id": "1782012678978-pcdlet56h",
+      "role": "assistant",
+      "content": "Using tool: Grep",
+      "isShownToUser": true,
+      "timestamp": 1782012678978,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Grep"
+      }
+    },
+    {
+      "id": "1782012680889-br5200wcj",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1782012680889,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1782012685390-d5xlb2rqd",
+      "role": "assistant",
+      "content": "Let me check the progression data to understand the level system:",
+      "isShownToUser": true,
+      "timestamp": 1782012685413,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782012685517-pdh26kwet",
+      "role": "assistant",
+      "content": "Using tool: Grep",
+      "isShownToUser": true,
+      "timestamp": 1782012685517,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Grep"
+      }
+    },
+    {
+      "id": "1782012688746-ggvt9uj7f",
+      "role": "assistant",
+      "content": "Using tool: Read",
+      "isShownToUser": true,
+      "timestamp": 1782012688746,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Read"
+      }
+    },
+    {
+      "id": "1782012700493-coh3bdye6",
+      "role": "assistant",
+      "content": "Found the issue! When loading existing game state, if a player already had level 1 in their unclaimed rewards, it's not being filtered out. Let me fix this and also make sure level 1 is never added:",
+      "isShownToUser": true,
+      "timestamp": 1782012700522,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782012700947-qyy3alqxt",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1782012700947,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1782012703348-5remjh11y",
+      "role": "assistant",
+      "content": "Using tool: Edit",
+      "isShownToUser": true,
+      "timestamp": 1782012703348,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Edit"
+      }
+    },
+    {
+      "id": "1782012705129-hcw7gzg18",
+      "role": "assistant",
+      "content": "Now let me build and deploy this fix:",
+      "isShownToUser": true,
+      "timestamp": 1782012705130,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782012705538-nvijp526e",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1782012705538,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1782012713782-ruoncngdg",
+      "role": "assistant",
+      "content": "Now let me deploy this to public:",
+      "isShownToUser": true,
+      "timestamp": 1782012714004,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782012714266-geknl5nj4",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1782012714266,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1782012736974-9nqwfbp64",
+      "role": "assistant",
+      "content": "Done! **v1.28.0** is now published.\n\n## What was wrong:\n\nWhen loading existing game state, if a player already had level 1 in their unclaimed rewards from a previous save, it wasn't being filtered out.\n\n## What's fixed:\n\n✅ **All saved game data is now cleaned** — Any level 1 rewards in existing player saves are automatically removed when they load the game\n✅ **Level 1 rewards can never be added** — The reward system starts at level 2 and above only\n✅ **New and existing players are consistent** — Everyone starts with no level 1 rewards\n\nNow when players load the game, any level 1 rewards will be gone, and they'll only earn rewards starting at level 2!",
+      "isShownToUser": true,
+      "timestamp": 1782012738755,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782012540959,
-  "tokenUsage": 51600,
+  "updatedAt": 1782012738895,
+  "tokenUsage": 55436,
   "script": "default",
   "claudeSessionId": "c442f3b4-8c04-4fda-9a7b-c3b5c394f51d"
 }
