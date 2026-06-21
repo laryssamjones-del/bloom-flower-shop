@@ -3,6 +3,12 @@
   "relativePathToDistFolder": "dist",
   "usesPreloader": false,
   "orientation": "both",
-  "keywords": null,
+  "keywords": [
+    "cozy",
+    "flower-shop",
+    "simulation",
+    "casual",
+    "chill"
+  ],
   "kitId": "stay-awhile"
 }
