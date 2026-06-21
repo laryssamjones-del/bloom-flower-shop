@@ -832,6 +832,9 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       cumulativeBouquetsSold: newCumulativeSales,
       unlockedFlowers: newUnlockedFlowers,
       unlockedTiers: newUnlockedTiers,
+      // Trigger thank you animation (PC and mobile parity)
+      orderJustCompleted: true,
+      completedOrderCustomerImage: order.npcImage,
       lastUpdated: Date.now(),
     }));
 
