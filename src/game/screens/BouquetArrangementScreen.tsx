@@ -94,6 +94,12 @@ export function BouquetArrangementScreen() {
     }
   };
 
+  const handleBackToRecipePicker = () => {
+    setPhase('pick-recipe');
+    setLocalRecipeId(null);
+    storeRecipeSelection(undefined);
+  };
+
   const filteredRecipes =
     filterTier === 'all'
       ? BOUQUET_RECIPES
@@ -553,7 +559,7 @@ export function BouquetArrangementScreen() {
             }}
           >
             <button
-              onClick={handleBack}
+              onClick={handleBackToRecipePicker}
               style={{
                 flex: 0.3,
                 padding: '14px',
