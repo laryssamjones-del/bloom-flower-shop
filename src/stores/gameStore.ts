@@ -1125,15 +1125,15 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
           Array.isArray(data['unlockedTiers']) ? (data['unlockedTiers'] as BouquetTier[]) : (['budget'] as BouquetTier[])
         );
         set({
-          coins: 250,
+          coins: typeof data['coins'] === 'number' ? (data['coins'] as number) : 250,
           totalEarned: typeof data['totalEarned'] === 'number' ? (data['totalEarned'] as number) : 0,
           premiumCurrency: typeof data['premiumCurrency'] === 'number' ? (data['premiumCurrency'] as number) : 0,
           inventory: Array.isArray(data['inventory']) ? (data['inventory'] as StemInInventory[]) : [],
           inventoryCapacity: typeof data['inventoryCapacity'] === 'number' ? (data['inventoryCapacity'] as number) : STARTING_INVENTORY_CAPACITY,
           shelfCapacity: typeof data['shelfCapacity'] === 'number' ? (data['shelfCapacity'] as number) : 20,
-          shelfBouquets: [],
+          shelfBouquets: Array.isArray(data['shelfBouquets']) ? (data['shelfBouquets'] as Bouquet[]) : [],
           pendingBouquets: Array.isArray(data['pendingBouquets']) ? (data['pendingBouquets'] as Bouquet[]) : [],
-          displayedBouquets: Array(STARTING_SHELF_CAPACITY).fill(null),
+          displayedBouquets: Array.isArray(data['displayedBouquets']) ? (data['displayedBouquets'] as (Bouquet | null)[]) : Array(STARTING_SHELF_CAPACITY).fill(null),
           mysteryBouquets: Array.isArray(data['mysteryBouquets']) ? (data['mysteryBouquets'] as MysteryBouquetItem[]) : [],
           totalCustomersServed: typeof data['totalCustomersServed'] === 'number' ? (data['totalCustomersServed'] as number) : 0,
           unlockedFlowers,
@@ -1158,12 +1158,12 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
           const unlockedTiers = new Set(parsed.unlockedTiers || ['budget']);
           set({
             ...parsed,
-            coins: 250,
+            coins: parsed.coins ?? 250,
             premiumCurrency: parsed.premiumCurrency ?? 0,
             mysteryBouquets: parsed.mysteryBouquets ?? [],
             pendingBouquets: parsed.pendingBouquets ?? [],
-            shelfBouquets: [],
-            displayedBouquets: Array(STARTING_SHELF_CAPACITY).fill(null),
+            shelfBouquets: parsed.shelfBouquets ?? [],
+            displayedBouquets: parsed.displayedBouquets ?? Array(STARTING_SHELF_CAPACITY).fill(null),
             unlockedFlowers,
             unlockedTiers,
             cumulativeBouquetsSold: parsed.cumulativeBouquetsSold ?? 0,
