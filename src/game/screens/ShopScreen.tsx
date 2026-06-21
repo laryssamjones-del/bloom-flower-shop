@@ -212,10 +212,10 @@ export function ShopScreen() {
   useEffect(() => {
     const currentLevel = getCurrentLevel(cumulativeBouquetsSold);
 
-    // On first load, ensure all rewards up to current level are available
+    // On first load, ensure all rewards up to current level are available (starting from level 2+)
     if (!hasInitializedRewardsRef.current) {
       hasInitializedRewardsRef.current = true;
-      for (let level = 1; level <= currentLevel; level++) {
+      for (let level = 2; level <= currentLevel; level++) {
         if (!unclaimedRewards.includes(level)) {
           addUnclaimedReward(level);
         }
