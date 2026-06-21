@@ -56040,11 +56040,29 @@
       "timestamp": 1782008354434,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782008376980",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "the game won't show up in the Run.game menu, correct?",
+      "timestamp": 1782008376980,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782008383517-to60v6ien",
+      "role": "assistant",
+      "content": "That's correct! Now that it's set to private, your game won't appear in the Run.game public menu or search results. It's unlisted, so only people with the direct link can access it.\n\nYou can still share it with the link:\n```\nhttps://w.run/silvernexus8861/bloom-flower-shop?tag=private\n```\n\nWhen you're ready to publish your changes, just let me know and I'll deploy them!",
+      "isShownToUser": true,
+      "timestamp": 1782008384586,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782008354464,
-  "tokenUsage": 50791,
+  "updatedAt": 1782008384603,
+  "tokenUsage": 50994,
   "script": "default",
   "claudeSessionId": "43ea7abb-6bf6-403b-b866-e6cc8d86ef5a"
 }
