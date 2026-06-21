@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
-// Module-level flag to track if we've already set up the user interaction handler
+// Module-level flags to track user interaction and audio context
 let userInteractionHandlerSetUp = false;
 let audioContextInitialized = false;
+let userHasInteracted = false;
 
 // Initialize audio context aggressively on page load
 function initializeAudioContext() {
@@ -31,7 +32,7 @@ export function useBackgroundMusic(audioUrl: string) {
   const [volume, setVolume] = useState(0.3);
   const [isMuted, setIsMuted] = useState(false);
   const previousVolumeRef = useRef(0.3);
-  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
+  const [_autoplayBlocked, setAutoplayBlocked] = useState(false);
 
   // Initialize audio element
   useEffect(() => {
@@ -61,22 +62,22 @@ export function useBackgroundMusic(audioUrl: string) {
               setAutoplayBlocked(false);
             })
             .catch((err) => {
-              // Autoplay is blocked on mobile - will resume on user interaction
-              console.log('Background music autoplay blocked (mobile). Will resume on user interaction.', err);
+              // Autoplay is blocked - will resume on user interaction
+              console.log('Background music autoplay blocked. Will resume on user interaction.', err);
               setAutoplayBlocked(true);
             });
         }
       };
 
-      // Try to play immediately, or wait for canplay event
-      if (audio.readyState >= 2) {
-        // Audio is already loading/loaded
-        attemptPlay();
-      } else {
-        // Wait for audio to be ready
-        audio.addEventListener('canplay', attemptPlay, { once: true });
-        // Also try again after a short delay as fallback
-        setTimeout(attemptPlay, 500);
+      // Only try to play if user has already interacted
+      // Otherwise, we'll play on first user interaction
+      if (userHasInteracted) {
+        if (audio.readyState >= 2) {
+          attemptPlay();
+        } else {
+          audio.addEventListener('canplay', attemptPlay, { once: true });
+          setTimeout(attemptPlay, 500);
+        }
       }
     }
 
@@ -85,39 +86,43 @@ export function useBackgroundMusic(audioUrl: string) {
     };
   }, [audioUrl, volume]);
 
-  // Set up ONE-TIME user interaction handler to resume audio on mobile
+  // Set up ONE-TIME user interaction handler to start audio on mobile
   useEffect(() => {
-    if (autoplayBlocked && !userInteractionHandlerSetUp) {
-      const resumeAudio = () => {
-        if (audioRef.current) {
-          audioRef.current.play().then(() => {
-            console.log('✓ Background music resumed after user interaction');
-            setAutoplayBlocked(false);
-          }).catch((err) => {
-            console.warn('Failed to resume audio:', err);
-          });
+    if (!userInteractionHandlerSetUp) {
+      const handleUserInteraction = () => {
+        if (!userHasInteracted) {
+          userHasInteracted = true;
+          // Try to play background music
+          if (audioRef.current) {
+            audioRef.current.play().then(() => {
+              console.log('✓ Background music started after user interaction');
+              setAutoplayBlocked(false);
+            }).catch((err) => {
+              console.warn('Failed to start audio after user interaction:', err);
+            });
+          }
         }
-        // Remove listeners after first successful interaction
-        document.removeEventListener('click', resumeAudio);
-        document.removeEventListener('touchstart', resumeAudio);
-        document.removeEventListener('keydown', resumeAudio);
+        // Remove listeners after first interaction
+        document.removeEventListener('click', handleUserInteraction);
+        document.removeEventListener('touchstart', handleUserInteraction);
+        document.removeEventListener('keydown', handleUserInteraction);
       };
 
       // Listen for any user interaction
-      document.addEventListener('click', resumeAudio);
-      document.addEventListener('touchstart', resumeAudio);
-      document.addEventListener('keydown', resumeAudio);
+      document.addEventListener('click', handleUserInteraction);
+      document.addEventListener('touchstart', handleUserInteraction);
+      document.addEventListener('keydown', handleUserInteraction);
 
       userInteractionHandlerSetUp = true;
 
       return () => {
-        document.removeEventListener('click', resumeAudio);
-        document.removeEventListener('touchstart', resumeAudio);
-        document.removeEventListener('keydown', resumeAudio);
+        document.removeEventListener('click', handleUserInteraction);
+        document.removeEventListener('touchstart', handleUserInteraction);
+        document.removeEventListener('keydown', handleUserInteraction);
       };
     }
     return undefined;
-  }, [autoplayBlocked]);
+  }, []);
 
   // Update volume when it changes
   useEffect(() => {

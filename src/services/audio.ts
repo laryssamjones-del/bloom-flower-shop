@@ -8,6 +8,8 @@
 let sfxVolume = 0.7;
 let sfxMuted = false;
 let audioContextInitialized = false;
+let userHasInteracted = false;
+const queuedAudio: Array<{ path: string; volume: number }> = [];
 
 // Initialize audio context immediately on page load
 function initializeAudioContext() {
@@ -35,10 +37,18 @@ function initializeAudioContext() {
 // Initialize audio context immediately on module load
 initializeAudioContext();
 
-// Also listen for user interaction to ensure audio is enabled on mobile
+// Listen for user interaction to enable audio on browsers with autoplay restrictions
 if (typeof document !== 'undefined') {
   const handleUserInteraction = () => {
-    initializeAudioContext();
+    if (!userHasInteracted) {
+      userHasInteracted = true;
+      initializeAudioContext();
+      // Play any queued audio now that user has interacted
+      while (queuedAudio.length > 0) {
+        const { path, volume } = queuedAudio.shift()!;
+        playQueuedAudio(path, volume);
+      }
+    }
     document.removeEventListener('click', handleUserInteraction);
     document.removeEventListener('touchstart', handleUserInteraction);
     document.removeEventListener('keydown', handleUserInteraction);
@@ -65,34 +75,48 @@ export function isSFXMuted(): boolean {
 }
 
 /**
- * Generic function to play any audio file with proper mobile autoplay handling
+ * Internal function to play audio after user has interacted
  */
-export function playAudio(audioPath: string, volume: number = 0.5) {
+function playQueuedAudio(audioPath: string, volume: number) {
   try {
-    initializeAudioContext();
     const audio = new Audio(audioPath);
     audio.volume = sfxMuted ? 0 : volume;
     audio.preload = 'auto';
     audio.crossOrigin = 'anonymous';
 
-    // Try to play immediately
     const attemptPlay = () => {
       audio.play().catch((err) => {
         console.warn(`Failed to play audio (${audioPath}):`, err);
       });
     };
 
-    // If audio is already loading/loaded, play immediately
     if (audio.readyState >= 2) {
       attemptPlay();
     } else {
-      // Wait for audio to be ready, then play
       audio.addEventListener('canplay', attemptPlay, { once: true });
-      // Fallback: try after short delay
       setTimeout(attemptPlay, 300);
     }
   } catch (err) {
     console.warn(`Failed to play audio (${audioPath}):`, err);
+  }
+}
+
+/**
+ * Generic function to play any audio file with proper mobile autoplay handling
+ * Queues audio if user hasn't interacted yet (browser autoplay restriction)
+ */
+export function playAudio(audioPath: string, volume: number = 0.5) {
+  try {
+    // If user hasn't interacted, queue the audio to play after they do
+    if (!userHasInteracted) {
+      queuedAudio.push({ path: audioPath, volume });
+      return;
+    }
+
+    // User has interacted, play audio immediately
+    playQueuedAudio(audioPath, volume);
+  } catch (err) {
+    console.warn(`Failed to queue audio (${audioPath}):`, err);
   }
 }
 
