@@ -524,36 +524,41 @@ export function ShopScreen() {
 
   // Schedule special deliveries (4 hours)
   const scheduleNextDelivery = () => {
-    if (deliveryTimerRef.current) clearTimeout(deliveryTimerRef.current);
+    try {
+      if (deliveryTimerRef.current) clearTimeout(deliveryTimerRef.current);
 
-    const triggerDelivery = () => {
-      // Use localStorage to check active delivery to avoid stale closure
-      if (!localStorage.getItem('activeDelivery') && !customizingTruck) {
-        const newDelivery = generateSpecialDelivery();
-        setActiveDelivery(newDelivery);
-        addNotification('special_delivery', '🚚 Special Delivery!', 'A new delivery has arrived. Check it in your notifications!', true);
-        RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
-          deliveryId: newDelivery.id,
-        });
-      }
-    };
+      const triggerDelivery = () => {
+        // Use localStorage to check active delivery to avoid stale closure
+        if (!localStorage.getItem('activeDelivery') && !customizingTruck) {
+          const newDelivery = generateSpecialDelivery();
+          setActiveDelivery(newDelivery);
+          addNotification('special_delivery', '🚚 Special Delivery!', 'A new delivery has arrived. Check it in your notifications!', true);
+          RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
+            deliveryId: newDelivery.id,
+          });
+        }
+      };
 
-    const stored = localStorage.getItem('nextDeliveryTime');
-    if (stored) {
-      const remaining = parseInt(stored) - Date.now();
-      if (remaining <= 0) {
-        // Delivery is overdue (e.g. player returned after a long break) — trigger now
-        localStorage.removeItem('nextDeliveryTime'); // Clear old time so next call schedules fresh 4h
-        triggerDelivery();
-        return;
+      const stored = localStorage.getItem('nextDeliveryTime');
+      if (stored) {
+        const remaining = parseInt(stored) - Date.now();
+        if (remaining <= 0) {
+          // Delivery is overdue (e.g. player returned after a long break) — trigger now
+          localStorage.removeItem('nextDeliveryTime');
+          triggerDelivery();
+          return;
+        }
+        // Resume the existing countdown — don't reset it to a fresh 4 hours
+        deliveryTimerRef.current = setTimeout(triggerDelivery, remaining);
+      } else {
+        // No scheduled delivery yet — set a fresh 4-hour timer
+        const delay = 4 * 60 * 60 * 1000;
+        const nextTime = Date.now() + delay;
+        localStorage.setItem('nextDeliveryTime', nextTime.toString());
+        deliveryTimerRef.current = setTimeout(triggerDelivery, delay);
       }
-      // Resume the existing countdown — don't reset it to a fresh 4 hours
-      deliveryTimerRef.current = setTimeout(triggerDelivery, remaining);
-    } else {
-      // No scheduled delivery yet — set a fresh 4-hour timer
-      const delay = 4 * 60 * 60 * 1000;
-      localStorage.setItem('nextDeliveryTime', (Date.now() + delay).toString());
-      deliveryTimerRef.current = setTimeout(triggerDelivery, delay);
+    } catch (error) {
+      console.error('Error scheduling delivery:', error);
     }
     // Don't schedule next delivery yet - wait for player to accept/deny current one
   };
