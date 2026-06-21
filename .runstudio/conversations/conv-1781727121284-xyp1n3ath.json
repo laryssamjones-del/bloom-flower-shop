@@ -56624,11 +56624,29 @@
       "timestamp": 1782013156115,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782013176978",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "can you push this update to public?",
+      "timestamp": 1782013176978,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782013184247-0neuenc1j",
+      "role": "assistant",
+      "content": "The latest update (v1.30.0) with the empty shelf fix has already been deployed to public! It's currently in the review queue.\n\n**Current Status:**\n- Version: v1.30.0\n- Status: In review\n- Review URL: https://w.run/silvernexus8861/bloom-flower-shop?tag=review\n\nThe changes include:\n✅ Level 1 rewards filtered out\n✅ Audio initialization improved\n✅ Empty shelf for all players\n\nOnce the RUN.game team approves it, it will automatically be published for everyone to play!",
+      "isShownToUser": true,
+      "timestamp": 1782013185943,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782013156156,
-  "tokenUsage": 65896,
+  "updatedAt": 1782013185985,
+  "tokenUsage": 66267,
   "script": "default",
   "claudeSessionId": "c442f3b4-8c04-4fda-9a7b-c3b5c394f51d"
 }
