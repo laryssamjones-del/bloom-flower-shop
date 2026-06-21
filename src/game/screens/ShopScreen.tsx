@@ -37,9 +37,25 @@ import shopBackground from '/bloomy_shop_background.png';
 const NPC_VISIT_MIN = 15000;
 const NPC_VISIT_MAX = 45000;
 
-// Lifecycle analytics (module-scope — runs once)
-RundotGameAPI.lifecycles.onPause(() => RundotGameAPI.analytics.recordCustomEvent('game_paused'));
-RundotGameAPI.lifecycles.onResume(() => RundotGameAPI.analytics.recordCustomEvent('game_resumed'));
+// Lifecycle handlers (module-scope — runs once)
+// Store timer refs at module level so they can be cleared on pause/resume
+let moduleNpcTimerRef: ReturnType<typeof setTimeout> | null = null;
+let moduleShelfPurchaseTimerRef: ReturnType<typeof setTimeout> | null = null;
+let moduleDeliveryTimerRef: ReturnType<typeof setTimeout> | null = null;
+
+RundotGameAPI.lifecycles.onPause(() => {
+  // Clear all timers when game pauses
+  if (moduleNpcTimerRef) clearTimeout(moduleNpcTimerRef);
+  if (moduleShelfPurchaseTimerRef) clearTimeout(moduleShelfPurchaseTimerRef);
+  if (moduleDeliveryTimerRef) clearTimeout(moduleDeliveryTimerRef);
+  RundotGameAPI.analytics.recordCustomEvent('game_paused');
+});
+
+RundotGameAPI.lifecycles.onResume(() => {
+  // Timers will be rescheduled by the component on resume
+  RundotGameAPI.analytics.recordCustomEvent('game_resumed');
+});
+
 RundotGameAPI.lifecycles.onSleep(() => RundotGameAPI.analytics.recordCustomEvent('game_sleep'));
 RundotGameAPI.lifecycles.onQuit(() => RundotGameAPI.analytics.recordCustomEvent('game_quit'));
 
@@ -350,6 +366,31 @@ export function ShopScreen() {
     scheduleNextVisit();
     return () => {
       if (npcTimerRef.current) clearTimeout(npcTimerRef.current);
+    };
+  }, []);
+
+  // Handle app pause/resume to reschedule timers on mobile
+  useEffect(() => {
+    const handleResume = () => {
+      // Clear old timers and reschedule immediately
+      if (npcTimerRef.current) clearTimeout(npcTimerRef.current);
+      if (shelfPurchaseTimerRef.current) clearTimeout(shelfPurchaseTimerRef.current);
+      if (deliveryTimerRef.current) clearTimeout(deliveryTimerRef.current);
+
+      // Reschedule timers with fresh timing
+      scheduleNextVisit();
+      scheduleNextShelfPurchase();
+      scheduleNextDelivery();
+    };
+
+    // Subscribe to resume event
+    const subscription = RundotGameAPI.lifecycles.onResume(handleResume);
+
+    return () => {
+      // Unsubscribe from resume event
+      if (subscription && typeof subscription.unsubscribe === 'function') {
+        subscription.unsubscribe();
+      }
     };
   }, []);
 
