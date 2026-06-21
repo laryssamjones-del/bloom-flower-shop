@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { getRecipeById } from '../../data/bouquets';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
-import { FLOWERS } from '../../constants/flowers';
 
 export function WrappingScreen() {
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
@@ -155,39 +154,6 @@ export function WrappingScreen() {
         {/* Animation / Result Display */}
         {!isComplete ? (
           <>
-            {/* Cascading flowers effect */}
-            {isAnimating && activeRecipe?.ingredients && (
-              <div
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  pointerEvents: 'none',
-                }}
-              >
-                {activeRecipe.ingredients.map((ingredient, idx) => {
-                  const flower = FLOWERS[ingredient.flowerId];
-                  return (
-                    <img
-                      key={`${ingredient.flowerId}-${idx}`}
-                      src={flower?.spriteUrl}
-                      alt={flower?.name || 'flower'}
-                      style={{
-                        position: 'absolute',
-                        left: `${20 + (idx % 3) * 30}%`,
-                        width: '48px',
-                        height: '48px',
-                        objectFit: 'contain',
-                        animation: `flowerCascade 2.5s ease-in ${idx * 0.2}s forwards`,
-                      }}
-                    />
-                  );
-                })}
-              </div>
-            )}
-
             {/* Pre-animation: Show bouquet preview */}
             <div
               style={{
