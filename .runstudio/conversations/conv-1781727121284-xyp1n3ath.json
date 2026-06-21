@@ -53998,11 +53998,24 @@
       "timestamp": 1782004197017,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "1782004200269-45hzq1kbf",
+      "role": "system",
+      "content": "Compacting project...",
+      "isShownToUser": true,
+      "timestamp": 1782004200269,
+      "type": "compaction",
+      "metadata": {
+        "compaction": {
+          "trigger": "auto"
+        }
+      }
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782004197057,
-  "tokenUsage": 101826,
+  "updatedAt": 1782004259185,
+  "tokenUsage": 0,
   "script": "default",
   "claudeSessionId": "8bc553d6-d783-40ff-91bd-522b9a2f6019"
 }
