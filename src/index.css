@@ -174,3 +174,19 @@ body {
     filter: brightness(1) drop-shadow(0 0 10px rgba(255, 200, 100, 0.3));
   }
 }
+
+/* Flower cascade animation - floats down to center */
+@keyframes flowerCascade {
+  0% {
+    opacity: 1;
+    transform: translateY(-200px) rotate(0deg);
+  }
+  85% {
+    opacity: 1;
+    transform: translateY(0px) rotate(360deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0px) rotate(360deg);
+  }
+}

@@ -3,6 +3,32 @@ import { useGameStore } from '../../stores/gameStore';
 import { getRecipeById } from '../../data/bouquets';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
+// Map flower IDs to emojis for the cascade animation
+const FLOWER_EMOJIS: Record<string, string> = {
+  daisy: '🌼',
+  babys_breath: '💐',
+  dried_wheat: '🌾',
+  tulip: '🌷',
+  cosmos: '🌸',
+  lavender: '💜',
+  carnation: '🌹',
+  marigold: '🧡',
+  sunflower: '🌻',
+  anemone: '⚪',
+  rose: '🌹',
+  peony: '🌺',
+  hydrangea: '💙',
+  chrysanthemum: '🌼',
+  ranunculus: '✨',
+  fern: '🍃',
+  eucalyptus: '🌿',
+  ruscus: '🌱',
+};
+
+function getFlowerEmoji(flowerId: string): string {
+  return FLOWER_EMOJIS[flowerId] || '🌸';
+}
+
 export function WrappingScreen() {
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
   const selectedRecipeId = useGameStore((s) => s.selectedRecipeId);
@@ -147,11 +173,41 @@ export function WrappingScreen() {
           justifyContent: 'center',
           padding: '20px',
           gap: '20px',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
         {/* Animation / Result Display */}
         {!isComplete ? (
           <>
+            {/* Cascading flowers effect */}
+            {isAnimating && activeRecipe?.ingredients && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  pointerEvents: 'none',
+                }}
+              >
+                {activeRecipe.ingredients.map((ingredient, idx) => (
+                  <div
+                    key={`${ingredient.flowerId}-${idx}`}
+                    style={{
+                      position: 'absolute',
+                      left: `${20 + (idx % 3) * 30}%`,
+                      fontSize: '32px',
+                      animation: `flowerCascade 2.5s ease-in ${idx * 0.2}s forwards`,
+                    }}
+                  >
+                    {getFlowerEmoji(ingredient.flowerId)}
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Pre-animation: Show bouquet preview */}
             <div
               style={{
@@ -160,6 +216,8 @@ export function WrappingScreen() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: '12px',
+                position: 'relative',
+                zIndex: 1,
               }}
             >
               <div style={{ fontSize: '14px', color: '#666', fontWeight: '500' }}>
