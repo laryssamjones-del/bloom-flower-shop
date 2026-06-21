@@ -75,9 +75,9 @@ export function ShelfCheckoutDialog({
   };
 
   // NPC positioning (consistent with order NPCs)
-  const npcHeight = npcConfig?.height || 420;
-  const npcBottomOffset = npcConfig?.bottomOffset || 70;
-  const npcRightOffset = npcConfig?.rightOffset || 0;
+  const npcHeight = npcConfig?.height ?? 420;
+  const npcBottomOffset = npcConfig?.bottomOffset ?? 0;  // Use ?? to handle 0 correctly (0 is falsy with ||)
+  const npcRightOffset = npcConfig?.rightOffset ?? 0;
 
   return (
     <>

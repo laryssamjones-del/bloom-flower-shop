@@ -8,9 +8,9 @@ export interface NPCCustomizationConfig {
 }
 
 const DEFAULT_CONFIG: NPCCustomizationConfig = {
-  height: 420,
-  bottomOffset: 70,
-  rightOffset: 0,
+  height: 420,      // px
+  bottomOffset: 0,  // px from bottom (user wants 0)
+  rightOffset: 0,   // px from right (user wants 0)
 };
 
 const STORAGE_KEY = 'bloommy_npc_customization';
@@ -180,7 +180,7 @@ export function NPCCustomizer({ onClose }: Props) {
         style={{
           position: 'absolute',
           bottom: `${config.bottomOffset}px`,
-          right: `${config.rightOffset}%`,
+          right: `${config.rightOffset}px`,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-end',

@@ -156,8 +156,8 @@ export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOv
     <div
       style={{
         position: 'absolute',
-        bottom: npcConfig.bottomOffset,
-        right: npcConfig.rightOffset,
+        bottom: `${npcConfig.bottomOffset}px`,
+        right: `${npcConfig.rightOffset}px`,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-end',
