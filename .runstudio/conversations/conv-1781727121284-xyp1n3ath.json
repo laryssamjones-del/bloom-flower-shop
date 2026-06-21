@@ -58024,11 +58024,29 @@
           "trigger": "auto"
         }
       }
+    },
+    {
+      "id": "user-1782015916490",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "this update is pushed to public right?",
+      "timestamp": 1782015916490,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782015923009-8151rw4cs",
+      "role": "assistant",
+      "content": "No, the v1.33.1 update is currently deployed to **private** only. That means it's shareable via a direct link but not listed in the public game store.\n\nTo publish it publicly for RUN.game review, you'd need to run:\n```bash\nrundot deploy --public\n```\n\nThis will deploy to the 'review' tag, where RUN.game staff can check it before it goes live to everyone.\n\nWant me to push it public, or would you like to test the shelf display fix first at the private link?",
+      "isShownToUser": true,
+      "timestamp": 1782015924007,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782015894055,
-  "tokenUsage": 0,
+  "updatedAt": 1782015924054,
+  "tokenUsage": 292,
   "script": "default",
   "claudeSessionId": "c442f3b4-8c04-4fda-9a7b-c3b5c394f51d"
 }
