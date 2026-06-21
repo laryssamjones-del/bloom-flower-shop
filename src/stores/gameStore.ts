@@ -25,7 +25,8 @@ import { loadShelfLayoutConfig } from '../game/components/ShelfLayoutEditor';
 import { loadTruckCustomizationConfig } from '../game/components/TruckCustomizer';
 
 const STARTING_COINS = 250;
-const MAX_INVENTORY_STEMS = 200;
+const STARTING_INVENTORY_CAPACITY = 125;
+const MAX_INVENTORY_CAPACITY = 450;
 const STARTING_SHELF_CAPACITY = 15;
 const DAILY_PURCHASE_LIMIT = 50; // 50 stems per flower per day
 
@@ -42,7 +43,7 @@ const createInitialState = (): ShopState => ({
 
   // Inventory
   inventory: [],
-  inventoryCapacity: MAX_INVENTORY_STEMS,
+  inventoryCapacity: STARTING_INVENTORY_CAPACITY,
   mysteryBouquets: [],
   exclusiveBouquets: [],
 
@@ -1053,6 +1054,8 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
   unlockTier: (tier: BouquetTier) => {
     set((s) => ({
       unlockedTiers: new Set([...s.unlockedTiers, tier]),
+      inventoryCapacity: Math.min(s.inventoryCapacity + 50, MAX_INVENTORY_CAPACITY),
+      lastUpdated: Date.now(),
     }));
   },
 
@@ -1126,7 +1129,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
           totalEarned: typeof data['totalEarned'] === 'number' ? (data['totalEarned'] as number) : 0,
           premiumCurrency: typeof data['premiumCurrency'] === 'number' ? (data['premiumCurrency'] as number) : 0,
           inventory: Array.isArray(data['inventory']) ? (data['inventory'] as StemInInventory[]) : [],
-          inventoryCapacity: typeof data['inventoryCapacity'] === 'number' ? (data['inventoryCapacity'] as number) : 200,
+          inventoryCapacity: typeof data['inventoryCapacity'] === 'number' ? (data['inventoryCapacity'] as number) : STARTING_INVENTORY_CAPACITY,
           shelfCapacity: typeof data['shelfCapacity'] === 'number' ? (data['shelfCapacity'] as number) : 20,
           shelfBouquets: [],
           pendingBouquets: Array.isArray(data['pendingBouquets']) ? (data['pendingBouquets'] as Bouquet[]) : [],

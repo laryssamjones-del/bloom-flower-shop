@@ -19,6 +19,10 @@ const BULK_DISCOUNTS: Record<BulkOption, number> = {
   20: 0.3,
 };
 
+const STORAGE_UPGRADE_SMALL = { slots: 25, cost: 15 };
+const STORAGE_UPGRADE_LARGE = { slots: 50, cost: 25 };
+const MAX_INVENTORY_CAPACITY = 450;
+
 export function WholesaleMarketScreen() {
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
   const coins = useGameStore((s) => s.coins);
@@ -40,6 +44,7 @@ export function WholesaleMarketScreen() {
   const setNeededFlower = useGameStore((s) => s.setNeededFlower);
   const setNeededFlowers = useGameStore((s) => s.setNeededFlowers);
   const inventory = useGameStore((s) => s.inventory);
+  const inventoryCapacity = useGameStore((s) => s.inventoryCapacity);
 
   const [selectedFlower, setSelectedFlower] = useState<string | null>(null);
   const [selectedBulk, setSelectedBulk] = useState<number>(1);
@@ -185,6 +190,21 @@ export function WholesaleMarketScreen() {
     if (!item) return;
 
     const quantityToBuy = customQuantity || selectedBulk;
+
+    // Check inventory space
+    const state = useGameStore.getState();
+    const currentStemsTotal = state.inventory.reduce((sum, inv) => sum + inv.quantity, 0);
+    if (currentStemsTotal + quantityToBuy > inventoryCapacity) {
+      setStoreError(`❌ Inventory full! You have ${inventoryCapacity} slots. Upgrade your storage or sell items.`);
+      setTimeout(() => setStoreError(null), 4000);
+      RundotGameAPI.analytics.recordCustomEvent('inventory_full_blocked', {
+        flowerId: selectedFlower,
+        attemptedQuantity: quantityToBuy,
+        currentCapacity: inventoryCapacity,
+        currentUsed: currentStemsTotal,
+      });
+      return;
+    }
 
     // Check daily limit
     const { canBuy } = checkDailyLimit(selectedFlower, quantityToBuy);
@@ -384,6 +404,37 @@ export function WholesaleMarketScreen() {
       // Reset countdown to trigger delivery
       setCountdownDisplay('0:00:00');
     }
+  };
+
+  const handleBuyStorageUpgrade = (slots: number, cost: number) => {
+    if (premiumCurrency < cost) {
+      return;
+    }
+
+    const state = useGameStore.getState();
+    const newCapacity = Math.min(state.inventoryCapacity + slots, MAX_INVENTORY_CAPACITY);
+
+    if (newCapacity > MAX_INVENTORY_CAPACITY) {
+      // At max capacity
+      return;
+    }
+
+    // Deduct run bucks and increase inventory capacity
+    useGameStore.setState((s) => ({
+      premiumCurrency: s.premiumCurrency - cost,
+      inventoryCapacity: newCapacity,
+      lastUpdated: Date.now(),
+    }));
+
+    const successMsg = `📦 +${slots} Inventory Slots! ${cost} 💎 Run Bucks spent`;
+    setSuccessMessage(successMsg);
+    setTimeout(() => setSuccessMessage(null), 3000);
+
+    RundotGameAPI.analytics.recordCustomEvent('inventory_storage_purchased', {
+      slots,
+      cost,
+      newCapacity,
+    });
   };
 
   const handleBuyPetalCoinsPackage = (packageId: string) => {
@@ -971,6 +1022,66 @@ export function WholesaleMarketScreen() {
                 >
                   {premiumCurrency < DELUXE_DELIVERY_COST ? `❌ Need ${DELUXE_DELIVERY_COST - premiumCurrency}` : '👑 Buy'}
                 </button>
+              </div>
+
+              {/* Inventory Storage Upgrades */}
+              <div style={{ marginBottom: '12px' }}>
+                <h3 style={{ margin: '0 0 12px 0', fontSize: '15px', color: '#333', fontWeight: 'bold' }}>
+                  📦 Inventory Storage
+                </h3>
+                <div style={{ fontSize: '11px', color: '#666', marginBottom: '12px', lineHeight: 1.4 }}>
+                  Current: <strong>{Math.round((inventory.reduce((sum, inv) => sum + inv.quantity, 0) / inventoryCapacity) * 100)}%</strong> full ({inventory.reduce((sum, inv) => sum + inv.quantity, 0)}/{inventoryCapacity} slots)
+                </div>
+
+                {/* +25 Storage for 15 💎 */}
+                <div style={{ marginBottom: '10px', padding: '12px', background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(129, 199, 132, 0.1))', borderRadius: '8px', border: '2px solid #4CAF50' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#333' }}>+25 Slots</div>
+                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#4CAF50' }}>{STORAGE_UPGRADE_SMALL.cost} 💎</div>
+                  </div>
+                  <button
+                    onClick={() => handleBuyStorageUpgrade(STORAGE_UPGRADE_SMALL.slots, STORAGE_UPGRADE_SMALL.cost)}
+                    disabled={premiumCurrency < STORAGE_UPGRADE_SMALL.cost || inventoryCapacity >= MAX_INVENTORY_CAPACITY}
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      background: (premiumCurrency < STORAGE_UPGRADE_SMALL.cost || inventoryCapacity >= MAX_INVENTORY_CAPACITY) ? '#CCC' : '#4CAF50',
+                      color: '#FFF',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: (premiumCurrency < STORAGE_UPGRADE_SMALL.cost || inventoryCapacity >= MAX_INVENTORY_CAPACITY) ? 'not-allowed' : 'pointer',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {inventoryCapacity >= MAX_INVENTORY_CAPACITY ? '✓ Max' : premiumCurrency < STORAGE_UPGRADE_SMALL.cost ? `❌ Need ${STORAGE_UPGRADE_SMALL.cost - premiumCurrency}` : '📦 Buy'}
+                  </button>
+                </div>
+
+                {/* +50 Storage for 25 💎 */}
+                <div style={{ marginBottom: '10px', padding: '12px', background: 'linear-gradient(135deg, rgba(33, 150, 243, 0.15), rgba(100, 181, 246, 0.1))', borderRadius: '8px', border: '2px solid #2196F3' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#333' }}>+50 Slots</div>
+                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#2196F3' }}>{STORAGE_UPGRADE_LARGE.cost} 💎</div>
+                  </div>
+                  <button
+                    onClick={() => handleBuyStorageUpgrade(STORAGE_UPGRADE_LARGE.slots, STORAGE_UPGRADE_LARGE.cost)}
+                    disabled={premiumCurrency < STORAGE_UPGRADE_LARGE.cost || inventoryCapacity >= MAX_INVENTORY_CAPACITY}
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      background: (premiumCurrency < STORAGE_UPGRADE_LARGE.cost || inventoryCapacity >= MAX_INVENTORY_CAPACITY) ? '#CCC' : '#2196F3',
+                      color: '#FFF',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: (premiumCurrency < STORAGE_UPGRADE_LARGE.cost || inventoryCapacity >= MAX_INVENTORY_CAPACITY) ? 'not-allowed' : 'pointer',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {inventoryCapacity >= MAX_INVENTORY_CAPACITY ? '✓ Max' : premiumCurrency < STORAGE_UPGRADE_LARGE.cost ? `❌ Need ${STORAGE_UPGRADE_LARGE.cost - premiumCurrency}` : '📦 Buy'}
+                  </button>
+                </div>
               </div>
 
               {/* Exclusive Mystery Box Section */}
