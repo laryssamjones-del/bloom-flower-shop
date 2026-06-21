@@ -56058,11 +56058,29 @@
       "timestamp": 1782008384586,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782012518023",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "this is just a question: can I take my game off from being public?",
+      "timestamp": 1782012518023,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782012540849-9ab982laq",
+      "role": "assistant",
+      "content": "Great question! Once a game has been fully approved and published publicly on RUN.game, unpublishing it isn't something I can do directly through the tools I have. That would require the RUN.game team to step in.\n\nYour best option would be to reach out to RUN.game support — they'd be able to remove or hide your game from the public listing if needed.\n\nFor now, your game is still in private mode, so nothing has changed on the public side yet!",
+      "isShownToUser": true,
+      "timestamp": 1782012540887,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782008384603,
-  "tokenUsage": 50994,
+  "updatedAt": 1782012540959,
+  "tokenUsage": 51600,
   "script": "default",
-  "claudeSessionId": "43ea7abb-6bf6-403b-b866-e6cc8d86ef5a"
+  "claudeSessionId": "c442f3b4-8c04-4fda-9a7b-c3b5c394f51d"
 }
