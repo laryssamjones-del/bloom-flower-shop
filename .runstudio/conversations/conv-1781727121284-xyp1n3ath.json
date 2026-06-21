@@ -60078,11 +60078,29 @@
       "timestamp": 1782019594365,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782019639341",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "what is the public sharing link to my game so that I can share with friends and family?",
+      "timestamp": 1782019639341,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782019649619-4796znm33",
+      "role": "assistant",
+      "content": "Your public sharing link is:\n\n**https://w.run/silvernexus8861/bloom-flower-shop**\n\nYou can also share the review version (v1.36.3 with all the latest fixes):\n\n**https://w.run/silvernexus8861/bloom-flower-shop?tag=review**\n\nShare either one with friends and family! The main link will always show the latest approved public version of your game.",
+      "isShownToUser": true,
+      "timestamp": 1782019649772,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782019594428,
-  "tokenUsage": 31877,
+  "updatedAt": 1782019650043,
+  "tokenUsage": 32354,
   "script": "default",
   "claudeSessionId": "9a8841fd-95f4-4363-9004-c49155339380"
 }
