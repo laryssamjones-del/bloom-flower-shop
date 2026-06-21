@@ -543,6 +543,7 @@ export function ShopScreen() {
       const remaining = parseInt(stored) - Date.now();
       if (remaining <= 0) {
         // Delivery is overdue (e.g. player returned after a long break) — trigger now
+        localStorage.removeItem('nextDeliveryTime'); // Clear old time so next call schedules fresh 4h
         triggerDelivery();
         return;
       }
