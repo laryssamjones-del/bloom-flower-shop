@@ -1371,7 +1371,7 @@ export function WholesaleMarketScreen() {
               const { canBuy } = checkDailyLimit(selectedFlower, selectedBulk);
               const insufficientCoins = coins < totalCost;
               const isDisabled = insufficientCoins || !canBuy;
-              const buttonText = !canBuy ? '❌ Daily limit reached' : insufficientCoins ? '❌ Not enough coins' : `💚 Buy ${selectedBulk} stems`;
+              const buttonText = !canBuy ? '❌ Daily limit reached' : insufficientCoins ? '❌ Not enough coins' : `💚 Buy ${selectedBulk} stems for ${totalCost} 🌼`;
 
               return (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
