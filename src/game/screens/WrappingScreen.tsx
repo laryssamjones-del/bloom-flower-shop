@@ -13,6 +13,8 @@ export function WrappingScreen() {
   const shelfBouquets = useGameStore((s) => s.shelfBouquets);
   const shelfCapacity = useGameStore((s) => s.shelfCapacity);
   const bouquetQuantityToBuild = useGameStore((s) => s.bouquetQuantityToBuild);
+  const completeOrder = useGameStore((s) => s.completeOrder);
+  const getOrderForShopping = useGameStore((s) => s.getOrderForShopping);
 
   const [isAnimating, setIsAnimating] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
@@ -56,7 +58,11 @@ export function WrappingScreen() {
       // If fulfilling an order, the first bouquet is for the order, rest go to shelf/inventory
       let bouquetsToShelf = bouquets;
       if (fulfillOrderId && bouquets.length > 0) {
-        // The createBouquets function already handles order completion for the first bouquet
+        // Complete the order with the first bouquet
+        const order = getOrderForShopping(fulfillOrderId);
+        if (order) {
+          completeOrder(fulfillOrderId, order.reward);
+        }
         // Additional bouquets should go to shelf/inventory
         bouquetsToShelf = bouquets.slice(1);
       }
