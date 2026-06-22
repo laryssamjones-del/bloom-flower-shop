@@ -86,6 +86,44 @@ export function WrappingScreen() {
     }
   };
 
+  const handleAddToInventory = () => {
+    const bouquets = createBouquets();
+
+    if (bouquets.length > 0) {
+      RundotGameAPI.analytics.recordCustomEvent('bouquets_completed', {
+        quantity: bouquets.length,
+        totalStemCount: (bouquets[0]?.stems?.length ?? 0) * bouquets.length,
+        totalSellPrice: bouquets.reduce((sum, b) => sum + b.sellPrice, 0),
+        recipeId: selectedRecipeId ?? 'none',
+        forOrder: !!fulfillOrderId,
+        addedToInventory: true,
+      });
+
+      // If fulfilling an order, use order.quantity bouquets to complete it, rest go to inventory
+      let bouquetsToInventory = bouquets;
+      if (fulfillOrderId && bouquets.length > 0) {
+        const order = getOrderForShopping(fulfillOrderId);
+        if (order) {
+          // All bouquets up to order.quantity are consumed by the order
+          const orderBouquetCount = Math.min(order.quantity, bouquets.length);
+          completeOrder(fulfillOrderId, order.reward);
+          // Only extras (beyond order quantity) go to inventory
+          bouquetsToInventory = bouquets.slice(orderBouquetCount);
+        }
+      }
+
+      // Add all bouquets directly to inventory
+      for (const bouquet of bouquetsToInventory) {
+        addBouquetToPending(bouquet);
+      }
+
+      setBouquetsCreated(bouquets.length);
+      if (!fulfillOrderId) {
+        setCurrentScreen('shop');
+      }
+    }
+  };
+
   const handleBack = () => {
     if (isComplete) {
       setIsComplete(false);
@@ -302,7 +340,7 @@ export function WrappingScreen() {
             <button
               onClick={handleBack}
               style={{
-                flex: 0.3,
+                flex: 0.25,
                 padding: '12px',
                 background: '#D4D4D4',
                 color: '#444',
@@ -315,24 +353,60 @@ export function WrappingScreen() {
             >
               ← Back
             </button>
-            <button
-              onClick={handleFinishBouquet}
-              style={{
-                flex: 1,
-                padding: '12px',
-                background: '#6A9A50',
-                color: '#FFF',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: 'bold',
-              }}
-            >
-              {fulfillOrderId
-                ? '✓ Complete Order'
-                : `✓ Add ${bouquetQuantityToBuild} Bouquet${bouquetQuantityToBuild > 1 ? 's' : ''} to Shelf`}
-            </button>
+            {fulfillOrderId ? (
+              <button
+                onClick={handleFinishBouquet}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: '#6A9A50',
+                  color: '#FFF',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                }}
+              >
+                ✓ Complete Order
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={handleFinishBouquet}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: '#6A9A50',
+                    color: '#FFF',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  📊 Add to Shelf
+                </button>
+                <button
+                  onClick={handleAddToInventory}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: '#E8964E',
+                    color: '#FFF',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    marginLeft: '8px',
+                  }}
+                >
+                  💐 Add to Inventory
+                </button>
+              </>
+            )}
           </>
         )}
       </div>
