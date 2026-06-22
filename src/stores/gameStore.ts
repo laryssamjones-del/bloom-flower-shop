@@ -263,6 +263,11 @@ interface GameStoreActions {
     rightOffset: number;
   }) => void;
 
+  // NPC state (persists across screen navigation)
+  setActiveNPCVisit: (visit: any) => void;
+  clearActiveNPCVisit: () => void;
+  setShelfPurchaseNPC: (npc: { npcImage: string; bouquet: any } | null) => void;
+
   // Tutorial
   setTutorialStep: (step: number) => void;
   completeTutorial: () => void;
@@ -1666,6 +1671,28 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
   saveTruckCustomizationConfig: (config) => {
     set({
       truckCustomizationConfig: config,
+      lastUpdated: Date.now(),
+    });
+  },
+
+  // NPC state management
+  setActiveNPCVisit: (visit) => {
+    set({
+      activeNPCVisit: visit,
+      lastUpdated: Date.now(),
+    });
+  },
+
+  clearActiveNPCVisit: () => {
+    set({
+      activeNPCVisit: undefined,
+      lastUpdated: Date.now(),
+    });
+  },
+
+  setShelfPurchaseNPC: (npc) => {
+    set({
+      shelfPurchaseNPC: npc ?? undefined,
       lastUpdated: Date.now(),
     });
   },

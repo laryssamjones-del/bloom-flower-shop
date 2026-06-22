@@ -83,6 +83,12 @@ export function ShopScreen() {
   const expirePendingOnlineOrders = useGameStore((s) => s.expirePendingOnlineOrders);
   const checkAndResetOnlineOrderDaily = useGameStore((s) => s.checkAndResetOnlineOrderDaily);
   const hasReceivedFirstTimeGift = useGameStore((s) => s.hasReceivedFirstTimeGift);
+  // NPC state from gameStore (persists across screens)
+  const activeVisit = useGameStore((s) => s.activeNPCVisit);
+  const setActiveVisitInStore = useGameStore((s) => s.setActiveNPCVisit);
+  const clearActiveVisitInStore = useGameStore((s) => s.clearActiveNPCVisit);
+  const shelfPurchaseNPC = useGameStore((s) => s.shelfPurchaseNPC);
+  const setShelfPurchaseNPCInStore = useGameStore((s) => s.setShelfPurchaseNPC);
 
   // Background music — load from localStorage on mount
   const musicHook = useBackgroundMusic();
@@ -309,17 +315,25 @@ export function ShopScreen() {
     }
   }, [cumulativeBouquetsSold, unclaimedRewards, addUnclaimedReward, addNotification]);
 
-  // Active NPC visit (order requests)
-  const [activeVisit, setActiveVisit] = useState<NPCVisit | null>(null);
+  // NPC timers
   const npcTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Shelf purchase NPC (checkout dialog)
-  const [shelfPurchaseNPC, setShelfPurchaseNPC] = useState<{
-    npcImage: string;
-    bouquet: Bouquet;
-  } | null>(null);
-  const [shelfCheckoutInProgress, setShelfCheckoutInProgress] = useState(false);
   const shelfPurchaseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Shelf checkout state (local only, not persisted)
+  const [shelfCheckoutInProgress, setShelfCheckoutInProgress] = useState(false);
+
+  // Wrapper functions to interact with store setters
+  const setActiveVisit = (visit: NPCVisit | null) => {
+    if (visit) {
+      setActiveVisitInStore(visit);
+    } else {
+      clearActiveVisitInStore();
+    }
+  };
+
+  const setShelfPurchaseNPC = (npc: { npcImage: string; bouquet: Bouquet } | null) => {
+    setShelfPurchaseNPCInStore(npc);
+  };
 
   // Layout editor
   const [editingLayout, setEditingLayout] = useState(false);

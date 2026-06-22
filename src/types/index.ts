@@ -209,6 +209,9 @@ export interface ShopState extends GameState {
   completedOrderCustomerImage?: string; // NPC image for thank you animation
   // Exclusive mystery box reveal animation
   pendingBoxReveal?: ExclusiveBoxContents[]; // Contents waiting to be revealed in animation
+  // NPC state (persists across screen navigation)
+  activeNPCVisit?: any; // NPCVisit type (kept as any to avoid circular deps)
+  shelfPurchaseNPC?: { npcImage: string; bouquet: Bouquet };
   // Tutorial
   tutorialCompleted: boolean;
   tutorialCurrentStep: number;

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Bouquet } from '../../types';
 import { useGameStore } from '../../stores/gameStore';
+import { playDoorBellSound } from '../../services/audio';
 import { loadShelfNPCCustomizationConfig } from './ShelfNPCCustomizer';
 
 interface ShelfCheckoutDialogProps {
@@ -25,6 +26,11 @@ export function ShelfCheckoutDialog({
   const autoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const storedShelfNPCConfig = useGameStore((s) => s.shelfNPCCustomizationConfig);
   const npcConfig = storedShelfNPCConfig || loadShelfNPCCustomizationConfig();
+
+  // Play door bell sound when NPC arrives
+  useEffect(() => {
+    playDoorBellSound();
+  }, []);
 
   // Handle 15-second countdown and auto-dismiss
   useEffect(() => {
