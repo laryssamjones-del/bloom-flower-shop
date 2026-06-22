@@ -18,6 +18,7 @@ export function InventoryScreen() {
   const claimLevelReward = useGameStore((s) => s.claimLevelReward);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showRewardsModal, setShowRewardsModal] = useState(false);
+  const [claimingRewards, setClaimingRewards] = useState<Set<number>>(new Set());
 
   const getItem = (id: string) => FLOWERS[id] || (GREENERY as Record<string, any>)[id];
 
@@ -74,6 +75,11 @@ export function InventoryScreen() {
         bouquetName,
       });
     }
+  };
+
+  const handleCloseRewardsModal = () => {
+    setShowRewardsModal(false);
+    setClaimingRewards(new Set());
   };
 
   return (
@@ -472,7 +478,7 @@ export function InventoryScreen() {
               justifyContent: 'center',
               zIndex: 10000,
             }}
-            onClick={() => setShowRewardsModal(false)}
+            onClick={() => handleCloseRewardsModal()}
           >
             <div
               style={{
@@ -503,6 +509,7 @@ export function InventoryScreen() {
 
                   {unclaimedRewards.map((level) => {
                 const rewardCoins = 150 + Math.floor(level / 5) * 10;
+                const isClaiming = claimingRewards.has(level);
                 return (
                   <div
                     key={level}
@@ -526,28 +533,29 @@ export function InventoryScreen() {
                       </div>
                     </div>
                     <button
+                      disabled={isClaiming}
                       onClick={() => {
+                        // Prevent double-clicks by marking as claiming
+                        setClaimingRewards((prev) => new Set([...prev, level]));
                         claimLevelReward(level);
-                        if (unclaimedRewards.length === 1) {
-                          setShowRewardsModal(false);
-                        }
                         RundotGameAPI.analytics.recordCustomEvent('reward_claimed_from_inventory', {
                           level,
                         });
                       }}
                       style={{
                         padding: '6px 12px',
-                        background: '#F39C12',
+                        background: isClaiming ? '#CCC' : '#F39C12',
                         color: '#FFF',
                         border: 'none',
                         borderRadius: '4px',
-                        cursor: 'pointer',
+                        cursor: isClaiming ? 'not-allowed' : 'pointer',
                         fontSize: '12px',
                         fontWeight: 'bold',
                         whiteSpace: 'nowrap',
+                        opacity: isClaiming ? 0.6 : 1,
                       }}
                     >
-                      Claim
+                      {isClaiming ? 'Claiming...' : 'Claim'}
                     </button>
                   </div>
                 );
@@ -556,7 +564,7 @@ export function InventoryScreen() {
               )}
 
               <button
-                onClick={() => setShowRewardsModal(false)}
+                onClick={() => handleCloseRewardsModal()}
                 style={{
                   width: '100%',
                   padding: '10px',
