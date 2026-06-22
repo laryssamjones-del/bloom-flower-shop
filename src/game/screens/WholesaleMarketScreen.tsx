@@ -934,7 +934,7 @@ export function WholesaleMarketScreen() {
                     src={deliveryTruckImage}
                     alt="Delivery Truck"
                     style={{
-                      width: '100px',
+                      width: '50px',
                       height: 'auto',
                       objectFit: 'contain',
                       filter: premiumCurrency < INSTANT_DELIVERY_COST ? 'grayscale(100%) brightness(0.7)' : 'none',
