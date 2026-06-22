@@ -64216,11 +64216,29 @@
       "timestamp": 1782099773748,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782099946513",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "how often are online orders supposed to come in? did we establish that yet?",
+      "timestamp": 1782099946513,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782099957582-1cji9e2qi",
+      "role": "assistant",
+      "content": "Yes, we did! Based on our earlier design, online orders spawn:\n\n- **Every 60-120 seconds** (randomly within that range)\n- **One at a time** in the pending queue\n- **Daily limit of 15** per day (resets at midnight server time)\n\nSo a new order appears roughly every 1-2 minutes, but only if:\n1. The pending slot is empty (player accepted/denied the previous one)\n2. They haven't reached the daily limit of 15 completed orders\n\nIs this still the frequency you want, or would you like to adjust it?",
+      "isShownToUser": true,
+      "timestamp": 1782099958723,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782099773796,
-  "tokenUsage": 19554,
+  "updatedAt": 1782099958764,
+  "tokenUsage": 19957,
   "script": "default",
   "claudeSessionId": "f4194e93-b6d4-439e-9059-5c00af4b8ffd"
 }
