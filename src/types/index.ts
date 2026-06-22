@@ -232,4 +232,6 @@ export interface Notification {
   isRead: boolean;
   createdAt: number;
   showPopup: boolean; // whether to show as pop-up animation
+  fulfilled?: boolean; // true when the associated action is complete (e.g., order fulfilled)
+  linkedOrderId?: string; // optional: link to an order so we can mark fulfilled when order completes
 }

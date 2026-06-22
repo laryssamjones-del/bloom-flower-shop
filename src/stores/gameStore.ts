@@ -222,8 +222,9 @@ interface GameStoreActions {
   getUnclaimedRewardCount: () => number;
 
   // Notifications
-  addNotification: (type: Notification['type'], title: string, message: string, showPopup: boolean) => void;
+  addNotification: (type: Notification['type'], title: string, message: string, showPopup: boolean, linkedOrderId?: string) => void;
   markNotificationAsRead: (notificationId: string) => void;
+  markNotificationAsFulfilled: (notificationId: string) => void;
   removeNotification: (notificationId: string) => void;
   getUnreadNotificationCount: () => number;
 
@@ -580,6 +581,10 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
           // Only show thank-you animation for NPC orders (they have a character image)
           orderJustCompleted: !order.isOnlineOrder,
           completedOrderCustomerImage: order.isOnlineOrder ? undefined : customerImage,
+          // Mark corresponding order notifications as fulfilled
+          notifications: s.notifications.map((notif) =>
+            (notif.linkedOrderId === fulfillOrderId) ? { ...notif, fulfilled: true } : notif
+          ),
           currentScreen: 'shop',
           lastUpdated: Date.now(),
         }));
@@ -867,6 +872,10 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       // Only show thank-you animation for NPC orders
       orderJustCompleted: !order.isOnlineOrder,
       completedOrderCustomerImage: order.isOnlineOrder ? undefined : order.npcImage,
+      // Mark corresponding order notifications as fulfilled
+      notifications: s.notifications.map((notif) =>
+        (notif.linkedOrderId === orderId) ? { ...notif, fulfilled: true } : notif
+      ),
       lastUpdated: Date.now(),
     }));
 
@@ -990,6 +999,12 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     set((s) => ({
       pendingOnlineOrders: s.pendingOnlineOrders.filter((o) => o.id !== orderId),
       pendingOrders: [...s.pendingOrders, acceptedOrder],
+      // Update any online_order notifications to link to the new Order (for fulfillment tracking)
+      notifications: s.notifications.map((notif) =>
+        (notif.type === 'online_order' && notif.linkedOrderId === orderId)
+          ? { ...notif, linkedOrderId: acceptedOrder.id }
+          : notif
+      ),
       lastUpdated: Date.now(),
     }));
 
@@ -1445,7 +1460,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
   },
 
   // Notifications
-  addNotification: (type: Notification['type'], title: string, message: string, showPopup: boolean) => {
+  addNotification: (type: Notification['type'], title: string, message: string, showPopup: boolean, linkedOrderId?: string) => {
     const notificationId = `notification-${Date.now()}-${Math.random()}`;
     const notification: Notification = {
       id: notificationId,
@@ -1455,6 +1470,8 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       isRead: false,
       createdAt: Date.now(),
       showPopup,
+      fulfilled: false,
+      linkedOrderId,
     };
     set((s) => ({
       notifications: [...s.notifications, notification],
@@ -1466,6 +1483,15 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     set((s) => ({
       notifications: s.notifications.map((notif) =>
         notif.id === notificationId ? { ...notif, isRead: true } : notif
+      ),
+      lastUpdated: Date.now(),
+    }));
+  },
+
+  markNotificationAsFulfilled: (notificationId: string) => {
+    set((s) => ({
+      notifications: s.notifications.map((notif) =>
+        notif.id === notificationId ? { ...notif, fulfilled: true } : notif
       ),
       lastUpdated: Date.now(),
     }));

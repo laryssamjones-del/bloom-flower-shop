@@ -102,22 +102,25 @@ export function NotificationCenter({ isOpen, onClose, onNotificationClick }: Not
                     <div
                       key={notif.id}
                       onClick={() => {
-                        if (isClickable && onNotificationClick) {
+                        if (isClickable && !notif.fulfilled && onNotificationClick) {
                           onNotificationClick(notif.type);
                           removeNotification(notif.id);
                         }
                       }}
                       style={{
                         padding: '12px',
-                        background: notif.isRead ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.9)',
-                        border: `1px solid ${notif.isRead ? '#E0D5C7' : '#D4A57C'}`,
+                        background: notif.fulfilled
+                          ? 'rgba(200,200,200,0.3)'
+                          : notif.isRead ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.9)',
+                        border: `1px solid ${notif.fulfilled ? '#BDBDBD' : notif.isRead ? '#E0D5C7' : '#D4A57C'}`,
                         borderRadius: '8px',
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'flex-start',
                         gap: '12px',
-                        cursor: isClickable ? 'pointer' : 'default',
+                        cursor: isClickable && !notif.fulfilled ? 'pointer' : 'default',
                         transition: isClickable ? 'all 0.2s ease' : 'none',
+                        opacity: notif.fulfilled ? 0.6 : 1,
                       }}
                       onMouseEnter={(e) => {
                         if (isClickable) {
@@ -137,18 +140,23 @@ export function NotificationCenter({ isOpen, onClose, onNotificationClick }: Not
                           style={{
                             fontSize: '14px',
                             fontWeight: 'bold',
-                            color: '#333',
+                            color: notif.fulfilled ? '#999' : '#333',
                             marginBottom: '4px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
                           }}
                         >
+                          {notif.fulfilled && <span>✓</span>}
                           {NOTIFICATION_TITLES[notif.type] || notif.title}
                         </div>
                         <div
                           style={{
                             fontSize: '12px',
-                            color: '#666',
+                            color: notif.fulfilled ? '#999' : '#666',
                             marginBottom: '6px',
                             lineHeight: 1.3,
+                            textDecoration: notif.fulfilled ? 'line-through' : 'none',
                           }}
                         >
                           {notif.message}
@@ -156,15 +164,16 @@ export function NotificationCenter({ isOpen, onClose, onNotificationClick }: Not
                         <div
                           style={{
                             fontSize: '10px',
-                            color: '#999',
+                            color: notif.fulfilled ? '#999' : '#999',
                           }}
                         >
                           {new Date(notif.createdAt).toLocaleTimeString([], {
                             hour: '2-digit',
                             minute: '2-digit',
                           })}
+                          {notif.fulfilled && ' • Completed'}
                         </div>
-                        {isClickable && (
+                        {isClickable && !notif.fulfilled && (
                           <div
                             style={{
                               fontSize: '10px',

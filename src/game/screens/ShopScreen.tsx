@@ -412,8 +412,8 @@ export function ShopScreen() {
     const order = createOrder(activeVisit.npcImage);
     setActiveVisit(null);
     if (order) {
-      // Trigger silent notification for order pending
-      addNotification('order_pending', '📋 Order Pending', `${activeVisit.recipeName} needs to be fulfilled!`, false);
+      // Trigger silent notification for order pending (link to order so it marks fulfilled when completed)
+      addNotification('order_pending', '📋 Order Pending', `${activeVisit.recipeName} needs to be fulfilled!`, false, order.id);
       RundotGameAPI.analytics.recordCustomEvent('npc_order_accepted', {
         recipeId: activeVisit.recipeId,
         recipeName: activeVisit.recipeName,
@@ -619,12 +619,13 @@ export function ShopScreen() {
       ) {
         const newOrder = freshState.createPendingOnlineOrder();
         if (newOrder) {
-          // Trigger notification
+          // Trigger notification (link to pending order, will be updated to link to accepted order if accepted)
           freshState.addNotification(
             'online_order',
             '🌐 New Online Order!',
             `Someone wants a ${newOrder.recipeName}! Check Online Orders.`,
-            true
+            true,
+            newOrder.id
           );
           RundotGameAPI.analytics.recordCustomEvent('online_order_notification_sent', {
             recipeId: newOrder.recipeId,
