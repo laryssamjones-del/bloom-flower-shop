@@ -430,10 +430,10 @@ export function ShopScreen() {
     setActiveVisit(null);
   };
 
-  // Shelf purchase NPC - shows a checkout dialog every 60-120 seconds
+  // Shelf purchase NPC - shows a checkout dialog every 15-90 seconds
   // Only appears if no other NPCs are active (order requests, delivery trucks)
   const scheduleNextShelfPurchase = () => {
-    const delay = 60000 + Math.random() * 60000;
+    const delay = 15000 + Math.random() * 75000;
     shelfPurchaseTimerRef.current = setTimeout(() => {
       const bouquets = useGameStore.getState().shelfBouquets;
       // Only spawn if:
