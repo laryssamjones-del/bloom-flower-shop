@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { FLOWERS } from '../../constants/flowers';
 import { GREENERY } from '../../constants/flowers';
@@ -46,6 +46,7 @@ export function BouquetArrangementScreen() {
   const clearSelectedRecipe = useGameStore((s) => s.clearSelectedRecipe);
   const inventory = useGameStore((s) => s.inventory);
   const cumulativeBouquetsSold = useGameStore((s) => s.cumulativeBouquetsSold);
+  const pendingOrders = useGameStore((s) => s.pendingOrders);
 
   // Store the recipe ID selection in the store so it persists when navigating away
   const storeRecipeSelection = (recipeId: string | undefined) => {
@@ -60,6 +61,16 @@ export function BouquetArrangementScreen() {
   const [localRecipeId, setLocalRecipeId] = useState<string | null>(selectedRecipeId ?? null);
   const [filterTier, setFilterTier] = useState<BouquetTier | 'all'>('all');
   const [quantityToBuild, setQuantityToBuild] = useState<number>(1);
+
+  // Auto-set quantity to match order quantity when fulfilling an order
+  useEffect(() => {
+    if (fulfillOrderId) {
+      const order = pendingOrders.find((o) => o.id === fulfillOrderId);
+      if (order) {
+        setQuantityToBuild(order.quantity);
+      }
+    }
+  }, [fulfillOrderId, pendingOrders]);
 
   const activeRecipe = localRecipeId ? getRecipeById(localRecipeId) : null;
   const canMake = localRecipeId ? canMakeRecipe(localRecipeId) : false;

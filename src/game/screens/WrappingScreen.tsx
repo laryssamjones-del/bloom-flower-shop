@@ -54,16 +54,17 @@ export function WrappingScreen() {
         forOrder: !!fulfillOrderId,
       });
 
-      // If fulfilling an order, the first bouquet is for the order, rest go to shelf/inventory
+      // If fulfilling an order, use order.quantity bouquets to complete it, rest go to shelf/inventory
       let bouquetsToShelf = bouquets;
       if (fulfillOrderId && bouquets.length > 0) {
-        // Complete the order with the first bouquet
         const order = getOrderForShopping(fulfillOrderId);
         if (order) {
+          // All bouquets up to order.quantity are consumed by the order
+          const orderBouquetCount = Math.min(order.quantity, bouquets.length);
           completeOrder(fulfillOrderId, order.reward);
+          // Only extras (beyond order quantity) go to shelf/inventory
+          bouquetsToShelf = bouquets.slice(orderBouquetCount);
         }
-        // Additional bouquets should go to shelf/inventory
-        bouquetsToShelf = bouquets.slice(1);
       }
 
       // Add bouquets to shelf or inventory
