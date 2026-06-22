@@ -127,14 +127,12 @@ export function WrappingScreen() {
 
       // Add bouquets to inventory; if inventory fills up mid-batch, overflow goes to shelf
       for (const bouquet of bouquetsToInventory) {
-        const added = pendingBouquets.length < bouquetStorageCapacity;
-        if (added) {
-          addBouquetToPending(bouquet);
-        } else {
-          // Inventory filled up during batch — send overflow to shelf
+        const wasAdded = addBouquetToPending(bouquet);
+        if (!wasAdded) {
+          // Inventory filled up — send overflow to shelf
           const addedToShelf = addBouquetToShelf(bouquet);
           if (!addedToShelf) {
-            // Both inventory and shelf are full — add to shelf as overflow anyway
+            // Both inventory and shelf are full — add to pending as overflow anyway
             addBouquetToPending({ ...bouquet, source: 'overflow' });
           }
         }

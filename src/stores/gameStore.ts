@@ -154,7 +154,7 @@ interface GameStoreActions {
 
   // Shelf
   addBouquetToShelf: (bouquet: Bouquet) => boolean;
-  addBouquetToPending: (bouquet: Bouquet) => void;
+  addBouquetToPending: (bouquet: Bouquet) => boolean;
   removeBouquetFromPending: (bouquetId: string) => void;
   removeBouquetFromShelf: (bouquetId: string) => void;
   getShelfDisplay: () => (Bouquet | null)[];
@@ -660,17 +660,17 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
   },
 
   addBouquetToPending: (bouquet: Bouquet) => {
-    set((s) => {
-      // Check if storage is full (50 bouquet limit)
-      if (s.pendingBouquets.length >= s.bouquetStorageCapacity) {
-        // Storage is full - don't add
-        return s;
-      }
-      return {
-        pendingBouquets: [...s.pendingBouquets, bouquet],
-        lastUpdated: Date.now(),
-      };
-    });
+    const state = get();
+    // Check if storage is full (50 bouquet limit)
+    if (state.pendingBouquets.length >= state.bouquetStorageCapacity) {
+      // Storage is full - don't add
+      return false;
+    }
+    set((s) => ({
+      pendingBouquets: [...s.pendingBouquets, bouquet],
+      lastUpdated: Date.now(),
+    }));
+    return true;
   },
 
   removeBouquetFromPending: (bouquetId: string) => {
