@@ -543,11 +543,12 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       bouquets.push(bouquet);
     }
 
-    // Clear the arrangement and reset quantity
+    // Clear the arrangement and reset quantity (also clear fulfillOrderId so it never leaks into the next bouquet)
     set({
       stemsInArrangement: [],
       inProgressWrapping: undefined,
       selectedRecipeId: undefined,
+      fulfillOrderId: undefined,
       bouquetQuantityToBuild: 1,
       currentScreen: 'shop',
     });

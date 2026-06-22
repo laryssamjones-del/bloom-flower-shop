@@ -429,45 +429,59 @@ export function InventoryScreen() {
           </div>
         )}
 
-        {/* Bouquets Section (Storage) */}
-        {pendingBouquets.length > 0 && (
-          <div style={{ marginTop: '24px' }}>
+        {/* Bouquets Section (Storage) — always visible */}
+        <div style={{ marginTop: '24px' }}>
+          <div
+            style={{
+              fontSize: '16px',
+              fontWeight: 'bold',
+              marginBottom: '8px',
+              color: '#E8964E',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              justifyContent: 'space-between',
+            }}
+          >
+            <span>💐 Bouquets</span>
+            <span style={{ fontSize: '12px', color: '#999', fontWeight: 'normal' }}>
+              {pendingBouquets.length} / 50
+            </span>
+          </div>
+          {pendingBouquets.length >= 50 && (
             <div
               style={{
-                fontSize: '16px',
+                padding: '10px',
+                background: '#FFEBEE',
+                border: '1px solid #FF6B6B',
+                borderRadius: '6px',
+                fontSize: '12px',
+                color: '#C92A2A',
+                marginBottom: '12px',
                 fontWeight: 'bold',
-                marginBottom: '8px',
-                color: '#E8964E',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                justifyContent: 'space-between',
+                gap: '6px',
               }}
             >
-              <span>💐 Bouquets</span>
-              <span style={{ fontSize: '12px', color: '#999', fontWeight: 'normal' }}>
-                {pendingBouquets.length} / 50
-              </span>
+              ⚠️ Storage is full! Delete bouquets to make space.
             </div>
-            {pendingBouquets.length >= 50 && (
-              <div
-                style={{
-                  padding: '10px',
-                  background: '#FFEBEE',
-                  border: '1px solid #FF6B6B',
-                  borderRadius: '6px',
-                  fontSize: '12px',
-                  color: '#C92A2A',
-                  marginBottom: '12px',
-                  fontWeight: 'bold',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                }}
-              >
-                ⚠️ Storage is full! Delete bouquets to make space.
-              </div>
-            )}
+          )}
+          {pendingBouquets.length === 0 ? (
+            <div
+              style={{
+                padding: '16px',
+                background: 'rgba(232, 150, 78, 0.08)',
+                border: '1px dashed #E8964E',
+                borderRadius: '8px',
+                fontSize: '13px',
+                color: '#999',
+                textAlign: 'center',
+              }}
+            >
+              No bouquets yet. Go to Arrange to make one!
+            </div>
+          ) : (
             <div
               style={{
                 display: 'grid',
@@ -606,8 +620,8 @@ export function InventoryScreen() {
                 );
               })}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Mystery Bouquets Section */}
         {mysteryBouquets.length > 0 && (
