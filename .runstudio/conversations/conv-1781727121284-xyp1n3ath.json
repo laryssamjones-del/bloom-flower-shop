@@ -64634,11 +64634,29 @@
       "timestamp": 1782100349723,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782100451531",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "how often are NPCs spawning to take bouquets off of the display shelf?",
+      "timestamp": 1782100451531,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782100459705-j32qmip46",
+      "role": "assistant",
+      "content": "NPCs currently spawn to purchase bouquets from the shelf every **60-120 seconds** (1-2 minutes randomly).\n\nThis is controlled in ShopScreen.tsx:\n```typescript\nconst delay = 60000 + Math.random() * 60000;\n```\n\nWould you like to adjust this frequency?",
+      "isShownToUser": true,
+      "timestamp": 1782100460071,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782100349771,
-  "tokenUsage": 31844,
+  "updatedAt": 1782100460115,
+  "tokenUsage": 32077,
   "script": "default",
   "claudeSessionId": "f4194e93-b6d4-439e-9059-5c00af4b8ffd"
 }
