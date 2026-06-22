@@ -75,7 +75,7 @@ export function ShopScreen() {
   const addCoins = useGameStore((s) => s.addCoins);
 
   // Background music
-  const { volume: musicVolume, setVolume: setMusicVolume, isMuted: isMusicMuted, toggleMute: toggleMusicMute } = useBackgroundMusic('/petals-on-repeat.mp3');
+  const { volume: musicVolume, setVolume: setMusicVolume, isMuted: isMusicMuted, toggleMute: toggleMusicMute } = useBackgroundMusic();
 
   // SFX volume — load from localStorage on mount
   const [sfxVolume, setSfxVolumeState] = useState<number>(() => {

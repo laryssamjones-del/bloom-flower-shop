@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { loadNPCCustomizationConfig } from './NPCCustomizer';
 import { useGameStore } from '../../stores/gameStore';
-import { playAudio } from '../../services/audio';
+import { playDoorBellSound } from '../../services/audio';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
 const NPC_IMAGES = [
@@ -90,7 +90,7 @@ export function CustomerNPCOverlay({ visit, onAccept, onDecline }: CustomerNPCOv
 
   // Play door bell sound when NPC arrives
   useEffect(() => {
-    playAudio('/shop-door-bell.mp3', 0.5);
+    playDoorBellSound();
     RundotGameAPI.analytics.recordCustomEvent('npc_customer_sound_played');
   }, []);
 
