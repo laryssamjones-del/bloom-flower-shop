@@ -7,15 +7,19 @@ import { ScreenNavigation } from '../components/ScreenNavigation';
 export function InventoryScreen() {
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
   const inventory = useGameStore((s) => s.inventory);
+  const pendingBouquets = useGameStore((s) => s.pendingBouquets);
   const mysteryBouquets = useGameStore((s) => s.mysteryBouquets);
   const exclusiveBouquets = useGameStore((s) => s.exclusiveBouquets);
   const sellMysteryBouquet = useGameStore((s) => s.sellMysteryBouquet);
   const sellExclusiveBouquet = useGameStore((s) => s.sellExclusiveBouquet);
   const displayExclusiveBouquetOnShelf = useGameStore((s) => s.displayExclusiveBouquetOnShelf);
+  const addBouquetToShelf = useGameStore((s) => s.addBouquetToShelf);
   const displayedBouquets = useGameStore((s) => s.displayedBouquets);
   const unclaimedRewards = useGameStore((s) => s.unclaimedRewards);
   const getUnclaimedRewardCount = useGameStore((s) => s.getUnclaimedRewardCount);
   const claimLevelReward = useGameStore((s) => s.claimLevelReward);
+  const removeBouquetFromPending = useGameStore((s) => s.removeBouquetFromPending);
+  const sellPendingBouquet = useGameStore((s) => s.sellPendingBouquet);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showRewardsModal, setShowRewardsModal] = useState(false);
   const [claimingRewards, setClaimingRewards] = useState<Set<number>>(new Set());
@@ -80,6 +84,44 @@ export function InventoryScreen() {
   const handleCloseRewardsModal = () => {
     setShowRewardsModal(false);
     setClaimingRewards(new Set());
+  };
+
+  const handleAddPendingBouquetToShelf = (bouquetId: string, bouquetName: string) => {
+    const bouquet = pendingBouquets.find((b) => b.id === bouquetId);
+    if (!bouquet) return;
+
+    const emptySlots = displayedBouquets.filter((b) => b === null).length;
+    if (emptySlots === 0) {
+      const msg = '❌ Your shelf is full! Remove a bouquet to make space.';
+      setSuccessMessage(msg);
+      setTimeout(() => setSuccessMessage(null), 3000);
+      return;
+    }
+
+    if (addBouquetToShelf(bouquet)) {
+      removeBouquetFromPending(bouquetId);
+      const msg = `✨ ${bouquetName} added to shelf!`;
+      setSuccessMessage(msg);
+      setTimeout(() => setSuccessMessage(null), 2000);
+      RundotGameAPI.analytics.recordCustomEvent('pending_bouquet_added_to_shelf', {
+        bouquetId,
+        bouquetName,
+      });
+    }
+  };
+
+  const handleSellPendingBouquet = (bouquetId: string, bouquetName: string, price: number) => {
+    if (sellPendingBouquet(bouquetId)) {
+      const msg = `✨ Sold ${bouquetName} for ${price} 🌼`;
+      setSuccessMessage(msg);
+      setTimeout(() => setSuccessMessage(null), 2000);
+
+      RundotGameAPI.analytics.recordCustomEvent('pending_bouquet_sold', {
+        bouquetId,
+        bouquetName,
+        price,
+      });
+    }
   };
 
   return (
@@ -185,7 +227,7 @@ export function InventoryScreen() {
           padding: '12px',
         }}
       >
-        {inventory.length === 0 && mysteryBouquets.length === 0 ? (
+        {inventory.length === 0 && mysteryBouquets.length === 0 && pendingBouquets.length === 0 && exclusiveBouquets.length === 0 ? (
           <div
             style={{
               padding: '24px',
@@ -358,6 +400,125 @@ export function InventoryScreen() {
                       </button>
                       <button
                         onClick={() => handleSellExclusiveBouquet(bouquet.id, bouquet.name, bouquet.sellPrice)}
+                        style={{
+                          padding: '6px 10px',
+                          background: '#FF6B6B',
+                          color: '#FFF',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '10px',
+                          fontWeight: 'bold',
+                          transition: 'all 0.2s',
+                        }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
+                        }}
+                      >
+                        💚 Sell
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Pending Bouquets Section */}
+        {pendingBouquets.length > 0 && (
+          <div style={{ marginTop: '24px' }}>
+            <div
+              style={{
+                fontSize: '16px',
+                fontWeight: 'bold',
+                marginBottom: '12px',
+                color: '#E8964E',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              📥 Pending Bouquets
+            </div>
+            <div
+              style={{
+                display: 'grid',
+                gap: '10px',
+              }}
+            >
+              {pendingBouquets.map((bouquet) => {
+                const emptySlots = displayedBouquets.filter((b) => b === null).length;
+                const canDisplay = emptySlots > 0;
+
+                return (
+                  <div
+                    key={bouquet.id}
+                    style={{
+                      padding: '12px',
+                      background: 'linear-gradient(135deg, rgba(232, 150, 78, 0.15), rgba(230, 126, 34, 0.1))',
+                      border: '2px solid #E8964E',
+                      borderRadius: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                    }}
+                  >
+                    <img
+                      src={bouquet.thumbnailUrl || 'https://via.placeholder.com/60'}
+                      alt="Pending Bouquet"
+                      style={{
+                        width: '60px',
+                        height: '60px',
+                        objectFit: 'contain',
+                      }}
+                    />
+                    <div style={{ flex: 1, textAlign: 'left' }}>
+                      <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#333' }}>
+                        {bouquet.recipeName || 'Custom Bouquet'}
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#E8964E', marginTop: '4px' }}>
+                        {bouquet.stems.length} stems • Sells for {bouquet.sellPrice} 🌼
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '6px',
+                        minWidth: '90px',
+                      }}
+                    >
+                      <button
+                        onClick={() => handleAddPendingBouquetToShelf(bouquet.id, bouquet.recipeName || 'Bouquet')}
+                        disabled={!canDisplay}
+                        style={{
+                          padding: '6px 10px',
+                          background: canDisplay ? '#E8964E' : '#CCC',
+                          color: '#FFF',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: canDisplay ? 'pointer' : 'not-allowed',
+                          fontSize: '10px',
+                          fontWeight: 'bold',
+                          transition: 'all 0.2s',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (canDisplay) {
+                            (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.05)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
+                        }}
+                      >
+                        📊 Add to Shelf
+                      </button>
+                      <button
+                        onClick={() => handleSellPendingBouquet(bouquet.id, bouquet.recipeName || 'Bouquet', bouquet.sellPrice)}
                         style={{
                           padding: '6px 10px',
                           background: '#FF6B6B',

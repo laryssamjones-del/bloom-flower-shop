@@ -151,6 +151,8 @@ interface GameStoreActions {
 
   // Shelf
   addBouquetToShelf: (bouquet: Bouquet) => boolean;
+  addBouquetToPending: (bouquet: Bouquet) => void;
+  removeBouquetFromPending: (bouquetId: string) => void;
   removeBouquetFromShelf: (bouquetId: string) => void;
   getShelfDisplay: () => (Bouquet | null)[];
 
@@ -165,6 +167,7 @@ interface GameStoreActions {
   addActiveCustomer: () => void;
   removeActiveCustomer: (customerId: string) => void;
   sellBouquet: (bouquetId: string, priceOverride?: number) => boolean;
+  sellPendingBouquet: (bouquetId: string, priceOverride?: number) => boolean;
 
   // Order management
   createOrder: (npcImage?: string) => Order | null;
@@ -625,6 +628,20 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     return true;
   },
 
+  addBouquetToPending: (bouquet: Bouquet) => {
+    set((s) => ({
+      pendingBouquets: [...s.pendingBouquets, bouquet],
+      lastUpdated: Date.now(),
+    }));
+  },
+
+  removeBouquetFromPending: (bouquetId: string) => {
+    set((s) => ({
+      pendingBouquets: s.pendingBouquets.filter((b) => b.id !== bouquetId),
+      lastUpdated: Date.now(),
+    }));
+  },
+
   removeBouquetFromShelf: (bouquetId: string) => {
     set((s) => ({
       displayedBouquets: s.displayedBouquets.map((b) => (b?.id === bouquetId ? null : b)),
@@ -733,6 +750,35 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       unlockedFlowers: newUnlockedFlowers,
       unlockedTiers: newUnlockedTiers,
       pendingBouquets: pendingBouquets,
+      lastUpdated: Date.now(),
+    }));
+
+    return true;
+  },
+
+  sellPendingBouquet: (bouquetId: string, priceOverride?: number) => {
+    const state = get();
+    const bouquet = state.pendingBouquets.find((b) => b.id === bouquetId);
+
+    if (!bouquet) return false;
+
+    const price = priceOverride || bouquet.sellPrice;
+    state.addCoins(price);
+    state.removeBouquetFromPending(bouquetId);
+    playChaChingSound();
+
+    const newCumulativeSales = state.cumulativeBouquetsSold + 1;
+    const newUnlockedFlowers = new Set(state.unlockedFlowers);
+    const newUnlockedTiers = new Set(state.unlockedTiers);
+
+    // Check for flower unlocks at new sales count
+    const availableFlowers = getUnlockedFlowersAt(newCumulativeSales);
+    availableFlowers.forEach((flowerId) => newUnlockedFlowers.add(flowerId));
+
+    set(() => ({
+      cumulativeBouquetsSold: newCumulativeSales,
+      unlockedFlowers: newUnlockedFlowers,
+      unlockedTiers: newUnlockedTiers,
       lastUpdated: Date.now(),
     }));
 

@@ -10,6 +10,7 @@ export function WrappingScreen() {
   const setWrappingSelection = useGameStore((s) => s.setWrappingSelection);
   const createBouquets = useGameStore((s) => s.createBouquets);
   const addBouquetToShelf = useGameStore((s) => s.addBouquetToShelf);
+  const addBouquetToPending = useGameStore((s) => s.addBouquetToPending);
   const bouquetQuantityToBuild = useGameStore((s) => s.bouquetQuantityToBuild);
   const completeOrder = useGameStore((s) => s.completeOrder);
   const getOrderForShopping = useGameStore((s) => s.getOrderForShopping);
@@ -72,10 +73,7 @@ export function WrappingScreen() {
 
         if (!addedToShelf) {
           // No shelf space - add to inventory (pending bouquets)
-          useGameStore.setState((s) => ({
-            pendingBouquets: [...s.pendingBouquets, bouquet],
-            lastUpdated: Date.now(),
-          }));
+          addBouquetToPending(bouquet);
         }
       }
 
