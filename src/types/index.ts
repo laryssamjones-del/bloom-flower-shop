@@ -68,6 +68,17 @@ export interface Order {
   status: 'pending' | 'completed';
   createdAt: number;
   npcImage: string; // NPC character image for consistent appearance
+  isOnlineOrder?: boolean; // true for accepted online orders
+}
+
+export interface PendingOnlineOrder {
+  id: string;
+  recipeId: string;
+  recipeName: string;
+  imageUrl: string;
+  reward: number; // includes 10% bonus over base sell price
+  createdAt: number;
+  expiresAt: number; // createdAt + 3 hours
 }
 
 export interface MysteryBouquetItem {
@@ -125,6 +136,11 @@ export interface GameState {
   cumulativeBouquetsSold: number;
   unlockedTiers: Set<BouquetTier>;
 
+  // Online Orders
+  pendingOnlineOrders: PendingOnlineOrder[]; // awaiting accept/deny (max 1 at a time)
+  onlineOrdersCompletedToday: number;        // resets at midnight server time
+  lastOnlineOrderResetDate: string;          // UTC date string "YYYY-MM-DD"
+
   // Daily limits
   dailyPurchases: Record<string, number>;
   lastPurchaseDate: string;
@@ -168,7 +184,7 @@ export interface GameState {
 
 export interface ShopState extends GameState {
   // Shop UI state
-  currentScreen: 'shop' | 'wholesale' | 'arrangement' | 'wrapping' | 'inventory' | 'orders';
+  currentScreen: 'shop' | 'wholesale' | 'arrangement' | 'wrapping' | 'inventory' | 'orders' | 'online-orders';
   selectedBouquetForWrapping?: Bouquet;
   stemsInArrangement: BouquetStem[];
   bouquetQuantityToBuild: number; // how many bouquets to create at once
@@ -210,7 +226,7 @@ export interface MysteryBoxReveal {
 
 export interface Notification {
   id: string;
-  type: 'level_up' | 'bouquet_unlocked' | 'claim_rewards' | 'order_pending' | 'special_delivery';
+  type: 'level_up' | 'bouquet_unlocked' | 'claim_rewards' | 'order_pending' | 'special_delivery' | 'online_order';
   title: string;
   message: string;
   isRead: boolean;

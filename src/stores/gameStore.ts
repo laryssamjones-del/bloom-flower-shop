@@ -7,6 +7,7 @@ import {
   WrappingPaperType,
   StemInInventory,
   Order,
+  PendingOnlineOrder,
   MysteryBouquetItem,
   BouquetTier,
   Notification,
@@ -69,6 +70,11 @@ const createInitialState = (): ShopState => ({
   unlockedWrappings: ['plain-white', 'kraft'],
   cumulativeBouquetsSold: 0,
   unlockedTiers: new Set<BouquetTier>(['budget']),
+
+  // Online Orders
+  pendingOnlineOrders: [],
+  onlineOrdersCompletedToday: 0,
+  lastOnlineOrderResetDate: getTodayDateString(),
 
   // Daily limits
   dailyPurchases: {},
@@ -153,7 +159,7 @@ interface GameStoreActions {
   getShelfExpansionCost: () => number;
 
   // Screen navigation
-  setCurrentScreen: (screen: 'shop' | 'wholesale' | 'arrangement' | 'wrapping' | 'inventory' | 'orders') => void;
+  setCurrentScreen: (screen: 'shop' | 'wholesale' | 'arrangement' | 'wrapping' | 'inventory' | 'orders' | 'online-orders') => void;
 
   // Customer management
   addActiveCustomer: () => void;
@@ -171,6 +177,13 @@ interface GameStoreActions {
   getOrderForShopping: (orderId: string) => Order | undefined;
   setNeededFlower: (flowerId?: string, quantity?: number) => void;
   setNeededFlowers: (flowers: Array<{ flowerId: string; quantity: number }>) => void;
+
+  // Online Order management
+  createPendingOnlineOrder: () => PendingOnlineOrder | null;
+  acceptOnlineOrder: (orderId: string) => void;
+  denyOnlineOrder: (orderId: string) => void;
+  expirePendingOnlineOrders: () => void;
+  checkAndResetOnlineOrderDaily: (serverDateStr: string) => void;
 
   // Mystery box management
   purchaseMysteryBox: () => boolean;
@@ -547,23 +560,30 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     if (fulfillOrderId) {
       const order = state.pendingOrders.find((o) => o.id === fulfillOrderId);
       if (order) {
-        // Use the NPC image from the order for consistency
-        const customerImage = order.npcImage;
+        // For online orders, pay the stored reward (includes 10% bonus)
+        // For NPC orders, pay the recipe price
+        const actualPrice = order.isOnlineOrder ? order.reward : price;
+        const customerImage = order.npcImage || undefined;
 
         set((s) => ({
           pendingOrders: s.pendingOrders.filter((o) => o.id !== fulfillOrderId),
           completedOrders: [...s.completedOrders, { ...order, status: 'completed' }],
           totalCustomersServed: s.totalCustomersServed + 1,
+          // Increment online daily counter if applicable
+          onlineOrdersCompletedToday: order.isOnlineOrder
+            ? s.onlineOrdersCompletedToday + 1
+            : s.onlineOrdersCompletedToday,
           stemsInArrangement: [],
           inProgressWrapping: undefined,
           selectedRecipeId: undefined,
           fulfillOrderId: undefined,
-          orderJustCompleted: true,
-          completedOrderCustomerImage: customerImage,
+          // Only show thank-you animation for NPC orders (they have a character image)
+          orderJustCompleted: !order.isOnlineOrder,
+          completedOrderCustomerImage: order.isOnlineOrder ? undefined : customerImage,
           currentScreen: 'shop',
           lastUpdated: Date.now(),
         }));
-        state.addCoins(price);
+        state.addCoins(actualPrice);
         playChaChingSound();
         return bouquet;
       }
@@ -840,9 +860,13 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       cumulativeBouquetsSold: newCumulativeSales,
       unlockedFlowers: newUnlockedFlowers,
       unlockedTiers: newUnlockedTiers,
-      // Trigger thank you animation (PC and mobile parity)
-      orderJustCompleted: true,
-      completedOrderCustomerImage: order.npcImage,
+      // Increment online daily counter if applicable
+      onlineOrdersCompletedToday: order.isOnlineOrder
+        ? s.onlineOrdersCompletedToday + 1
+        : s.onlineOrdersCompletedToday,
+      // Only show thank-you animation for NPC orders
+      orderJustCompleted: !order.isOnlineOrder,
+      completedOrderCustomerImage: order.isOnlineOrder ? undefined : order.npcImage,
       lastUpdated: Date.now(),
     }));
 
@@ -880,6 +904,145 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
 
   setNeededFlowers: (flowers: Array<{ flowerId: string; quantity: number }>) => {
     set({ neededFlowersList: flowers });
+  },
+
+  // Online Order management
+  createPendingOnlineOrder: () => {
+    const state = get();
+
+    // Only one pending online order at a time
+    if (state.pendingOnlineOrders.length > 0) return null;
+
+    // Daily limit reached
+    if (state.onlineOrdersCompletedToday >= 15) return null;
+
+    // Pick a random unlocked recipe
+    const unlockedRecipes = BOUQUET_RECIPES.filter(
+      (recipe) =>
+        state.unlockedTiers.has(recipe.tier) &&
+        isBouquetUnlocked(recipe.id, state.cumulativeBouquetsSold)
+    );
+    if (unlockedRecipes.length === 0) return null;
+
+    const recipe = unlockedRecipes[Math.floor(Math.random() * unlockedRecipes.length)]!;
+    const reward = Math.round(recipe.sellPrice * 1.1); // 10% online bonus
+    const now = Date.now();
+
+    const order: PendingOnlineOrder = {
+      id: `online-pending-${now}-${Math.random()}`,
+      recipeId: recipe.id,
+      recipeName: recipe.name,
+      imageUrl: recipe.imageUrl,
+      reward,
+      createdAt: now,
+      expiresAt: now + 3 * 60 * 60 * 1000, // 3 hours
+    };
+
+    set((s) => ({
+      pendingOnlineOrders: [...s.pendingOnlineOrders, order],
+      lastUpdated: Date.now(),
+    }));
+
+    RundotGameAPI.analytics.recordCustomEvent('online_order_created', {
+      recipeId: recipe.id,
+      recipeName: recipe.name,
+      reward,
+    });
+
+    return order;
+  },
+
+  acceptOnlineOrder: (orderId: string) => {
+    const state = get();
+    const onlineOrder = state.pendingOnlineOrders.find((o) => o.id === orderId);
+    if (!onlineOrder) return;
+
+    // Check daily limit
+    if (state.onlineOrdersCompletedToday >= 15) return;
+
+    // Build requiredStems from recipe
+    const recipe = getRecipeById(onlineOrder.recipeId);
+    const requiredStems: BouquetStem[] = [];
+    if (recipe) {
+      let idx = 0;
+      for (const ing of recipe.ingredients) {
+        for (let q = 0; q < ing.quantity; q++) {
+          requiredStems.push({ flowerId: ing.flowerId, order: idx++ });
+        }
+      }
+    }
+
+    const acceptedOrder: Order = {
+      id: `accepted-online-${onlineOrder.id}`,
+      customerId: 'online',
+      customerType: 'customer-a',
+      customerMood: 'Online Customer',
+      recipeId: onlineOrder.recipeId,
+      recipeName: onlineOrder.recipeName,
+      requiredStems,
+      reward: onlineOrder.reward,
+      status: 'pending',
+      createdAt: Date.now(),
+      npcImage: '',
+      isOnlineOrder: true,
+    };
+
+    set((s) => ({
+      pendingOnlineOrders: s.pendingOnlineOrders.filter((o) => o.id !== orderId),
+      pendingOrders: [...s.pendingOrders, acceptedOrder],
+      lastUpdated: Date.now(),
+    }));
+
+    RundotGameAPI.analytics.recordCustomEvent('online_order_accepted', {
+      orderId,
+      recipeId: onlineOrder.recipeId,
+      reward: onlineOrder.reward,
+    });
+  },
+
+  denyOnlineOrder: (orderId: string) => {
+    set((s) => ({
+      pendingOnlineOrders: s.pendingOnlineOrders.filter((o) => o.id !== orderId),
+      lastUpdated: Date.now(),
+    }));
+    RundotGameAPI.analytics.recordCustomEvent('online_order_denied', { orderId });
+  },
+
+  expirePendingOnlineOrders: () => {
+    const state = get();
+    const now = Date.now();
+    const expired = state.pendingOnlineOrders.filter((o) => o.expiresAt <= now);
+    if (expired.length === 0) return;
+
+    set((s) => ({
+      pendingOnlineOrders: s.pendingOnlineOrders.filter((o) => o.expiresAt > now),
+      lastUpdated: Date.now(),
+    }));
+
+    // Send notification for each expired order
+    expired.forEach((o) => {
+      state.addNotification(
+        'online_order',
+        '⏰ Online Order Expired',
+        `Your ${o.recipeName} order has expired.`,
+        true
+      );
+      RundotGameAPI.analytics.recordCustomEvent('online_order_expired', {
+        orderId: o.id,
+        recipeId: o.recipeId,
+      });
+    });
+  },
+
+  checkAndResetOnlineOrderDaily: (serverDateStr: string) => {
+    const state = get();
+    if (state.lastOnlineOrderResetDate !== serverDateStr) {
+      set({
+        onlineOrdersCompletedToday: 0,
+        lastOnlineOrderResetDate: serverDateStr,
+        lastUpdated: Date.now(),
+      });
+    }
   },
 
   getOrderForShopping: (orderId: string) => {
@@ -1102,6 +1265,12 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       unclaimedRewards: state.unclaimedRewards,
       tutorialCompleted: state.tutorialCompleted,
       tutorialCurrentStep: state.tutorialCurrentStep,
+      // Online orders
+      pendingOnlineOrders: state.pendingOnlineOrders,
+      onlineOrdersCompletedToday: state.onlineOrdersCompletedToday,
+      lastOnlineOrderResetDate: state.lastOnlineOrderResetDate,
+      // Accepted online orders that are in the pending queue
+      pendingOrders: state.pendingOrders,
     };
 
     // Save to localStorage first for quick access
@@ -1152,6 +1321,14 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
           unclaimedRewards: Array.isArray(data['unclaimedRewards']) ? ((data['unclaimedRewards'] as number[]).filter((level) => level >= 2)) : [],
           tutorialCompleted: typeof data['tutorialCompleted'] === 'boolean' ? (data['tutorialCompleted'] as boolean) : false,
           tutorialCurrentStep: typeof data['tutorialCurrentStep'] === 'number' ? (data['tutorialCurrentStep'] as number) : 0,
+          // Online orders — filter expired pending orders on load
+          pendingOnlineOrders: Array.isArray(data['pendingOnlineOrders'])
+            ? (data['pendingOnlineOrders'] as PendingOnlineOrder[]).filter((o) => o.expiresAt > Date.now())
+            : [],
+          onlineOrdersCompletedToday: typeof data['onlineOrdersCompletedToday'] === 'number' ? (data['onlineOrdersCompletedToday'] as number) : 0,
+          lastOnlineOrderResetDate: typeof data['lastOnlineOrderResetDate'] === 'string' ? (data['lastOnlineOrderResetDate'] as string) : getTodayDateString(),
+          // Restore accepted online orders in pending queue
+          pendingOrders: Array.isArray(data['pendingOrders']) ? (data['pendingOrders'] as Order[]) : [],
           lastUpdated: Date.now(),
         });
       }

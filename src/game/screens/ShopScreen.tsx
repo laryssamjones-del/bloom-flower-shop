@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
 import { setSFXVolume, setSFXMuted } from '../../services/audio';
+import { getServerNow } from '../../services/time';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { CoinCounter } from '../components/CoinCounter';
 import { BottomTabNavigation } from '../components/BottomTabNavigation';
@@ -37,17 +38,23 @@ import shopBackground from '/bloomy_shop_background.png';
 const NPC_VISIT_MIN = 15000;
 const NPC_VISIT_MAX = 45000;
 
+// Online orders: one spawns every 60–120 seconds (when slot is empty and daily limit not reached)
+const ONLINE_ORDER_SPAWN_MIN = 60000;
+const ONLINE_ORDER_SPAWN_MAX = 120000;
+
 // Lifecycle handlers (module-scope — runs once)
 // Store timer refs at module level so they can be cleared on pause/resume
 let moduleNpcTimerRef: ReturnType<typeof setTimeout> | null = null;
 let moduleShelfPurchaseTimerRef: ReturnType<typeof setTimeout> | null = null;
 let moduleDeliveryTimerRef: ReturnType<typeof setTimeout> | null = null;
+let moduleOnlineOrderTimerRef: ReturnType<typeof setTimeout> | null = null;
 
 RundotGameAPI.lifecycles.onPause(() => {
   // Clear all timers when game pauses
   if (moduleNpcTimerRef) clearTimeout(moduleNpcTimerRef);
   if (moduleShelfPurchaseTimerRef) clearTimeout(moduleShelfPurchaseTimerRef);
   if (moduleDeliveryTimerRef) clearTimeout(moduleDeliveryTimerRef);
+  if (moduleOnlineOrderTimerRef) clearTimeout(moduleOnlineOrderTimerRef);
   RundotGameAPI.analytics.recordCustomEvent('game_paused');
 });
 
@@ -73,6 +80,8 @@ export function ShopScreen() {
   const addNotification = useGameStore((s) => s.addNotification);
   const unclaimedRewards = useGameStore((s) => s.unclaimedRewards);
   const addCoins = useGameStore((s) => s.addCoins);
+  const expirePendingOnlineOrders = useGameStore((s) => s.expirePendingOnlineOrders);
+  const checkAndResetOnlineOrderDaily = useGameStore((s) => s.checkAndResetOnlineOrderDaily);
 
   // Background music
   const { volume: musicVolume, setVolume: setMusicVolume, isMuted: isMusicMuted, toggleMute: toggleMusicMute } = useBackgroundMusic();
@@ -311,6 +320,7 @@ export function ShopScreen() {
   // Track if the delivery overlay should be shown (only after notification is clicked)
   const [showDeliveryOverlay, setShowDeliveryOverlay] = useState(false);
   const deliveryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onlineOrderTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Check if delivery should appear on mount based on stored timestamp
   useEffect(() => {
@@ -376,11 +386,13 @@ export function ShopScreen() {
       if (npcTimerRef.current) clearTimeout(npcTimerRef.current);
       if (shelfPurchaseTimerRef.current) clearTimeout(shelfPurchaseTimerRef.current);
       if (deliveryTimerRef.current) clearTimeout(deliveryTimerRef.current);
+      if (onlineOrderTimerRef.current) clearTimeout(onlineOrderTimerRef.current);
 
       // Reschedule timers with fresh timing
       scheduleNextVisit();
       scheduleNextShelfPurchase();
       scheduleNextDelivery();
+      scheduleNextOnlineOrder();
     };
 
     // Subscribe to resume event
@@ -576,6 +588,72 @@ export function ShopScreen() {
     scheduleNextDelivery();
     return () => {
       if (deliveryTimerRef.current) clearTimeout(deliveryTimerRef.current);
+    };
+  }, []);
+
+  // Online order spawn timer
+  const scheduleNextOnlineOrder = () => {
+    const delay = ONLINE_ORDER_SPAWN_MIN + Math.random() * (ONLINE_ORDER_SPAWN_MAX - ONLINE_ORDER_SPAWN_MIN);
+    onlineOrderTimerRef.current = setTimeout(async () => {
+      moduleOnlineOrderTimerRef = onlineOrderTimerRef.current;
+      const state = useGameStore.getState();
+
+      // Expire any stale pending online orders first
+      state.expirePendingOnlineOrders();
+
+      // Check daily reset using server time
+      try {
+        const serverNow = await getServerNow();
+        const d = new Date(serverNow);
+        const serverDateStr = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+        state.checkAndResetOnlineOrderDaily(serverDateStr);
+      } catch {
+        // best-effort: fall back to client time for date
+      }
+
+      // Try to spawn a new online order
+      const freshState = useGameStore.getState();
+      if (
+        freshState.pendingOnlineOrders.length === 0 &&
+        freshState.onlineOrdersCompletedToday < 15
+      ) {
+        const newOrder = freshState.createPendingOnlineOrder();
+        if (newOrder) {
+          // Trigger notification
+          freshState.addNotification(
+            'online_order',
+            '🌐 New Online Order!',
+            `Someone wants a ${newOrder.recipeName}! Check Online Orders.`,
+            true
+          );
+          RundotGameAPI.analytics.recordCustomEvent('online_order_notification_sent', {
+            recipeId: newOrder.recipeId,
+            reward: newOrder.reward,
+          });
+        }
+      }
+
+      scheduleNextOnlineOrder();
+    }, delay);
+  };
+
+  useEffect(() => {
+    // Also check for daily reset and expired orders on mount
+    const initOnlineOrders = async () => {
+      try {
+        const serverNow = await getServerNow();
+        const d = new Date(serverNow);
+        const serverDateStr = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+        checkAndResetOnlineOrderDaily(serverDateStr);
+      } catch {
+        // best-effort
+      }
+      expirePendingOnlineOrders();
+    };
+    initOnlineOrders();
+    scheduleNextOnlineOrder();
+    return () => {
+      if (onlineOrderTimerRef.current) clearTimeout(onlineOrderTimerRef.current);
     };
   }, []);
 

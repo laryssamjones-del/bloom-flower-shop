@@ -8,11 +8,13 @@ interface BottomTabNavigationProps {
 export function BottomTabNavigation({ onSettingsClick }: BottomTabNavigationProps) {
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
   const pendingOrders = useGameStore((s) => s.pendingOrders);
+  const pendingOnlineOrders = useGameStore((s) => s.pendingOnlineOrders);
   const hasOrders = pendingOrders.length > 0;
+  const hasNewOnlineOrders = pendingOnlineOrders.length > 0;
 
   const navItems = [
     { screen: 'inventory' as const, label: '📦 Inventory' },
-    { screen: 'orders' as const, label: '📋 Orders', badge: hasOrders },
+    { screen: 'orders' as const, label: '📋 Orders', badge: hasOrders || hasNewOnlineOrders },
     { screen: 'arrangement' as const, label: '💐 Arrange' },
     { screen: 'wholesale' as const, label: '🏪 Market' },
   ];

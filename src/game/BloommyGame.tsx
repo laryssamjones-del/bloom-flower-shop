@@ -8,6 +8,7 @@ import { BouquetArrangementScreen } from './screens/BouquetArrangementScreen';
 import { WrappingScreen } from './screens/WrappingScreen';
 import { InventoryScreen } from './screens/InventoryScreen';
 import { OrdersScreen } from './screens/OrdersScreen';
+import { OnlineOrdersScreen } from './screens/OnlineOrdersScreen';
 import { TutorialModal } from './components/TutorialModal';
 
 // Module-level telemetry registration (runs once on import)
@@ -120,6 +121,7 @@ export function BloommyGame() {
         {currentScreen === 'wrapping' && <WrappingScreen />}
         {currentScreen === 'inventory' && <InventoryScreen />}
         {currentScreen === 'orders' && <OrdersScreen />}
+        {currentScreen === 'online-orders' && <OnlineOrdersScreen />}
 
         {/* Tutorial Modal */}
         {shouldShowTutorial && (

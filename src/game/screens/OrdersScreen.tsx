@@ -28,6 +28,9 @@ export function OrdersScreen() {
   const canMakeRecipe = useGameStore((s) => s.canMakeRecipe);
   const removeOrder = useGameStore((s) => s.removeOrder);
   const setShoppingForOrderId = useGameStore((s) => s.setShoppingForOrderId);
+  const pendingOnlineOrders = useGameStore((s) => s.pendingOnlineOrders);
+
+  const hasNewOnlineOrders = pendingOnlineOrders.length > 0;
 
   const handleFulfillOrder = (orderId: string, recipeId: string) => {
     selectRecipe(recipeId, orderId);
@@ -47,6 +50,11 @@ export function OrdersScreen() {
     setShoppingForOrderId(orderId);
     setCurrentScreen('wholesale');
     RundotGameAPI.analytics.recordCustomEvent('order_shopping_started', { orderId });
+  };
+
+  const handleOpenOnlineOrders = () => {
+    RundotGameAPI.analytics.recordCustomEvent('online_orders_screen_opened');
+    setCurrentScreen('online-orders');
   };
 
   return (
@@ -90,6 +98,52 @@ export function OrdersScreen() {
       {/* Quick Navigation */}
       <ScreenNavigation currentScreen="orders" />
 
+      {/* Online Orders Button */}
+      <div
+        style={{
+          padding: '10px 12px',
+          background: 'rgba(255,255,255,0.2)',
+          borderBottom: '1px solid rgba(0,0,0,0.08)',
+        }}
+      >
+        <button
+          onClick={handleOpenOnlineOrders}
+          style={{
+            width: '100%',
+            padding: '12px 16px',
+            background: hasNewOnlineOrders ? '#4A90E2' : 'rgba(74,144,226,0.15)',
+            color: hasNewOnlineOrders ? '#FFF' : '#4A90E2',
+            border: '2px solid #4A90E2',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            transition: 'all 0.2s ease',
+            position: 'relative',
+          }}
+        >
+          <span>🌐 Online Orders</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {hasNewOnlineOrders && (
+              <div
+                style={{
+                  width: '12px',
+                  height: '12px',
+                  borderRadius: '50%',
+                  background: '#E74C3C',
+                  boxShadow: '0 0 6px rgba(231,76,60,0.6)',
+                  flexShrink: 0,
+                }}
+              />
+            )}
+            <span style={{ fontSize: '16px' }}>→</span>
+          </div>
+        </button>
+      </div>
+
       {/* Orders List */}
       <div
         style={{
@@ -116,6 +170,7 @@ export function OrdersScreen() {
             {pendingOrders.map((order) => {
               const recipe = getRecipeById(order.recipeId);
               const canMake = canMakeRecipe(order.recipeId);
+              const isOnlineOrder = order.isOnlineOrder === true;
 
               // Build unique ingredient summary from recipe
               const ingredientSummary = recipe
@@ -136,11 +191,31 @@ export function OrdersScreen() {
                   key={order.id}
                   style={{
                     padding: '12px',
-                    background: 'rgba(255,255,255,0.7)',
-                    border: `2px solid ${canMake ? '#6A9A50' : '#D4AF37'}`,
+                    background: isOnlineOrder ? 'rgba(232,244,253,0.8)' : 'rgba(255,255,255,0.7)',
+                    border: `2px solid ${isOnlineOrder ? '#4A90E2' : canMake ? '#6A9A50' : '#D4AF37'}`,
                     borderRadius: '10px',
                   }}
                 >
+                  {/* Online Order label */}
+                  {isOnlineOrder && (
+                    <div
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        background: '#4A90E2',
+                        borderRadius: '20px',
+                        padding: '3px 10px',
+                        fontSize: '11px',
+                        color: '#FFF',
+                        fontWeight: 'bold',
+                        marginBottom: '8px',
+                      }}
+                    >
+                      🌐 Online Order
+                    </div>
+                  )}
+
                   {/* Order title row */}
                   <div
                     style={{
@@ -177,18 +252,25 @@ export function OrdersScreen() {
                       <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#333' }}>
                         {order.recipeName}
                       </div>
-                      <div style={{ fontSize: '12px', color: '#888', marginTop: '2px' }}>
-                        {order.customerMood}
-                      </div>
+                      {!isOnlineOrder && (
+                        <div style={{ fontSize: '12px', color: '#888', marginTop: '2px' }}>
+                          {order.customerMood}
+                        </div>
+                      )}
                       <div
                         style={{
                           marginTop: '4px',
                           fontSize: '13px',
                           fontWeight: 'bold',
-                          color: '#6A9A50',
+                          color: isOnlineOrder ? '#4A90E2' : '#6A9A50',
                         }}
                       >
                         Reward: {order.reward} 🌼
+                        {isOnlineOrder && (
+                          <span style={{ fontSize: '11px', fontWeight: 'normal', marginLeft: '4px', color: '#666' }}>
+                            (+10%)
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -274,13 +356,13 @@ export function OrdersScreen() {
                         fontWeight: 'bold',
                       }}
                     >
-                      ✕ Decline
+                      ✕ Remove
                     </button>
                     <button
                       onClick={() => handleFulfillOrder(order.id, order.recipeId)}
                       style={{
                         padding: '10px',
-                        background: canMake ? '#6A9A50' : '#D4AF37',
+                        background: canMake ? (isOnlineOrder ? '#4A90E2' : '#6A9A50') : '#D4AF37',
                         color: '#FFF',
                         border: 'none',
                         borderRadius: '6px',

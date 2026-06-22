@@ -13,6 +13,7 @@ const NOTIFICATION_TITLES: Record<Notification['type'], string> = {
   claim_rewards: '🎁 Rewards Waiting',
   order_pending: '📋 Order Pending',
   special_delivery: '🚚 Special Delivery!',
+  online_order: '🌐 Online Order',
 };
 
 export function NotificationCenter({ isOpen, onClose, onNotificationClick }: NotificationCenterProps) {
