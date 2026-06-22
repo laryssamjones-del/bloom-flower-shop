@@ -10,8 +10,6 @@ export function WrappingScreen() {
   const setWrappingSelection = useGameStore((s) => s.setWrappingSelection);
   const createBouquets = useGameStore((s) => s.createBouquets);
   const addBouquetToShelf = useGameStore((s) => s.addBouquetToShelf);
-  const shelfBouquets = useGameStore((s) => s.shelfBouquets);
-  const shelfCapacity = useGameStore((s) => s.shelfCapacity);
   const bouquetQuantityToBuild = useGameStore((s) => s.bouquetQuantityToBuild);
   const completeOrder = useGameStore((s) => s.completeOrder);
   const getOrderForShopping = useGameStore((s) => s.getOrderForShopping);
@@ -69,12 +67,10 @@ export function WrappingScreen() {
 
       // Add bouquets to shelf or inventory
       for (const bouquet of bouquetsToShelf) {
-        const shelfSpaceAvailable = shelfBouquets.length < shelfCapacity;
+        // Try to add to shelf; if it fails, add to pending bouquets
+        const addedToShelf = addBouquetToShelf(bouquet);
 
-        if (shelfSpaceAvailable) {
-          // Add to shelf
-          addBouquetToShelf(bouquet);
-        } else {
+        if (!addedToShelf) {
           // No shelf space - add to inventory (pending bouquets)
           useGameStore.setState((s) => ({
             pendingBouquets: [...s.pendingBouquets, bouquet],
