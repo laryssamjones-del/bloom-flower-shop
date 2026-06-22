@@ -64,6 +64,7 @@ export interface Order {
   recipeId: string;
   recipeName: string;
   requiredStems: BouquetStem[];
+  quantity: number; // number of bouquets ordered (1-7)
   reward: number;
   status: 'pending' | 'completed';
   createdAt: number;
@@ -76,6 +77,7 @@ export interface PendingOnlineOrder {
   recipeId: string;
   recipeName: string;
   imageUrl: string;
+  quantity: number; // number of bouquets ordered (1-7)
   reward: number; // includes 10% bonus over base sell price
   createdAt: number;
   expiresAt: number; // createdAt + 3 hours

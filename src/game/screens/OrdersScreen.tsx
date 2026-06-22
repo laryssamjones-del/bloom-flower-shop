@@ -1,6 +1,7 @@
 import { useGameStore } from '../../stores/gameStore';
 import { FLOWERS, GREENERY } from '../../constants/flowers';
 import { getRecipeById, TIER_LABELS, TIER_COLORS } from '../../data/bouquets';
+import { getRarityBorder, getOrderRarity } from '../../utils/orderUtils';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { ScreenNavigation } from '../components/ScreenNavigation';
 
@@ -33,10 +34,13 @@ export function OrdersScreen() {
   const hasNewOnlineOrders = pendingOnlineOrders.length > 0;
 
   const handleFulfillOrder = (orderId: string, recipeId: string) => {
-    selectRecipe(recipeId, orderId);
+    const order = pendingOrders.find((o) => o.id === orderId);
+    const quantity = order ? order.quantity : 1;
+    selectRecipe(recipeId, orderId, quantity);
     RundotGameAPI.analytics.recordCustomEvent('order_fulfill_started', {
       orderId,
       recipeId,
+      quantity,
     });
     setCurrentScreen('arrangement');
   };
@@ -169,19 +173,21 @@ export function OrdersScreen() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {pendingOrders.map((order) => {
               const recipe = getRecipeById(order.recipeId);
-              const canMake = canMakeRecipe(order.recipeId);
+              const canMake = canMakeRecipe(order.recipeId, order.id);
               const isOnlineOrder = order.isOnlineOrder === true;
+              const rarity = getOrderRarity(order.quantity);
 
-              // Build unique ingredient summary from recipe
+              // Build unique ingredient summary from recipe (multiplied by order quantity)
               const ingredientSummary = recipe
                 ? recipe.ingredients.map((ing) => {
+                    const needed = ing.quantity * order.quantity;
                     const inv = inventory.find((i) => i.flowerId === ing.flowerId);
                     const have = inv ? inv.quantity : 0;
                     return {
                       flowerId: ing.flowerId,
-                      needed: ing.quantity,
+                      needed,
                       have,
-                      ok: have >= ing.quantity,
+                      ok: have >= needed,
                     };
                   })
                 : [];
@@ -192,7 +198,7 @@ export function OrdersScreen() {
                   style={{
                     padding: '12px',
                     background: isOnlineOrder ? 'rgba(232,244,253,0.8)' : 'rgba(255,255,255,0.7)',
-                    border: `2px solid ${isOnlineOrder ? '#4A90E2' : canMake ? '#6A9A50' : '#D4AF37'}`,
+                    border: isOnlineOrder ? '2px solid #4A90E2' : getRarityBorder(order.quantity),
                     borderRadius: '10px',
                   }}
                 >
@@ -233,22 +239,40 @@ export function OrdersScreen() {
                       />
                     )}
                     <div style={{ flex: 1 }}>
-                      {recipe && (
-                        <div
-                          style={{
-                            display: 'inline-block',
-                            fontSize: '10px',
-                            fontWeight: 'bold',
-                            color: '#FFF',
-                            background: TIER_COLORS[recipe.tier],
-                            borderRadius: '8px',
-                            padding: '2px 6px',
-                            marginBottom: '4px',
-                          }}
-                        >
-                          {TIER_LABELS[recipe.tier]}
-                        </div>
-                      )}
+                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginBottom: '4px', flexWrap: 'wrap' }}>
+                        {recipe && (
+                          <div
+                            style={{
+                              display: 'inline-block',
+                              fontSize: '10px',
+                              fontWeight: 'bold',
+                              color: '#FFF',
+                              background: TIER_COLORS[recipe.tier],
+                              borderRadius: '8px',
+                              padding: '2px 6px',
+                            }}
+                          >
+                            {TIER_LABELS[recipe.tier]}
+                          </div>
+                        )}
+                        {order.quantity > 1 && (
+                          <div
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              fontSize: '11px',
+                              fontWeight: 'bold',
+                              color: '#FFF',
+                              background: rarity === 'common' ? '#6A9A50' : rarity === 'uncommon' ? '#D4AF37' : '#9B59B6',
+                              borderRadius: '8px',
+                              padding: '2px 8px',
+                              gap: '3px',
+                            }}
+                          >
+                            ×{order.quantity}
+                          </div>
+                        )}
+                      </div>
                       <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#333' }}>
                         {order.recipeName}
                       </div>
@@ -371,7 +395,7 @@ export function OrdersScreen() {
                         fontWeight: 'bold',
                       }}
                     >
-                      {canMake ? '✅ Fulfill Now' : '💐 Start Making'}
+                      {canMake ? '✅ Fulfill Now' : '💐 Start Making'}{order.quantity > 1 && ` ×${order.quantity}`}
                     </button>
                   </div>
                 </div>

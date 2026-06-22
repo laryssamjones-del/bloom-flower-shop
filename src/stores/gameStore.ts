@@ -18,6 +18,7 @@ import { MYSTERY_BOX_COST_RUN_BUCKS, getRandomMysteryBouquet } from '../data/mys
 import { EXCLUSIVE_BOX_COSTS } from '../data/exclusiveBouquets';
 import { generateExclusiveBoxContents } from '../data/mysteryBoxContents';
 import { getUnlockedFlowersAt } from '../data/progression';
+import { getOrderQuantity, calculateScaledReward, getOrderRarity } from '../utils/orderUtils';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { playChaChingSound, playSuccessSound } from '../services/audio';
 import { loadNPCCustomizationConfig } from '../game/components/NPCCustomizer';
@@ -143,8 +144,8 @@ interface GameStoreActions {
   // Recipe system
   selectRecipe: (recipeId: string, fulfillOrderId?: string, quantity?: number) => boolean;
   clearSelectedRecipe: () => void;
-  canMakeRecipe: (recipeId: string) => boolean;
-  getRecipeMissingIngredients: (recipeId: string) => Array<{ flowerId: string; needed: number; have: number }>;
+  canMakeRecipe: (recipeId: string, orderId?: string) => boolean;
+  getRecipeMissingIngredients: (recipeId: string, orderId?: string) => Array<{ flowerId: string; needed: number; have: number }>;
   getMaxBouquetsThatCanBeMade: (recipeId: string) => number;
   setBouquetQuantityToBuild: (quantity: number) => void;
   createBouquets: () => Bouquet[];
@@ -428,26 +429,49 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     set({ selectedRecipeId: undefined, fulfillOrderId: undefined, stemsInArrangement: [] });
   },
 
-  canMakeRecipe: (recipeId: string) => {
+  canMakeRecipe: (recipeId: string, orderId?: string) => {
     const state = get();
     const recipe = getRecipeById(recipeId);
     if (!recipe) return false;
+
+    // Get order quantity if fulfilling an order
+    let orderQuantity = 1;
+    if (orderId) {
+      const order = state.pendingOrders.find((o) => o.id === orderId);
+      if (order) {
+        orderQuantity = order.quantity;
+      }
+    }
+
+    // Check inventory for (quantity * ingredients needed)
     for (const ing of recipe.ingredients) {
+      const needed = ing.quantity * orderQuantity;
       const inv = state.inventory.find((i) => i.flowerId === ing.flowerId);
-      if (!inv || inv.quantity < ing.quantity) return false;
+      if (!inv || inv.quantity < needed) return false;
     }
     return true;
   },
 
-  getRecipeMissingIngredients: (recipeId: string) => {
+  getRecipeMissingIngredients: (recipeId: string, orderId?: string) => {
     const state = get();
     const recipe = getRecipeById(recipeId);
     if (!recipe) return [];
+
+    // Get order quantity if fulfilling an order
+    let orderQuantity = 1;
+    if (orderId) {
+      const order = state.pendingOrders.find((o) => o.id === orderId);
+      if (order) {
+        orderQuantity = order.quantity;
+      }
+    }
+
     return recipe.ingredients.map((ing) => {
+      const needed = ing.quantity * orderQuantity;
       const inv = state.inventory.find((i) => i.flowerId === ing.flowerId);
       return {
         flowerId: ing.flowerId,
-        needed: ing.quantity,
+        needed,
         have: inv ? inv.quantity : 0,
       };
     });
@@ -816,12 +840,17 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
 
     const recipe = unlockedRecipes[Math.floor(Math.random() * unlockedRecipes.length)]!;
 
+    // Determine quantity with rarity tiers
+    const quantity = getOrderQuantity(state.cumulativeBouquetsSold);
+
     // Build requiredStems from recipe ingredients (expanded per quantity)
     const requiredStems: BouquetStem[] = [];
     let idx = 0;
-    for (const ing of recipe.ingredients) {
-      for (let q = 0; q < ing.quantity; q++) {
-        requiredStems.push({ flowerId: ing.flowerId, order: idx++ });
+    for (let bouquetIdx = 0; bouquetIdx < quantity; bouquetIdx++) {
+      for (const ing of recipe.ingredients) {
+        for (let q = 0; q < ing.quantity; q++) {
+          requiredStems.push({ flowerId: ing.flowerId, order: idx++ });
+        }
       }
     }
 
@@ -856,6 +885,9 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     ];
     const finalNpcImage = npcImage || NPC_IMAGES[Math.floor(Math.random() * NPC_IMAGES.length)]!;
 
+    // Calculate scaled reward: base + (base * 0.25 * (quantity - 1))
+    const scaledReward = calculateScaledReward(recipe.sellPrice, quantity);
+
     const order: Order = {
       id: `order-${Date.now()}-${Math.random()}`,
       customerId: `customer-${Date.now()}`,
@@ -864,7 +896,8 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       recipeId: recipe.id,
       recipeName: recipe.name,
       requiredStems,
-      reward: recipe.sellPrice,
+      quantity,
+      reward: scaledReward,
       status: 'pending',
       createdAt: Date.now(),
       npcImage: finalNpcImage,
@@ -875,11 +908,14 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       lastUpdated: Date.now(),
     }));
 
+    const rarity = getOrderRarity(quantity);
     RundotGameAPI.analytics.recordCustomEvent('npc_order_created', {
       bouquetId: recipe.id,
       bouquetName: recipe.name,
       bouquetTier: recipe.tier,
-      reward: recipe.sellPrice,
+      quantity,
+      reward: scaledReward,
+      rarity,
     });
 
     return order;
@@ -980,7 +1016,13 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     if (unlockedRecipes.length === 0) return null;
 
     const recipe = unlockedRecipes[Math.floor(Math.random() * unlockedRecipes.length)]!;
-    const reward = Math.round(recipe.sellPrice * 1.1); // 10% online bonus
+
+    // Determine quantity with rarity tiers
+    const quantity = getOrderQuantity(state.cumulativeBouquetsSold);
+
+    // Calculate reward with 10% online bonus + quantity scaling
+    const baseRewardWithBonus = Math.round(recipe.sellPrice * 1.1);
+    const scaledReward = calculateScaledReward(baseRewardWithBonus, quantity);
     const now = Date.now();
 
     const order: PendingOnlineOrder = {
@@ -988,7 +1030,8 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       recipeId: recipe.id,
       recipeName: recipe.name,
       imageUrl: recipe.imageUrl,
-      reward,
+      quantity,
+      reward: scaledReward,
       createdAt: now,
       expiresAt: now + 3 * 60 * 60 * 1000, // 3 hours
     };
@@ -998,10 +1041,13 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       lastUpdated: Date.now(),
     }));
 
+    const rarity = getOrderRarity(quantity);
     RundotGameAPI.analytics.recordCustomEvent('online_order_created', {
       recipeId: recipe.id,
       recipeName: recipe.name,
-      reward,
+      quantity,
+      reward: scaledReward,
+      rarity,
     });
 
     return order;
@@ -1015,14 +1061,16 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     // Check daily limit
     if (state.onlineOrdersCompletedToday >= 15) return;
 
-    // Build requiredStems from recipe
+    // Build requiredStems from recipe (multiplied by order quantity)
     const recipe = getRecipeById(onlineOrder.recipeId);
     const requiredStems: BouquetStem[] = [];
     if (recipe) {
       let idx = 0;
-      for (const ing of recipe.ingredients) {
-        for (let q = 0; q < ing.quantity; q++) {
-          requiredStems.push({ flowerId: ing.flowerId, order: idx++ });
+      for (let bouquetIdx = 0; bouquetIdx < onlineOrder.quantity; bouquetIdx++) {
+        for (const ing of recipe.ingredients) {
+          for (let q = 0; q < ing.quantity; q++) {
+            requiredStems.push({ flowerId: ing.flowerId, order: idx++ });
+          }
         }
       }
     }
@@ -1035,6 +1083,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       recipeId: onlineOrder.recipeId,
       recipeName: onlineOrder.recipeName,
       requiredStems,
+      quantity: onlineOrder.quantity,
       reward: onlineOrder.reward,
       status: 'pending',
       createdAt: Date.now(),
@@ -1057,6 +1106,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     RundotGameAPI.analytics.recordCustomEvent('online_order_accepted', {
       orderId,
       recipeId: onlineOrder.recipeId,
+      quantity: onlineOrder.quantity,
       reward: onlineOrder.reward,
     });
   },

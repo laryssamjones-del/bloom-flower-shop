@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { getRecipeById, TIER_LABELS, TIER_COLORS } from '../../data/bouquets';
+import { getOrderRarity } from '../../utils/orderUtils';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 
 const DAILY_ONLINE_ORDER_LIMIT = 15;
@@ -153,6 +154,7 @@ export function OnlineOrdersScreen() {
             const recipe = getRecipeById(currentOrder.recipeId);
             const remaining = currentOrder.expiresAt - now;
             const isUrgent = remaining < 30 * 60 * 1000; // less than 30 min
+            const rarity = getOrderRarity(currentOrder.quantity);
 
             return (
               <div
@@ -193,22 +195,40 @@ export function OnlineOrdersScreen() {
                     />
                   )}
                   <div style={{ flex: 1 }}>
-                    {recipe && (
-                      <div
-                        style={{
-                          display: 'inline-block',
-                          fontSize: '10px',
-                          fontWeight: 'bold',
-                          color: '#FFF',
-                          background: TIER_COLORS[recipe.tier],
-                          borderRadius: '8px',
-                          padding: '2px 6px',
-                          marginBottom: '4px',
-                        }}
-                      >
-                        {TIER_LABELS[recipe.tier]}
-                      </div>
-                    )}
+                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginBottom: '4px', flexWrap: 'wrap' }}>
+                      {recipe && (
+                        <div
+                          style={{
+                            display: 'inline-block',
+                            fontSize: '10px',
+                            fontWeight: 'bold',
+                            color: '#FFF',
+                            background: TIER_COLORS[recipe.tier],
+                            borderRadius: '8px',
+                            padding: '2px 6px',
+                          }}
+                        >
+                          {TIER_LABELS[recipe.tier]}
+                        </div>
+                      )}
+                      {currentOrder.quantity > 1 && (
+                        <div
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            fontSize: '11px',
+                            fontWeight: 'bold',
+                            color: '#FFF',
+                            background: rarity === 'common' ? '#6A9A50' : rarity === 'uncommon' ? '#D4AF37' : '#9B59B6',
+                            borderRadius: '8px',
+                            padding: '2px 8px',
+                            gap: '3px',
+                          }}
+                        >
+                          ×{currentOrder.quantity}
+                        </div>
+                      )}
+                    </div>
                     <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#333' }}>
                       {currentOrder.recipeName}
                     </div>
@@ -229,7 +249,7 @@ export function OnlineOrdersScreen() {
                           fontWeight: 'normal',
                         }}
                       >
-                        (+10% bonus)
+                        {currentOrder.quantity > 1 ? `(×${currentOrder.quantity} bouquets, +10%)` : '(+10% bonus)'}
                       </span>
                     </div>
                   </div>
@@ -292,7 +312,7 @@ export function OnlineOrdersScreen() {
                       fontWeight: 'bold',
                     }}
                   >
-                    ✓ Accept
+                    ✓ Accept{currentOrder.quantity > 1 && ` ×${currentOrder.quantity}`}
                   </button>
                 </div>
               </div>
