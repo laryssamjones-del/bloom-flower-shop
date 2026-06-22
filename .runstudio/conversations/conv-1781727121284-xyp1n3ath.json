@@ -72551,11 +72551,29 @@
       "timestamp": 1782167473871,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782167506581",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "are there any updates i made that went private but were supposed to be public for staff review?",
+      "timestamp": 1782167506581,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782167513820-govaou9hn",
+      "role": "assistant",
+      "content": "Yes, there are three updates that went private instead of public for review:\n\n1. **v1.57.0** - Special delivery truck not showing fix\n2. **v1.57.1** - Volume controls fix (music/SFX muting & persistence)\n3. **v1.57.2** - NPC payment bug fix\n\nI just deployed v1.58.0 (the NPC payment fix) to public, but the previous three are still stuck in private.\n\nWould you like me to redeploy these to public for staff review? Or should I just move forward with public deployments from here on out?",
+      "isShownToUser": true,
+      "timestamp": 1782167514936,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782167473916,
-  "tokenUsage": 25307,
+  "updatedAt": 1782167514985,
+  "tokenUsage": 25656,
   "script": "default",
   "claudeSessionId": "b4caad72-05a4-48f1-a651-44697aefa051"
 }
