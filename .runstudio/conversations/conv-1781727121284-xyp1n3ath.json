@@ -62589,11 +62589,29 @@
       "timestamp": 1782091432980,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782091451487",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "midnight (server time)",
+      "timestamp": 1782091451487,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782091458631-cuxdp0043",
+      "role": "assistant",
+      "content": "Got it—midnight server time for the daily reset. Quick follow-up on rewards:\n\n**Should online orders have the same reward structure as NPC orders** (coins based on bouquet tier/difficulty), **or should they pay differently?** For example:\n- Same rewards as NPC orders\n- Slightly less (since they're lower effort—no character/animation)\n- Slightly more (as a bonus for doing async work)\n- Scaling rewards (e.g., 1st online order pays more, rewards decrease as you hit more)\n\nOnce I know this, I'll have a complete design for the feature!",
+      "isShownToUser": true,
+      "timestamp": 1782091460204,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782091433017,
-  "tokenUsage": 85738,
+  "updatedAt": 1782091460363,
+  "tokenUsage": 85958,
   "script": "default",
   "claudeSessionId": "cacf712d-0407-4afd-a8b1-c0239efbf73b"
 }
