@@ -47,15 +47,16 @@ export function getOrderRarity(quantity: number): 'common' | 'uncommon' | 'rare'
 
 /**
  * Calculates scaled reward for multi-bouquet orders
- * Formula: baseReward + (baseReward * 0.25 * (quantity - 1))
+ * Formula: (baseReward * quantity) * 1.15 (full payment for work + 15% convenience bonus)
  *
  * Examples:
- * - 1 @ 45 = 45
- * - 2 @ 45 = 45 + (45 * 0.25) = 56.25 → 56
- * - 3 @ 45 = 45 + (45 * 0.5) = 67.5 → 68
+ * - 1 @ 45 = (45 * 1) * 1.15 = 51.75 → 52
+ * - 2 @ 45 = (45 * 2) * 1.15 = 103.5 → 104
+ * - 3 @ 45 = (45 * 3) * 1.15 = 155.25 → 155
+ * - 7 @ 45 = (45 * 7) * 1.15 = 362.25 → 362
  */
 export function calculateScaledReward(baseReward: number, quantity: number): number {
-  const scaledReward = baseReward + baseReward * 0.25 * (quantity - 1);
+  const scaledReward = baseReward * quantity * 1.15;
   return Math.round(scaledReward);
 }
 
