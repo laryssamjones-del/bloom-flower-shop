@@ -756,6 +756,7 @@ export function ShopScreen() {
         createdAt: Date.now(),
         recipeName: bouquetRecipe.name,
         fromPremiumDelivery: isPremium,
+        source: 'delivery',
       };
 
       if (shelfSpaceLeft > 0) {

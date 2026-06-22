@@ -19,7 +19,6 @@ export function InventoryScreen() {
   const getUnclaimedRewardCount = useGameStore((s) => s.getUnclaimedRewardCount);
   const claimLevelReward = useGameStore((s) => s.claimLevelReward);
   const removeBouquetFromPending = useGameStore((s) => s.removeBouquetFromPending);
-  const sellPendingBouquet = useGameStore((s) => s.sellPendingBouquet);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showRewardsModal, setShowRewardsModal] = useState(false);
   const [claimingRewards, setClaimingRewards] = useState<Set<number>>(new Set());
@@ -110,18 +109,20 @@ export function InventoryScreen() {
     }
   };
 
-  const handleSellPendingBouquet = (bouquetId: string, bouquetName: string, price: number) => {
-    if (sellPendingBouquet(bouquetId)) {
-      const msg = `✨ Sold ${bouquetName} for ${price} 🌼`;
-      setSuccessMessage(msg);
-      setTimeout(() => setSuccessMessage(null), 2000);
+  const handleRemovePendingBouquet = (bouquetId: string) => {
+    const bouquet = pendingBouquets.find((b) => b.id === bouquetId);
+    if (!bouquet) return;
 
-      RundotGameAPI.analytics.recordCustomEvent('pending_bouquet_sold', {
-        bouquetId,
-        bouquetName,
-        price,
-      });
-    }
+    removeBouquetFromPending(bouquetId);
+    const msg = `🗑️ ${bouquet.recipeName || 'Bouquet'} removed`;
+    setSuccessMessage(msg);
+    setTimeout(() => setSuccessMessage(null), 2000);
+
+    RundotGameAPI.analytics.recordCustomEvent('bouquet_deleted_from_storage', {
+      bouquetId,
+      bouquetName: bouquet.recipeName,
+      source: bouquet.source,
+    });
   };
 
   return (
@@ -428,22 +429,45 @@ export function InventoryScreen() {
           </div>
         )}
 
-        {/* Pending Bouquets Section */}
+        {/* Bouquets Section (Storage) */}
         {pendingBouquets.length > 0 && (
           <div style={{ marginTop: '24px' }}>
             <div
               style={{
                 fontSize: '16px',
                 fontWeight: 'bold',
-                marginBottom: '12px',
+                marginBottom: '8px',
                 color: '#E8964E',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
+                justifyContent: 'space-between',
               }}
             >
-              📥 Pending Bouquets
+              <span>💐 Bouquets</span>
+              <span style={{ fontSize: '12px', color: '#999', fontWeight: 'normal' }}>
+                {pendingBouquets.length} / 50
+              </span>
             </div>
+            {pendingBouquets.length >= 50 && (
+              <div
+                style={{
+                  padding: '10px',
+                  background: '#FFEBEE',
+                  border: '1px solid #FF6B6B',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  color: '#C92A2A',
+                  marginBottom: '12px',
+                  fontWeight: 'bold',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                ⚠️ Storage is full! Delete bouquets to make space.
+              </div>
+            )}
             <div
               style={{
                 display: 'grid',
@@ -477,11 +501,49 @@ export function InventoryScreen() {
                       }}
                     />
                     <div style={{ flex: 1, textAlign: 'left' }}>
-                      <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#333' }}>
-                        {bouquet.recipeName || 'Custom Bouquet'}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#333' }}>
+                          {bouquet.recipeName || 'Custom Bouquet'}
+                        </div>
+                        {/* Source Badge */}
+                        {bouquet.source && (
+                          <span
+                            style={{
+                              fontSize: '9px',
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                              fontWeight: 'bold',
+                              backgroundColor:
+                                bouquet.source === 'reward'
+                                  ? '#FFD700'
+                                  : bouquet.source === 'delivery'
+                                  ? '#87CEEB'
+                                  : bouquet.source === 'overflow'
+                                  ? '#FFB6C1'
+                                  : '#DDA0DD',
+                              color:
+                                bouquet.source === 'reward'
+                                  ? '#333'
+                                  : bouquet.source === 'delivery'
+                                  ? '#333'
+                                  : '#333',
+                            }}
+                          >
+                            {bouquet.source === 'reward'
+                              ? '🎁 Reward'
+                              : bouquet.source === 'delivery'
+                              ? '🚚 Delivery'
+                              : bouquet.source === 'overflow'
+                              ? '📋 Overflow'
+                              : '⭐ Premium'}
+                          </span>
+                        )}
                       </div>
-                      <div style={{ fontSize: '11px', color: '#E8964E', marginTop: '4px' }}>
-                        {bouquet.stems.length} stems • Sells for {bouquet.sellPrice} 🌼
+                      <div style={{ fontSize: '11px', color: '#666', marginTop: '2px' }}>
+                        {bouquet.stems.length} stems • {bouquet.wrappingPaper} • {bouquet.ribbonColor}
+                      </div>
+                      <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#E8964E', marginTop: '4px' }}>
+                        💰 Sells for {bouquet.sellPrice} 🌼
                       </div>
                     </div>
                     <div
@@ -515,10 +577,10 @@ export function InventoryScreen() {
                           (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
                         }}
                       >
-                        📊 Add to Shelf
+                        📊 Place on Shelf
                       </button>
                       <button
-                        onClick={() => handleSellPendingBouquet(bouquet.id, bouquet.recipeName || 'Bouquet', bouquet.sellPrice)}
+                        onClick={() => handleRemovePendingBouquet(bouquet.id)}
                         style={{
                           padding: '6px 10px',
                           background: '#FF6B6B',
@@ -537,7 +599,7 @@ export function InventoryScreen() {
                           (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
                         }}
                       >
-                        💚 Sell
+                        🗑️ Delete
                       </button>
                     </div>
                   </div>

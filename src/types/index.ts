@@ -42,6 +42,7 @@ export interface Bouquet {
   fromPremiumDelivery?: boolean;
   fromExclusiveBox?: boolean;
   recipeName?: string;
+  source?: 'overflow' | 'reward' | 'delivery' | 'premium'; // Where the bouquet came from
 }
 
 export type WrappingPaperType = 'spring-floral' | 'kraft' | 'pastel-stripe' | 'tissue' | 'plain-white';
@@ -119,6 +120,7 @@ export interface GameState {
   shelfCapacity: number;
   shelfBouquets: Bouquet[];
   displayedBouquets: (Bouquet | null)[]; // Array matching shelf capacity, null = empty spot
+  bouquetStorageCapacity: number; // Max bouquets in storage (inventory)
   pendingBouquets: Bouquet[]; // Bouquets waiting to be placed on shelf
 
   // Customers & Orders

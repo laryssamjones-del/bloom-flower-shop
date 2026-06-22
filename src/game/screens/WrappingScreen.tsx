@@ -74,7 +74,8 @@ export function WrappingScreen() {
 
         if (!addedToShelf) {
           // No shelf space - add to inventory (pending bouquets)
-          addBouquetToPending(bouquet);
+          // Mark as overflow since it didn't fit on shelf
+          addBouquetToPending({ ...bouquet, source: 'overflow' });
         }
       }
 

@@ -52,6 +52,7 @@ const createInitialState = (): ShopState => ({
   // Shop
   shelfCapacity: STARTING_SHELF_CAPACITY,
   shelfBouquets: [],
+  bouquetStorageCapacity: 50, // Max bouquets in inventory
   pendingBouquets: [],
   displayedBouquets: Array(STARTING_SHELF_CAPACITY).fill(null),
 
@@ -654,10 +655,17 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
   },
 
   addBouquetToPending: (bouquet: Bouquet) => {
-    set((s) => ({
-      pendingBouquets: [...s.pendingBouquets, bouquet],
-      lastUpdated: Date.now(),
-    }));
+    set((s) => {
+      // Check if storage is full (50 bouquet limit)
+      if (s.pendingBouquets.length >= s.bouquetStorageCapacity) {
+        // Storage is full - don't add
+        return s;
+      }
+      return {
+        pendingBouquets: [...s.pendingBouquets, bouquet],
+        lastUpdated: Date.now(),
+      };
+    });
   },
 
   removeBouquetFromPending: (bouquetId: string) => {
@@ -1364,6 +1372,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       inventory: state.inventory,
       inventoryCapacity: state.inventoryCapacity,
       shelfCapacity: state.shelfCapacity,
+      bouquetStorageCapacity: state.bouquetStorageCapacity,
       shelfBouquets: state.shelfBouquets,
       pendingBouquets: state.pendingBouquets,
       displayedBouquets: state.displayedBouquets,
@@ -1421,6 +1430,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
           inventory: Array.isArray(data['inventory']) ? (data['inventory'] as StemInInventory[]) : [],
           inventoryCapacity: typeof data['inventoryCapacity'] === 'number' ? (data['inventoryCapacity'] as number) : STARTING_INVENTORY_CAPACITY,
           shelfCapacity: typeof data['shelfCapacity'] === 'number' ? (data['shelfCapacity'] as number) : 20,
+          bouquetStorageCapacity: typeof data['bouquetStorageCapacity'] === 'number' ? (data['bouquetStorageCapacity'] as number) : 50,
           shelfBouquets: Array.isArray(data['shelfBouquets']) ? (data['shelfBouquets'] as Bouquet[]) : [],
           pendingBouquets: Array.isArray(data['pendingBouquets']) ? (data['pendingBouquets'] as Bouquet[]) : [],
           displayedBouquets: Array.isArray(data['displayedBouquets']) ? (data['displayedBouquets'] as (Bouquet | null)[]) : Array(STARTING_SHELF_CAPACITY).fill(null),
@@ -1461,6 +1471,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
             premiumCurrency: parsed.premiumCurrency ?? 0,
             mysteryBouquets: parsed.mysteryBouquets ?? [],
             pendingBouquets: parsed.pendingBouquets ?? [],
+            bouquetStorageCapacity: parsed.bouquetStorageCapacity ?? 50,
             shelfBouquets: parsed.shelfBouquets ?? [],
             displayedBouquets: parsed.displayedBouquets ?? Array(STARTING_SHELF_CAPACITY).fill(null),
             unlockedFlowers,
@@ -1536,6 +1547,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       sellPrice: randomBouquet.sellPrice,
       createdAt: Date.now(),
       recipeName: randomBouquet.name,
+      source: 'reward',
     };
 
     const state = get();
