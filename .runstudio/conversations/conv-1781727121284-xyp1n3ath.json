@@ -62679,11 +62679,29 @@
       "timestamp": 1782093077949,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782093630479",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "let's do this: pending orders have an expiration date of 3 hours. if a player doesn't accept or deny the pending order (so no action was taken), then it disappears. this is so that players aren't just leaving them there. if a player accepts the order, then no timer/expiration date is there. that way they can take their time completing an order without any pressure. \ntimer display can be the casual, rounded one\nwhen an order expires, show a brief notification on the screen and then make sure it also goes to the notification center.",
+      "timestamp": 1782093630479,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782093647414-tpob9s5n2",
+      "role": "assistant",
+      "content": "Perfect! Let me make sure I have this right—I want to confirm one thing because you mentioned an 18-hour timer for accepted orders earlier, but now you're saying accepted orders have NO expiration:\n\n**So the final flow is:**\n\n**Pending Online Orders (Online Orders screen):**\n- One at a time\n- Show: Bouquet name, reward amount, expiration timer (3 hours)\n- Timer format: casual/rounded (e.g., \"2h 45m\")\n- If no action for 3 hours → disappears with notification + notification center alert\n- Accept → moves to main Orders list (no expiration)\n- Deny → disappears\n\n**Accepted Online Orders (Main Orders list):**\n- NO expiration timer (can take their time)\n- Labeled \"Online Order\"\n- Work on it at their own pace\n\nIs that correct? (Just want to confirm we're dropping the 18-hour expiration for accepted orders in favor of this no-pressure approach.)",
+      "isShownToUser": true,
+      "timestamp": 1782093647426,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782093077991,
-  "tokenUsage": 89667,
+  "updatedAt": 1782093647737,
+  "tokenUsage": 90651,
   "script": "default",
   "claudeSessionId": "cacf712d-0407-4afd-a8b1-c0239efbf73b"
 }
