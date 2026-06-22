@@ -1534,11 +1534,21 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       recipeName: randomBouquet.name,
     };
 
+    const state = get();
+    const updatedUnclaimedRewards = state.unclaimedRewards.filter((l) => l !== level);
+    const allRewardsClaimed = updatedUnclaimedRewards.length === 0;
+
     set((s) => ({
-      unclaimedRewards: s.unclaimedRewards.filter((l) => l !== level),
+      unclaimedRewards: updatedUnclaimedRewards,
       pendingBouquets: [...s.pendingBouquets, rewardBouquet],
       coins: s.coins + rewardCoins,
       totalEarned: s.totalEarned + rewardCoins,
+      // Mark all claim_rewards notifications as fulfilled when all rewards are claimed
+      notifications: allRewardsClaimed
+        ? s.notifications.map((notif) =>
+            notif.type === 'claim_rewards' ? { ...notif, fulfilled: true } : notif
+          )
+        : s.notifications,
       lastUpdated: Date.now(),
     }));
 
