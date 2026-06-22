@@ -62607,11 +62607,29 @@
       "timestamp": 1782091460204,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782091608208",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "slightly more, maybe just a 10% increase of the base price of the bouquets.",
+      "timestamp": 1782091608208,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782091619706-3ypncqfpr",
+      "role": "assistant",
+      "content": "Perfect! Now I have everything I need. Let me design the online order feature and present the plan for your approval.\n\n## Online Orders Feature Design\n\nBased on your answers, here's how I'm proposing to implement this:\n\n### **Feature Overview**\n- **Separate queue/tab** for online orders (distinct from NPC customer orders)\n- **No NPC character**—just clean order requests without the animation/personality\n- **Random generation** over time (new orders appear at intervals, like NPCs)\n- **Max 10 queued** online orders waiting to be fulfilled\n- **Daily limit of 15** orders that can be completed per day\n- **10% bonus reward** (so a $100 bouquet pays $110 instead)\n- **Daily reset at midnight server time** (resets the 15-order counter)\n\n### **How It Works**\n\n1. **Online Orders spawn** every 30-45 seconds (similar to NPC visits) when queue has < 10 orders\n2. **Orders are displayed in a separate \"Online Orders\" tab** in the existing Orders screen (or new dedicated screen)\n3. **Visual indicator** shows daily progress: \"5/15 completed today\"\n4. **When player fulfills an online order**:\n   - They go through the same arrangement/wrapping flow\n   - Upon completion, coins are awarded at **110% of bouquet base price**\n   - Counter increments: \"6/15 completed today\"\n5. **When player hits 15 orders**, no more online orders spawn until the next day\n6. **At midnight server time**, the daily counter resets automatically\n\n### **Data & State Changes**\n- Add `onlineOrders: Order[]` (pending online orders)\n- Add `onlineOrdersCompletedToday: number` (tracks progress toward 15)\n- Add `lastOnlineOrderResetDate: string` (to detect midnight reset)\n- Modify reward calculation: when fulfilling an online order, multiply reward by 1.1\n\n### **UI Changes**\n- Update **OrdersScreen** to show two tabs: \"NPC Orders\" | \"Online Orders\"\n- Online orders display without NPC character image (cleaner look)\n- Daily progress indicator: \"Completed today: 5/15\"\n- When at 15/15, show \"Daily limit reached! Come back tomorrow.\"\n\n### **Technical Implementation**\n- New timer in **ShopScreen** to spawn online orders\n- Helper function to generate online orders (reuse order creation logic)\n- Modify bouquet completion to detect if it's an online order and apply 10% bonus\n- Use `RundotGameAPI.time.serverTime()` for accurate midnight reset detection\n\n---\n\n**Does this match your vision?** Or would you like me to adjust anything before I implement it?",
+      "isShownToUser": true,
+      "timestamp": 1782091624916,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782091460363,
-  "tokenUsage": 85958,
+  "updatedAt": 1782091625041,
+  "tokenUsage": 87127,
   "script": "default",
   "claudeSessionId": "cacf712d-0407-4afd-a8b1-c0239efbf73b"
 }
