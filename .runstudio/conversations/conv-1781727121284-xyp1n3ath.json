@@ -64838,11 +64838,29 @@
       "timestamp": 1782100731640,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782101713053",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "my updates are pushed publicly for review, correct?",
+      "timestamp": 1782101713053,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782101721890-dycflyvf1",
+      "role": "assistant",
+      "content": "No, your current updates are deployed as **private** (v1.42.6). This means anyone with the link can play it, but it's not publicly listed or under review.\n\nTo push publicly for review, you'd need to run:\n```bash\nrundot deploy --public\n```\n\nThis will deploy to the 'review' tag where RUN.game staff can review it before it goes live to the public.\n\nWould you like me to do that now?",
+      "isShownToUser": true,
+      "timestamp": 1782101722836,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782100731696,
-  "tokenUsage": 37587,
+  "updatedAt": 1782101722876,
+  "tokenUsage": 37885,
   "script": "default",
   "claudeSessionId": "f4194e93-b6d4-439e-9059-5c00af4b8ffd"
 }
