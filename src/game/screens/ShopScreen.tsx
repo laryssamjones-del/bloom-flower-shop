@@ -330,8 +330,11 @@ export function ShopScreen() {
     }
     return null;
   });
-  // Track if the delivery overlay should be shown (only after notification is clicked)
-  const [showDeliveryOverlay, setShowDeliveryOverlay] = useState(false);
+  // Show delivery overlay automatically whenever an active delivery is present
+  const [showDeliveryOverlay, setShowDeliveryOverlay] = useState(() => {
+    // If there's a saved delivery on load, show the truck right away
+    return !!localStorage.getItem('activeDelivery');
+  });
   const deliveryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onlineOrderTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -348,9 +351,10 @@ export function ShopScreen() {
         // Only show delivery if it has items
         if (newDelivery.flowers.length > 0 && newDelivery.bouquets.length > 0) {
           setActiveDelivery(newDelivery);
+          setShowDeliveryOverlay(true);
 
           // Add notification to notification center
-          addNotification('special_delivery', '🚚 Special Delivery!', 'A new delivery has arrived. Check it in your notifications!', true);
+          addNotification('special_delivery', '🚚 Special Delivery!', 'Your delivery truck has arrived!', true);
 
           RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
             deliveryId: newDelivery.id,
@@ -377,6 +381,7 @@ export function ShopScreen() {
         priceMultiplier: 0, // Free gift
       };
       setActiveDelivery(markedGift);
+      setShowDeliveryOverlay(true);
 
       // Add notification
       addNotification('special_delivery', '🎁 Welcome Gift!', 'A special welcome gift delivery has arrived!', true);
@@ -593,7 +598,8 @@ export function ShopScreen() {
           // Only show delivery if it has items
           if (newDelivery.flowers.length > 0 && newDelivery.bouquets.length > 0) {
             setActiveDelivery(newDelivery);
-            addNotification('special_delivery', '🚚 Special Delivery!', 'A new delivery has arrived. Check it in your notifications!', true);
+            setShowDeliveryOverlay(true);
+            addNotification('special_delivery', '🚚 Special Delivery!', 'Your delivery truck has arrived!', true);
             RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
               deliveryId: newDelivery.id,
             });
