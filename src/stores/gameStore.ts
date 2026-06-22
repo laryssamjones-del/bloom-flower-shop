@@ -30,7 +30,7 @@ const STARTING_COINS = 250;
 const STARTING_INVENTORY_CAPACITY = 125;
 const MAX_INVENTORY_CAPACITY = 450;
 const STARTING_SHELF_CAPACITY = 15;
-const DAILY_PURCHASE_LIMIT = 50; // 50 stems per flower per day
+const DAILY_PURCHASE_LIMIT = 999999; // Unlimited stems per flower per day
 
 const getTodayDateString = () => {
   const now = new Date();
