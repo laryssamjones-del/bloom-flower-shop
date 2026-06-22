@@ -72495,11 +72495,29 @@
       "timestamp": 1782167354360,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782167390735",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "can you make sure that all updates from now on will be deployed as public and not private?",
+      "timestamp": 1782167390735,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782167402013-nxi0lalji",
+      "role": "assistant",
+      "content": "Just to clarify — when you say \"public,\" do you mean:\n\n1. **Review tag** (`rundot deploy --public`) — Deploys for RUN.game staff review. Once approved, it automatically goes live for all players\n2. **Immediately public** — Something else?\n\nBased on our previous conversation, I'm guessing you mean the review tag so your updates go through review and then get published. If so, I'll use `--public` for all deployments going forward unless you tell me otherwise.\n\nShould I deploy v1.57.2 to the review tag now with `rundot deploy --public`?",
+      "isShownToUser": true,
+      "timestamp": 1782167402662,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782167354404,
-  "tokenUsage": 24256,
+  "updatedAt": 1782167402705,
+  "tokenUsage": 24873,
   "script": "default",
   "claudeSessionId": "b4caad72-05a4-48f1-a651-44697aefa051"
 }
