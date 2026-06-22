@@ -315,7 +315,19 @@ export function ShopScreen() {
   // Special delivery truck - restore from localStorage if available
   const [activeDelivery, setActiveDelivery] = useState<SpecialDelivery | null>(() => {
     const saved = localStorage.getItem('activeDelivery');
-    return saved ? JSON.parse(saved) : null;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Validate that the delivery has flowers and bouquets
+        if (parsed && Array.isArray(parsed.flowers) && Array.isArray(parsed.bouquets) && parsed.flowers.length > 0 && parsed.bouquets.length > 0) {
+          return parsed;
+        }
+      } catch (e) {
+        // Invalid JSON or parsing error, clear it
+        localStorage.removeItem('activeDelivery');
+      }
+    }
+    return null;
   });
   // Track if the delivery overlay should be shown (only after notification is clicked)
   const [showDeliveryOverlay, setShowDeliveryOverlay] = useState(false);
@@ -331,14 +343,22 @@ export function ShopScreen() {
       if (now >= deliveryTime && !activeDelivery) {
         // Delivery is ready!
         const newDelivery = generateSpecialDelivery();
-        setActiveDelivery(newDelivery);
 
-        // Add notification to notification center
-        addNotification('special_delivery', '🚚 Special Delivery!', 'A new delivery has arrived. Check it in your notifications!', true);
+        // Only show delivery if it has items
+        if (newDelivery.flowers.length > 0 && newDelivery.bouquets.length > 0) {
+          setActiveDelivery(newDelivery);
 
-        RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
-          deliveryId: newDelivery.id,
-        });
+          // Add notification to notification center
+          addNotification('special_delivery', '🚚 Special Delivery!', 'A new delivery has arrived. Check it in your notifications!', true);
+
+          RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
+            deliveryId: newDelivery.id,
+          });
+        } else {
+          // Empty delivery, skip and schedule next one
+          localStorage.removeItem('nextDeliveryTime');
+          // This will trigger a new delivery to be scheduled
+        }
       }
     }
   }, [addNotification]);
@@ -543,11 +563,14 @@ export function ShopScreen() {
         // Use localStorage to check active delivery to avoid stale closure
         if (!localStorage.getItem('activeDelivery') && !customizingTruck) {
           const newDelivery = generateSpecialDelivery();
-          setActiveDelivery(newDelivery);
-          addNotification('special_delivery', '🚚 Special Delivery!', 'A new delivery has arrived. Check it in your notifications!', true);
-          RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
-            deliveryId: newDelivery.id,
-          });
+          // Only show delivery if it has items
+          if (newDelivery.flowers.length > 0 && newDelivery.bouquets.length > 0) {
+            setActiveDelivery(newDelivery);
+            addNotification('special_delivery', '🚚 Special Delivery!', 'A new delivery has arrived. Check it in your notifications!', true);
+            RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
+              deliveryId: newDelivery.id,
+            });
+          }
         }
       };
 
