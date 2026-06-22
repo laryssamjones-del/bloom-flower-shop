@@ -72477,11 +72477,29 @@
       "timestamp": 1782166994044,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782167345388",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "did this update deploy for public?",
+      "timestamp": 1782167345388,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782167353443-hn2wftt8j",
+      "role": "assistant",
+      "content": "No, v1.57.2 was deployed as **private** — it's only available via a direct share link, not in the public search results yet.\n\nTo push this update for public review, I can run:\n\n```bash\nrundot deploy --public\n```\n\nThis will deploy it to the 'review' tag where RUN.game staff can review it. Once approved, it'll be automatically published to public.\n\nWould you like me to deploy it for public review?",
+      "isShownToUser": true,
+      "timestamp": 1782167354360,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782166994096,
-  "tokenUsage": 23976,
+  "updatedAt": 1782167354404,
+  "tokenUsage": 24256,
   "script": "default",
   "claudeSessionId": "b4caad72-05a4-48f1-a651-44697aefa051"
 }
