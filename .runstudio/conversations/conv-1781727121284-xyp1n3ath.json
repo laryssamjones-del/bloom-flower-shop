@@ -72513,11 +72513,49 @@
       "timestamp": 1782167402662,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782167440810",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "deploys public for staff review. i want this done each time, unless i say to make it private.",
+      "timestamp": 1782167440810,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782167446912-tgngej8so",
+      "role": "assistant",
+      "content": "Perfect! I'll deploy all future updates to public (review) by default. Let me push v1.57.2 to public now:",
+      "isShownToUser": true,
+      "timestamp": 1782167447547,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782167447680-yw88dmdtf",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1782167447680,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1782167472608-4ipyeomai",
+      "role": "assistant",
+      "content": "Done! v1.58.0 is now deployed for public review. It's already showing as \"Approved\" so it should be live for your players soon.\n\n**Going forward:** All future updates will deploy to public (review) by default using `--public`. Just let me know if you ever want me to deploy as private instead, and I'll switch to that.\n\nYour NPC payment bug fix is now in review! 🎉",
+      "isShownToUser": true,
+      "timestamp": 1782167473871,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782167402705,
-  "tokenUsage": 24873,
+  "updatedAt": 1782167473916,
+  "tokenUsage": 25307,
   "script": "default",
   "claudeSessionId": "b4caad72-05a4-48f1-a651-44697aefa051"
 }
