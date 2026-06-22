@@ -74127,11 +74127,24 @@
       "timestamp": 1782171057298,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "1782171060813-doxjuzvyy",
+      "role": "system",
+      "content": "Compacting project...",
+      "isShownToUser": true,
+      "timestamp": 1782171060813,
+      "type": "compaction",
+      "metadata": {
+        "compaction": {
+          "trigger": "auto"
+        }
+      }
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782171057336,
-  "tokenUsage": 105605,
+  "updatedAt": 1782171131156,
+  "tokenUsage": 0,
   "script": "default",
   "claudeSessionId": "8161821e-b606-4b8c-a718-e3f5dc74c9b9"
 }
