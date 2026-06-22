@@ -84,8 +84,41 @@ export function ShopScreen() {
   const checkAndResetOnlineOrderDaily = useGameStore((s) => s.checkAndResetOnlineOrderDaily);
   const hasReceivedFirstTimeGift = useGameStore((s) => s.hasReceivedFirstTimeGift);
 
-  // Background music
-  const { volume: musicVolume, setVolume: setMusicVolume, isMuted: isMusicMuted, toggleMute: toggleMusicMute } = useBackgroundMusic();
+  // Background music — load from localStorage on mount
+  const musicHook = useBackgroundMusic();
+  const [musicVolume, setMusicVolumeState] = useState<number>(() => {
+    const saved = localStorage.getItem('bloommy_music_volume');
+    const vol = saved !== null ? parseFloat(saved) : 0.3;
+    musicHook.setVolume(vol);
+    return vol;
+  });
+  const [isMusicMuted, setIsMusicMutedState] = useState<boolean>(() => {
+    const saved = localStorage.getItem('bloommy_music_muted');
+    const muted = saved === 'true';
+    if (muted) {
+      musicHook.toggleMute();
+    }
+    return muted;
+  });
+
+  const handleMusicVolumeChange = (volume: number) => {
+    musicHook.setVolume(volume);
+    setMusicVolumeState(volume);
+    localStorage.setItem('bloommy_music_volume', String(volume));
+    // Auto-unmute when user adjusts volume while muted
+    if (isMusicMuted) {
+      musicHook.toggleMute();
+      setIsMusicMutedState(false);
+      localStorage.setItem('bloommy_music_muted', 'false');
+    }
+  };
+
+  const handleToggleMusicMute = () => {
+    musicHook.toggleMute();
+    const next = !isMusicMuted;
+    setIsMusicMutedState(next);
+    localStorage.setItem('bloommy_music_muted', String(next));
+  };
 
   // SFX volume — load from localStorage on mount
   const [sfxVolume, setSfxVolumeState] = useState<number>(() => {
@@ -1146,9 +1179,9 @@ export function ShopScreen() {
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         musicVolume={musicVolume}
-        onMusicVolumeChange={setMusicVolume}
+        onMusicVolumeChange={handleMusicVolumeChange}
         isMusicMuted={isMusicMuted}
-        onToggleMusicMute={toggleMusicMute}
+        onToggleMusicMute={handleToggleMusicMute}
         sfxVolume={sfxVolume}
         onSfxVolumeChange={handleSfxVolumeChange}
         isSfxMuted={isSfxMuted}

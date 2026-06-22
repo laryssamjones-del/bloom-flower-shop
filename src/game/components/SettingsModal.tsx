@@ -102,6 +102,10 @@ export function SettingsModal({
               value={isMusicMuted ? 0 : musicVolume * 100}
               onChange={(e) => {
                 const newVolume = parseFloat(e.target.value) / 100;
+                // Auto-unmute when adjusting slider
+                if (isMusicMuted && newVolume > 0) {
+                  onToggleMusicMute();
+                }
                 onMusicVolumeChange(newVolume);
                 RundotGameAPI.analytics.recordCustomEvent('music_volume_changed', {
                   volume: Math.round(newVolume * 100),
@@ -197,6 +201,10 @@ export function SettingsModal({
               value={isSfxMuted ? 0 : sfxVolume * 100}
               onChange={(e) => {
                 const newVolume = parseFloat(e.target.value) / 100;
+                // Auto-unmute when adjusting slider
+                if (isSfxMuted && newVolume > 0) {
+                  onToggleSfxMute();
+                }
                 onSfxVolumeChange(newVolume);
                 RundotGameAPI.analytics.recordCustomEvent('sfx_volume_changed', {
                   volume: Math.round(newVolume * 100),
