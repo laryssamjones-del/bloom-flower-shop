@@ -38,8 +38,8 @@ import shopBackground from '/bloomy_shop_background.png';
 const NPC_VISIT_MIN = 15000;
 const NPC_VISIT_MAX = 45000;
 
-// Online orders: one spawns every 60–120 seconds (when slot is empty and daily limit not reached)
-const ONLINE_ORDER_SPAWN_MIN = 60000;
+// Online orders: one spawns every 15–120 seconds (when slot is empty and daily limit not reached)
+const ONLINE_ORDER_SPAWN_MIN = 15000;
 const ONLINE_ORDER_SPAWN_MAX = 120000;
 
 // Lifecycle handlers (module-scope — runs once)
