@@ -524,7 +524,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
 
       const bouquet: Bouquet = {
         id: `bouquet-${Date.now()}-${Math.random()}-${i}`,
-        stems,
+        stems: [...stems],
         wrappingPaper: wrapping.wrapping,
         ribbonColor: wrapping.ribbon,
         sellPrice: price,
