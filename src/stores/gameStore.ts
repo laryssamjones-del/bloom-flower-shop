@@ -751,8 +751,6 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     if (!bouquet) return false;
 
     const price = priceOverride || bouquet.sellPrice;
-    state.addCoins(price);
-    state.removeBouquetFromShelf(bouquetId);
     playChaChingSound();
 
     const newCumulativeSales = state.cumulativeBouquetsSold + 1;
@@ -763,26 +761,37 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     const availableFlowers = getUnlockedFlowersAt(newCumulativeSales);
     availableFlowers.forEach((flowerId) => newUnlockedFlowers.add(flowerId));
 
+    // Remove sold bouquet from shelf
+    const updatedShelfBouquets = state.shelfBouquets.filter((b) => b.id !== bouquetId);
+    const updatedDisplayedBouquets = state.displayedBouquets.map((b) => (b?.id === bouquetId ? null : b));
+
     // Move pending bouquets to shelf if there's space
     const pendingBouquets = [...state.pendingBouquets];
-    let movedBouquets = 0;
-    const currentShelfSize = state.shelfBouquets.length - 1; // -1 because we just removed one
+    const currentShelfSize = updatedShelfBouquets.length;
     const shelfSpaceAvailable = state.shelfCapacity - currentShelfSize;
 
     if (pendingBouquets.length > 0 && shelfSpaceAvailable > 0) {
       const bouquetsToMove = pendingBouquets.splice(0, shelfSpaceAvailable);
       for (const pendingBouquet of bouquetsToMove) {
-        state.addBouquetToShelf(pendingBouquet);
-        movedBouquets++;
+        updatedShelfBouquets.push(pendingBouquet);
+        const displayIndex = updatedDisplayedBouquets.findIndex((b) => b === null);
+        if (displayIndex !== -1) {
+          updatedDisplayedBouquets[displayIndex] = pendingBouquet;
+        }
       }
     }
 
+    // Atomic update: coins, shelf, pending, and stats all at once
     set((s) => ({
+      coins: s.coins + price,
+      totalEarned: s.totalEarned + price,
+      shelfBouquets: updatedShelfBouquets,
+      displayedBouquets: updatedDisplayedBouquets,
+      pendingBouquets: pendingBouquets,
       totalCustomersServed: s.totalCustomersServed + 1,
       cumulativeBouquetsSold: newCumulativeSales,
       unlockedFlowers: newUnlockedFlowers,
       unlockedTiers: newUnlockedTiers,
-      pendingBouquets: pendingBouquets,
       lastUpdated: Date.now(),
     }));
 
@@ -796,8 +805,6 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     if (!bouquet) return false;
 
     const price = priceOverride || bouquet.sellPrice;
-    state.addCoins(price);
-    state.removeBouquetFromPending(bouquetId);
     playChaChingSound();
 
     const newCumulativeSales = state.cumulativeBouquetsSold + 1;
@@ -808,7 +815,12 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     const availableFlowers = getUnlockedFlowersAt(newCumulativeSales);
     availableFlowers.forEach((flowerId) => newUnlockedFlowers.add(flowerId));
 
-    set(() => ({
+    // Atomic update: coins and pending bouquets all at once
+    set((s) => ({
+      coins: s.coins + price,
+      totalEarned: s.totalEarned + price,
+      pendingBouquets: s.pendingBouquets.filter((b) => b.id !== bouquetId),
+      totalCustomersServed: s.totalCustomersServed + 1,
       cumulativeBouquetsSold: newCumulativeSales,
       unlockedFlowers: newUnlockedFlowers,
       unlockedTiers: newUnlockedTiers,
