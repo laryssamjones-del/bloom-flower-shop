@@ -556,7 +556,7 @@ export function ShopScreen() {
         const remaining = parseInt(stored) - Date.now();
         if (remaining <= 0) {
           // Delivery is overdue (e.g. player returned after a long break) — trigger now
-          localStorage.removeItem('nextDeliveryTime');
+          // Don't clear nextDeliveryTime yet - it will be cleared when player accepts/denies
           triggerDelivery();
           return;
         }
@@ -727,6 +727,8 @@ export function ShopScreen() {
 
     setShowDeliveryOverlay(false);
     setActiveDelivery(null);
+    // Clear old delivery timer and schedule a fresh 4-hour timer
+    localStorage.removeItem('nextDeliveryTime');
     scheduleNextDelivery();
   };
 
@@ -738,6 +740,8 @@ export function ShopScreen() {
     }
     setShowDeliveryOverlay(false);
     setActiveDelivery(null);
+    // Clear old delivery timer and schedule a fresh 4-hour timer
+    localStorage.removeItem('nextDeliveryTime');
     scheduleNextDelivery();
   };
 
