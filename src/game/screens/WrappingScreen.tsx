@@ -14,10 +14,13 @@ export function WrappingScreen() {
   const bouquetQuantityToBuild = useGameStore((s) => s.bouquetQuantityToBuild);
   const completeOrder = useGameStore((s) => s.completeOrder);
   const getOrderForShopping = useGameStore((s) => s.getOrderForShopping);
+  const pendingBouquets = useGameStore((s) => s.pendingBouquets);
+  const bouquetStorageCapacity = useGameStore((s) => s.bouquetStorageCapacity);
 
   const [isAnimating, setIsAnimating] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [bouquetsCreated, setBouquetsCreated] = useState(0);
+  const [inventoryError, setInventoryError] = useState<string | null>(null);
 
   const activeRecipe = selectedRecipeId ? getRecipeById(selectedRecipeId) : undefined;
 
@@ -87,6 +90,16 @@ export function WrappingScreen() {
   };
 
   const handleAddToInventory = () => {
+    setInventoryError(null);
+
+    // Check inventory capacity BEFORE spending resources
+    const availableSpace = bouquetStorageCapacity - pendingBouquets.length;
+    if (availableSpace <= 0) {
+      setInventoryError('Your inventory is full! Delete some bouquets from your inventory first, or add to shelf instead.');
+      RundotGameAPI.analytics.recordCustomEvent('inventory_add_blocked', { reason: 'full' });
+      return;
+    }
+
     const bouquets = createBouquets();
 
     if (bouquets.length > 0) {
@@ -112,9 +125,19 @@ export function WrappingScreen() {
         }
       }
 
-      // Add all bouquets directly to inventory
+      // Add bouquets to inventory; if inventory fills up mid-batch, overflow goes to shelf
       for (const bouquet of bouquetsToInventory) {
-        addBouquetToPending(bouquet);
+        const added = pendingBouquets.length < bouquetStorageCapacity;
+        if (added) {
+          addBouquetToPending(bouquet);
+        } else {
+          // Inventory filled up during batch — send overflow to shelf
+          const addedToShelf = addBouquetToShelf(bouquet);
+          if (!addedToShelf) {
+            // Both inventory and shelf are full — add to shelf as overflow anyway
+            addBouquetToPending({ ...bouquet, source: 'overflow' });
+          }
+        }
       }
 
       setBouquetsCreated(bouquets.length);
@@ -289,6 +312,22 @@ export function WrappingScreen() {
           </>
         )}
       </div>
+
+      {/* Inventory full error */}
+      {inventoryError && (
+        <div
+          style={{
+            padding: '10px 16px',
+            background: '#FDECEA',
+            borderTop: '2px solid #E57373',
+            color: '#C62828',
+            fontSize: '13px',
+            textAlign: 'center',
+          }}
+        >
+          ⚠️ {inventoryError}
+        </div>
+      )}
 
       {/* Footer - action button */}
       <div
