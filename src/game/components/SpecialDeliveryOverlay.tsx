@@ -13,6 +13,7 @@ export interface SpecialDelivery {
   createdAt: number;
   isPremiumDelivery?: boolean;
   priceMultiplier?: number;
+  isFirstTimeGift?: boolean;
 }
 
 function generateSpecialDelivery(flowerCount: number = 15, bouquetCount: number = 2, bouquetTier?: BouquetTier, isPremiumDelivery: boolean = false, priceMultiplier: number = 1): SpecialDelivery {
@@ -249,8 +250,8 @@ export function SpecialDeliveryOverlay({ delivery, onAccept, onDeny }: Props) {
             </div>
 
               {/* Cost */}
-              <div style={{ paddingTop: '3px', borderTop: '1px solid rgba(0,0,0,0.1)', fontSize: '12px', fontWeight: 'bold', color: '#FF6B9D' }}>
-                💰 {DELIVERY_COST} Petal Coins
+              <div style={{ paddingTop: '3px', borderTop: '1px solid rgba(0,0,0,0.1)', fontSize: '12px', fontWeight: 'bold', color: delivery.isFirstTimeGift ? '#22BB44' : '#FF6B9D' }}>
+                {delivery.isFirstTimeGift ? '🎁 FREE GIFT!' : `💰 ${DELIVERY_COST} Petal Coins`}
               </div>
             </div>
           )}

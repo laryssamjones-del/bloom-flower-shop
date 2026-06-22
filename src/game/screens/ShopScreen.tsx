@@ -82,6 +82,7 @@ export function ShopScreen() {
   const addCoins = useGameStore((s) => s.addCoins);
   const expirePendingOnlineOrders = useGameStore((s) => s.expirePendingOnlineOrders);
   const checkAndResetOnlineOrderDaily = useGameStore((s) => s.checkAndResetOnlineOrderDaily);
+  const hasReceivedFirstTimeGift = useGameStore((s) => s.hasReceivedFirstTimeGift);
 
   // Background music
   const { volume: musicVolume, setVolume: setMusicVolume, isMuted: isMusicMuted, toggleMute: toggleMusicMute } = useBackgroundMusic();
@@ -362,6 +363,32 @@ export function ShopScreen() {
       }
     }
   }, [addNotification]);
+
+  // Check if player should receive first-time gift delivery
+  useEffect(() => {
+    if (!hasReceivedFirstTimeGift && !activeDelivery) {
+      // Generate a gift delivery (free, no cost)
+      const giftDelivery = generateSpecialDelivery();
+      // Mark it as a gift
+      const markedGift: SpecialDelivery = {
+        ...giftDelivery,
+        isFirstTimeGift: true,
+        isPremiumDelivery: false,
+        priceMultiplier: 0, // Free gift
+      };
+      setActiveDelivery(markedGift);
+
+      // Add notification
+      addNotification('special_delivery', '🎁 Welcome Gift!', 'A special welcome gift delivery has arrived!', true);
+
+      // Mark as received so it only appears once
+      useGameStore.setState({ hasReceivedFirstTimeGift: true });
+
+      RundotGameAPI.analytics.recordCustomEvent('first_time_gift_generated', {
+        deliveryId: markedGift.id,
+      });
+    }
+  }, [hasReceivedFirstTimeGift, activeDelivery, addNotification]);
 
   // Schedule next NPC visit
   const scheduleNextVisit = () => {
@@ -690,8 +717,10 @@ export function ShopScreen() {
     const shelfCapacity = state.shelfCapacity;
 
     const DELIVERY_COST = 65;
+    const isGift = delivery.isFirstTimeGift ?? false;
 
-    if (!spendCoins(DELIVERY_COST)) {
+    // Only charge coins if it's not a gift
+    if (!isGift && !spendCoins(DELIVERY_COST)) {
       // Not enough coins
       RundotGameAPI.analytics.recordCustomEvent('special_delivery_rejected', {
         reason: 'insufficient_coins',
@@ -747,6 +776,7 @@ export function ShopScreen() {
       flowerCount: delivery.flowers.reduce((sum, f) => sum + f.quantity, 0),
       bouquetCount: delivery.bouquets.length,
       isPremiumDelivery: isPremium,
+      isFirstTimeGift: isGift,
     });
 
     setShowDeliveryOverlay(false);
