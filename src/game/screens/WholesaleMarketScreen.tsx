@@ -6,7 +6,6 @@ import { EXCLUSIVE_BOX_COSTS } from '../../data/exclusiveBouquets';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { ScreenNavigation } from '../components/ScreenNavigation';
 import {
-  SpecialDeliveryOverlay,
   generateSpecialDelivery,
   type SpecialDelivery,
 } from '../components/SpecialDeliveryOverlay';
@@ -77,7 +76,7 @@ export function WholesaleMarketScreen() {
     }
     return null;
   });
-  const [showDeliveryOverlay, setShowDeliveryOverlay] = useState<boolean>(() => !!localStorage.getItem('activeDelivery'));
+  const [showDeliveryModal, setShowDeliveryModal] = useState<boolean>(() => !!localStorage.getItem('activeDelivery'));
 
   // Countdown timer effect
   useEffect(() => {
@@ -110,7 +109,7 @@ export function WholesaleMarketScreen() {
   // When Market opens, show overlay if delivery is waiting or timer has expired
   useEffect(() => {
     if (activeDelivery) {
-      setShowDeliveryOverlay(true);
+      setShowDeliveryModal(true);
       return;
     }
     const nextDeliveryTime = localStorage.getItem('nextDeliveryTime');
@@ -120,7 +119,7 @@ export function WholesaleMarketScreen() {
         const newDelivery = generateSpecialDelivery();
         if (newDelivery.flowers.length > 0 && newDelivery.bouquets.length > 0) {
           setActiveDelivery(newDelivery);
-          setShowDeliveryOverlay(true);
+          setShowDeliveryModal(true);
           RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
             deliveryId: newDelivery.id,
           });
@@ -610,7 +609,7 @@ export function WholesaleMarketScreen() {
       isFirstTimeGift: isGift,
     });
 
-    setShowDeliveryOverlay(false);
+    setShowDeliveryModal(false);
     setActiveDelivery(null);
     // Reset the 4-hour timer
     localStorage.removeItem('nextDeliveryTime');
@@ -625,7 +624,7 @@ export function WholesaleMarketScreen() {
         deliveryId: activeDelivery.id,
       });
     }
-    setShowDeliveryOverlay(false);
+    setShowDeliveryModal(false);
     setActiveDelivery(null);
     // Reset the 4-hour timer
     localStorage.removeItem('nextDeliveryTime');
@@ -716,36 +715,60 @@ export function WholesaleMarketScreen() {
       <div
         style={{
           padding: '10px 16px',
-          background: 'rgba(255, 107, 157, 0.95)',
-          color: '#FFF',
+          background: activeDelivery ? 'rgba(255, 215, 0, 0.95)' : 'rgba(255, 107, 157, 0.95)',
+          color: activeDelivery ? '#333' : '#FFF',
           fontSize: '13px',
           fontWeight: 'bold',
-          borderBottom: '2px solid rgba(255, 107, 157, 0.7)',
+          borderBottom: '2px solid ' + (activeDelivery ? 'rgba(255, 215, 0, 0.7)' : 'rgba(255, 107, 157, 0.7)'),
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
           gap: '12px',
           flexWrap: 'wrap',
+          cursor: activeDelivery ? 'pointer' : 'default',
+          transition: 'all 0.3s ease',
         }}
+        onClick={() => activeDelivery && setShowDeliveryModal(true)}
       >
-        <span>🚚 Special delivery truck in: {countdownDisplay}</span>
-        <button
-          onClick={handleSpeedupDelivery}
-          disabled={premiumCurrency < SPEEDUP_DELIVERY_COST}
-          style={{
-            padding: '6px 12px',
-            background: premiumCurrency < SPEEDUP_DELIVERY_COST ? '#CCC' : '#FFD700',
-            color: premiumCurrency < SPEEDUP_DELIVERY_COST ? '#999' : '#333',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            cursor: premiumCurrency < SPEEDUP_DELIVERY_COST ? 'not-allowed' : 'pointer',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          ⚡ Speed Up ({SPEEDUP_DELIVERY_COST} 💎)
-        </button>
+        {activeDelivery ? (
+          <>
+            <img
+              src={deliveryTruckImage}
+              alt="Delivery Truck"
+              style={{
+                width: '40px',
+                height: 'auto',
+                objectFit: 'contain',
+                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))',
+              }}
+            />
+            <span>🎉 Delivery Truck Arrived! Click to claim or deny</span>
+          </>
+        ) : (
+          <>
+            <span>🚚 Special delivery truck in: {countdownDisplay}</span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSpeedupDelivery();
+              }}
+              disabled={premiumCurrency < SPEEDUP_DELIVERY_COST}
+              style={{
+                padding: '6px 12px',
+                background: premiumCurrency < SPEEDUP_DELIVERY_COST ? '#CCC' : '#FFD700',
+                color: premiumCurrency < SPEEDUP_DELIVERY_COST ? '#999' : '#333',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                cursor: premiumCurrency < SPEEDUP_DELIVERY_COST ? 'not-allowed' : 'pointer',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              ⚡ Speed Up ({SPEEDUP_DELIVERY_COST} 💎)
+            </button>
+          </>
+        )}
       </div>
 
       {/* Order context header */}
@@ -825,6 +848,119 @@ export function WholesaleMarketScreen() {
           }}
         >
           {deliverySuccessMessage}
+        </div>
+      )}
+
+      {/* Delivery Modal Dialog */}
+      {activeDelivery && showDeliveryModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+          }}
+          onClick={() => setShowDeliveryModal(false)}
+        >
+          <div
+            style={{
+              background: '#FFF',
+              borderRadius: '12px',
+              padding: '20px',
+              maxWidth: '90%',
+              maxHeight: '80vh',
+              overflow: 'auto',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ marginBottom: '16px', textAlign: 'center' }}>
+              <h2 style={{ margin: '0 0 12px 0', color: '#333' }}>
+                🚚 Special Delivery Truck Arrived!
+              </h2>
+              {activeDelivery.isFirstTimeGift && (
+                <div style={{ color: '#22BB44', fontWeight: 'bold', marginBottom: '8px' }}>
+                  🎁 Welcome Gift - FREE!
+                </div>
+              )}
+              <div style={{ fontSize: '14px', color: '#666' }}>
+                Cost: {activeDelivery.isFirstTimeGift ? 'FREE' : '65 🌼'}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', marginBottom: '8px' }}>
+                📦 Flowers:
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {activeDelivery.flowers.map((f, idx) => {
+                  const flower = FLOWERS[f.flowerId] || (GREENERY as Record<string, any>)[f.flowerId];
+                  return (
+                    <div key={idx} style={{ fontSize: '13px', color: '#555' }}>
+                      {flower?.name || f.flowerId} ×{f.quantity}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', marginBottom: '8px' }}>
+                💐 Bonus Bouquets:
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {activeDelivery.bouquets.map((b, idx) => (
+                  <div key={idx} style={{ fontSize: '13px', color: '#555' }}>
+                    • {b.name}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => {
+                  handleDeliveryDeny();
+                  setShowDeliveryModal(false);
+                }}
+                style={{
+                  flex: 1,
+                  padding: '10px',
+                  background: '#EEE',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  color: '#666',
+                }}
+              >
+                Deny
+              </button>
+              <button
+                onClick={() => {
+                  handleDeliveryAccept(activeDelivery);
+                  setShowDeliveryModal(false);
+                }}
+                style={{
+                  flex: 1,
+                  padding: '10px',
+                  background: '#FF6B9D',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  color: '#FFF',
+                }}
+              >
+                Claim
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -1541,15 +1677,6 @@ export function WholesaleMarketScreen() {
             )}
           </div>
         </div>
-      )}
-
-      {/* Special Delivery Overlay - only shows when a delivery is waiting */}
-      {activeDelivery && showDeliveryOverlay && (
-        <SpecialDeliveryOverlay
-          delivery={activeDelivery}
-          onAccept={handleDeliveryAccept}
-          onDeny={handleDeliveryDeny}
-        />
       )}
 
       {/* Exclusive Box Reveal Overlay */}

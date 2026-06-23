@@ -63,7 +63,11 @@ RundotGameAPI.lifecycles.onResume(() => {
 });
 
 RundotGameAPI.lifecycles.onSleep(() => RundotGameAPI.analytics.recordCustomEvent('game_sleep'));
-RundotGameAPI.lifecycles.onQuit(() => RundotGameAPI.analytics.recordCustomEvent('game_quit'));
+RundotGameAPI.lifecycles.onQuit(() => {
+  // Save progress before exiting so no data is lost
+  useGameStore.getState().saveGameState();
+  RundotGameAPI.analytics.recordCustomEvent('game_quit');
+});
 
 export function ShopScreen() {
   const shelfBouquets = useGameStore((s) => s.shelfBouquets);
