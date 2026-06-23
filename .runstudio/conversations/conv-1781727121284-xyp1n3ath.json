@@ -76041,11 +76041,29 @@
       "timestamp": 1782230371698,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782230619804",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "and was this deployed for public review?",
+      "timestamp": 1782230619804,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782230627935-ws0vikjyi",
+      "role": "assistant",
+      "content": "No, v1.60.4 was deployed as **'private'** (unlisted but playable via share link). \n\nTo deploy for **public review** (so RUN.game staff can review it), you'd need to run:\n\n```bash\nrundot deploy --public\n```\n\nThis deploys to the 'review' tag. Once approved by RUN.game staff, it automatically gets published to the public.\n\nWould you like me to deploy for public review? Before I do, make sure:\n1. The auto-save and delivery truck changes work as expected\n2. You have a thumbnail (`public/thumbnail.jpg` — max 256×256 pixels)\n3. You want to add keywords/tags for discoverability (e.g., \"flower-shop\", \"cozy\", \"management\")\n\nLet me know and I can push it for review!",
+      "isShownToUser": true,
+      "timestamp": 1782230629701,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782230371744,
-  "tokenUsage": 47818,
+  "updatedAt": 1782230629753,
+  "tokenUsage": 48175,
   "script": "default",
   "claudeSessionId": "a5a72de6-a8bb-46ee-bd1c-dcb746f2e26c"
 }
