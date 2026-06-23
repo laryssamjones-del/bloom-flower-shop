@@ -151,6 +151,7 @@ export interface GameState {
 
   // Rewards
   unclaimedRewards: number[]; // Array of levels that have unclaimed rewards
+  claimedRewards: number[]; // Array of levels whose reward has been permanently claimed
   hasReceivedFirstTimeGift: boolean; // One-time gift delivery flag
 
   // Shelf Layout

@@ -84,6 +84,7 @@ const createInitialState = (): ShopState => ({
 
   // Rewards
   unclaimedRewards: [],
+  claimedRewards: [],
   hasReceivedFirstTimeGift: false,
 
   // Meta
@@ -1402,6 +1403,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       cumulativeBouquetsSold: state.cumulativeBouquetsSold,
       unlockedTiers: Array.from(state.unlockedTiers),
       unclaimedRewards: state.unclaimedRewards,
+      claimedRewards: state.claimedRewards,
       hasReceivedFirstTimeGift: state.hasReceivedFirstTimeGift,
       tutorialCompleted: state.tutorialCompleted,
       tutorialCurrentStep: state.tutorialCurrentStep,
@@ -1460,6 +1462,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
           cumulativeBouquetsSold: typeof data['cumulativeBouquetsSold'] === 'number' ? (data['cumulativeBouquetsSold'] as number) : 0,
           unlockedTiers,
           unclaimedRewards: Array.isArray(data['unclaimedRewards']) ? ((data['unclaimedRewards'] as number[]).filter((level) => level >= 2)) : [],
+          claimedRewards: Array.isArray(data['claimedRewards']) ? (data['claimedRewards'] as number[]) : [],
           hasReceivedFirstTimeGift: typeof data['hasReceivedFirstTimeGift'] === 'boolean' ? (data['hasReceivedFirstTimeGift'] as boolean) : false,
           tutorialCompleted: typeof data['tutorialCompleted'] === 'boolean' ? (data['tutorialCompleted'] as boolean) : false,
           tutorialCurrentStep: typeof data['tutorialCurrentStep'] === 'number' ? (data['tutorialCurrentStep'] as number) : 0,
@@ -1496,6 +1499,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
             unlockedTiers,
             cumulativeBouquetsSold: parsed.cumulativeBouquetsSold ?? 0,
             unclaimedRewards: (parsed.unclaimedRewards ?? []).filter((level: number) => level >= 2),
+            claimedRewards: parsed.claimedRewards ?? [],
             hasReceivedFirstTimeGift: parsed.hasReceivedFirstTimeGift ?? false,
             tutorialCompleted: parsed.tutorialCompleted ?? false,
             tutorialCurrentStep: parsed.tutorialCurrentStep ?? 0,
@@ -1574,6 +1578,7 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
 
     set((s) => ({
       unclaimedRewards: updatedUnclaimedRewards,
+      claimedRewards: s.claimedRewards.includes(level) ? s.claimedRewards : [...s.claimedRewards, level],
       pendingBouquets: [...s.pendingBouquets, rewardBouquet],
       coins: s.coins + rewardCoins,
       totalEarned: s.totalEarned + rewardCoins,

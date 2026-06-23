@@ -79,6 +79,7 @@ export function ShopScreen() {
   const addUnclaimedReward = useGameStore((s) => s.addUnclaimedReward);
   const addNotification = useGameStore((s) => s.addNotification);
   const unclaimedRewards = useGameStore((s) => s.unclaimedRewards);
+  const claimedRewards = useGameStore((s) => s.claimedRewards);
   const addCoins = useGameStore((s) => s.addCoins);
   const expirePendingOnlineOrders = useGameStore((s) => s.expirePendingOnlineOrders);
   const checkAndResetOnlineOrderDaily = useGameStore((s) => s.checkAndResetOnlineOrderDaily);
@@ -282,7 +283,7 @@ export function ShopScreen() {
     if (!hasInitializedRewardsRef.current) {
       hasInitializedRewardsRef.current = true;
       for (let level = 2; level <= currentLevel; level++) {
-        if (!unclaimedRewards.includes(level)) {
+        if (!unclaimedRewards.includes(level) && !claimedRewards.includes(level)) {
           addUnclaimedReward(level);
         }
       }
@@ -290,7 +291,7 @@ export function ShopScreen() {
 
     // On level up, add the new level's reward and trigger notification
     if (currentLevel > previousLevelRef.current) {
-      if (!unclaimedRewards.includes(currentLevel)) {
+      if (!unclaimedRewards.includes(currentLevel) && !claimedRewards.includes(currentLevel)) {
         addUnclaimedReward(currentLevel);
       }
 
@@ -313,7 +314,7 @@ export function ShopScreen() {
       });
       previousLevelRef.current = currentLevel;
     }
-  }, [cumulativeBouquetsSold, unclaimedRewards, addUnclaimedReward, addNotification]);
+  }, [cumulativeBouquetsSold, unclaimedRewards, claimedRewards, addUnclaimedReward, addNotification]);
 
   // NPC timers
   const npcTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
