@@ -77627,11 +77627,40 @@
       "timestamp": 1782250152860,
       "type": "text",
       "metadata": {}
+    },
+    {
+      "id": "user-1782250409381",
+      "role": "user",
+      "isShownToUser": true,
+      "content": "can you give me a private qr code so i can test it on my phone?",
+      "timestamp": 1782250409381,
+      "type": "text",
+      "metadata": {}
+    },
+    {
+      "id": "1782250416330-p3dasb756",
+      "role": "assistant",
+      "content": "Using tool: Bash",
+      "isShownToUser": true,
+      "timestamp": 1782250416330,
+      "type": "toolUse",
+      "metadata": {
+        "toolName": "Bash"
+      }
+    },
+    {
+      "id": "1782250416331-hshzrk4x4",
+      "role": "assistant",
+      "content": "Here's your private QR code for testing on your phone:\n\n```\n█▀▀▀▀▀█ ▄ █ ▀█▄█▄▄▄▀█▀█▀█ █▀▀▀▀▀█\n█ ███ █ ▄▄▄ █▀▄█▀▄ ▄▀▀ ▄▀ █ ███ █\n█ ▀▀▀ █ ▄█ ▄▄  ▄▀▀█▀ █▀▀█ █ ▀▀▀ █\n▀▀▀▀▀▀▀ ▀▄█▄▀ █▄█ █▄▀▄█ █ ▀▀▀▀▀▀▀\n█████▄▀██▀▄▀▄▄▄▀██▄▄█  █▄▀▄▀ ▀▄█▄\n ▀▄███▀█▄ ▀ ▄█▀█▀▀  █▄█▄▄▄▀▄▀▀▄▀ \n▄█▀█ █▀  █▀ ▀ ▀▀▄▀ ▄▄▄▀▄ ▀▄ ▀▀ ▄▄\n███▄▄ ▀▄▀▄▄█▀ ▄▀▄ █▄█▄   ▀▀ █ ▄▀ \n█ ▀▀▄▀▀▀   ▀▄▄▄▀██▀▄█ ▀▄ █▄█▀▄ █▄\n█▀ █▄█▀ █   ▄█▀█▀▀ ▄██▀ █▀▄▀█▀▄▀ \n▄█▀▀▄▄▀▀██  ▀ ▀ ▄▀ █▄ ▀█ ▀▄▀▀▄ █▄\n█  ▀▀▄▀▀▀ ██▀ ▄▀  ▄ ▄▄█  █   █▄▀ \n▀ ▀▀  ▀ ▄▀ ▀▄▄▄▀█▀▄█▄ ▀ █▀▀▀██▄ █\n█▀▀▀▀▀█ ▀▀█ ▄█▀█  ▀▄▄▄███ ▀ █▀▄█▄\n█ ███ █ █▀▀ ▀ ▀▀█▀▄▄▄ ▀ ▀█▀▀█▄ ▄█\n█ ▀▀▀ █ ██▀█▀ ▄██▀  ███▀ ▀▀▄▄▄▄  \n▀▀▀▀▀▀▀ ▀  ▀    ▀▀▀▀   ▀▀ ▀▀ ▀ ▀ \n```\n\nOr use this link directly: **https://w.run/silvernexus8861/bloom-flower-shop?tag=private**\n\nScan the QR code on your phone to test v1.67.1 with the new downtime order spawning and NPC order notification changes!",
+      "isShownToUser": true,
+      "timestamp": 1782250430369,
+      "type": "text",
+      "metadata": {}
     }
   ],
   "createdAt": 1781727121284,
-  "updatedAt": 1782250152975,
-  "tokenUsage": 84758,
+  "updatedAt": 1782250430400,
+  "tokenUsage": 85837,
   "script": "default",
   "claudeSessionId": "bb9b1075-1bc7-4037-b58e-d0197c69bdf4"
 }
