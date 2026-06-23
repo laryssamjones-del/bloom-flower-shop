@@ -1571,6 +1571,11 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
   },
 
   claimLevelReward: (level: number) => {
+    // Guard: Prevent claiming the same reward twice
+    if (get().claimedRewards.includes(level)) {
+      return;
+    }
+
     const rewardCoins = 150 + Math.floor(level / 5) * 10; // +10 coins every 5 levels
 
     // Get a random bouquet (excluding exclusive bouquets)
