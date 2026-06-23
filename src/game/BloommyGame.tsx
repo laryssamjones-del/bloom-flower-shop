@@ -11,20 +11,8 @@ import { OrdersScreen } from './screens/OrdersScreen';
 import { OnlineOrdersScreen } from './screens/OnlineOrdersScreen';
 import { TutorialModal } from './components/TutorialModal';
 
-// Module-level telemetry registration (runs once on import)
-RundotGameAPI.lifecycles.onPause(() => RundotGameAPI.analytics.recordCustomEvent('game_paused'));
-RundotGameAPI.lifecycles.onResume(() => {
-  RundotGameAPI.analytics.recordCustomEvent('game_resumed');
-  // Track tutorial start on resume if it hasn't been completed
-  const { tutorialCompleted, tutorialCurrentStep } = useGameStore.getState();
-  if (!tutorialCompleted && tutorialCurrentStep === 0) {
-    RundotGameAPI.analytics.recordCustomEvent('tutorial_started', {
-      timestamp: Date.now(),
-    });
-  }
-});
-RundotGameAPI.lifecycles.onSleep(() => RundotGameAPI.analytics.recordCustomEvent('game_sleep'));
-RundotGameAPI.lifecycles.onQuit(() => RundotGameAPI.analytics.recordCustomEvent('game_quit'));
+// Note: lifecycle handlers (pause/resume/sleep/quit) are registered in ShopScreen.tsx
+// at module scope to avoid duplicates. Do not add them here.
 
 export function BloommyGame() {
   const safeArea = getSafeArea();
