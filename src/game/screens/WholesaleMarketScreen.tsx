@@ -5,10 +5,15 @@ import { PETAL_COINS_PACKAGES } from '../../data/petalCoinsPackages';
 import { EXCLUSIVE_BOX_COSTS } from '../../data/exclusiveBouquets';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
 import { ScreenNavigation } from '../components/ScreenNavigation';
-import { generateSpecialDelivery } from '../components/SpecialDeliveryOverlay';
+import {
+  SpecialDeliveryOverlay,
+  generateSpecialDelivery,
+  type SpecialDelivery,
+} from '../components/SpecialDeliveryOverlay';
 import { openPlatformStore, getRunbucksBalance } from '../../services/iap';
 import ExclusiveBoxRevealOverlay from './ExclusiveBoxRevealOverlay';
 import deliveryTruckImage from '../../assets/delivery-truck.png';
+import { Bouquet } from '../../types';
 
 type BulkOption = 1 | 5 | 10 | 20;
 
@@ -57,6 +62,23 @@ export function WholesaleMarketScreen() {
   const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const SPEEDUP_DELIVERY_COST = 5;
 
+  // Active delivery state — this is where the delivery overlay lives
+  const [activeDelivery, setActiveDelivery] = useState<SpecialDelivery | null>(() => {
+    const saved = localStorage.getItem('activeDelivery');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed && Array.isArray(parsed.flowers) && Array.isArray(parsed.bouquets) && parsed.flowers.length > 0 && parsed.bouquets.length > 0) {
+          return parsed;
+        }
+      } catch {
+        localStorage.removeItem('activeDelivery');
+      }
+    }
+    return null;
+  });
+  const [showDeliveryOverlay, setShowDeliveryOverlay] = useState<boolean>(() => !!localStorage.getItem('activeDelivery'));
+
   // Countdown timer effect
   useEffect(() => {
     countdownIntervalRef.current = setInterval(() => {
@@ -75,6 +97,37 @@ export function WholesaleMarketScreen() {
       if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
     };
   }, []);
+
+  // Sync activeDelivery to localStorage
+  useEffect(() => {
+    if (activeDelivery) {
+      localStorage.setItem('activeDelivery', JSON.stringify(activeDelivery));
+    } else {
+      localStorage.removeItem('activeDelivery');
+    }
+  }, [activeDelivery]);
+
+  // When Market opens, show overlay if delivery is waiting or timer has expired
+  useEffect(() => {
+    if (activeDelivery) {
+      setShowDeliveryOverlay(true);
+      return;
+    }
+    const nextDeliveryTime = localStorage.getItem('nextDeliveryTime');
+    if (nextDeliveryTime) {
+      const now = Date.now();
+      if (now >= parseInt(nextDeliveryTime)) {
+        const newDelivery = generateSpecialDelivery();
+        if (newDelivery.flowers.length > 0 && newDelivery.bouquets.length > 0) {
+          setActiveDelivery(newDelivery);
+          setShowDeliveryOverlay(true);
+          RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
+            deliveryId: newDelivery.id,
+          });
+        }
+      }
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Build map of needed flowers when shopping for an order or arrangement
   const neededFlowersMap = (() => {
@@ -489,6 +542,96 @@ export function WholesaleMarketScreen() {
   const handleRevealComplete = () => {
     setShowBoxReveal(false);
     setPendingBoxReveal(undefined);
+  };
+
+  const handleDeliveryAccept = (delivery: SpecialDelivery) => {
+    const state = useGameStore.getState();
+    const spendCoinsLocal = state.spendCoins;
+    const addStemsToInventoryLocal = state.addStemsToInventory;
+    const addBouquetToShelf = state.addBouquetToShelf;
+    const currentShelfBouquets = state.shelfBouquets;
+    const currentShelfCapacity = state.shelfCapacity;
+
+    const DELIVERY_COST = 65;
+    const isGift = delivery.isFirstTimeGift ?? false;
+
+    if (!isGift && !spendCoinsLocal(DELIVERY_COST)) {
+      RundotGameAPI.analytics.recordCustomEvent('special_delivery_rejected', {
+        reason: 'insufficient_coins',
+        deliveryId: delivery.id,
+      });
+      setActiveDelivery(null);
+      return;
+    }
+
+    for (const { flowerId, quantity } of delivery.flowers) {
+      addStemsToInventoryLocal(flowerId, quantity);
+    }
+
+    let shelfSpaceLeft = currentShelfCapacity - currentShelfBouquets.length;
+    const isPremium = delivery.isPremiumDelivery ?? false;
+    const priceMultiplier = delivery.priceMultiplier ?? (isPremium ? 3 : 1);
+
+    for (const bouquetRecipe of delivery.bouquets) {
+      const bouquetToAdd: Bouquet = {
+        id: `delivery-bouquet-${Date.now()}-${Math.random()}`,
+        stems: bouquetRecipe.ingredients.flatMap((ing, idx) =>
+          Array.from({ length: ing.quantity }, (_, i) => ({
+            flowerId: ing.flowerId,
+            order: idx * 10 + i,
+          }))
+        ),
+        wrappingPaper: 'plain-white',
+        ribbonColor: 'blush',
+        sellPrice: Math.round(bouquetRecipe.sellPrice * priceMultiplier),
+        thumbnailUrl: bouquetRecipe.imageUrl,
+        createdAt: Date.now(),
+        recipeName: bouquetRecipe.name,
+        fromPremiumDelivery: isPremium,
+        source: 'delivery',
+      };
+
+      if (shelfSpaceLeft > 0) {
+        addBouquetToShelf(bouquetToAdd);
+        shelfSpaceLeft--;
+      } else {
+        useGameStore.setState((s) => ({
+          pendingBouquets: [...s.pendingBouquets, bouquetToAdd],
+          lastUpdated: Date.now(),
+        }));
+      }
+    }
+
+    RundotGameAPI.analytics.recordCustomEvent('special_delivery_accepted', {
+      deliveryId: delivery.id,
+      flowerCount: delivery.flowers.reduce((sum, f) => sum + f.quantity, 0),
+      bouquetCount: delivery.bouquets.length,
+      isPremiumDelivery: isPremium,
+      isFirstTimeGift: isGift,
+    });
+
+    setShowDeliveryOverlay(false);
+    setActiveDelivery(null);
+    // Reset the 4-hour timer
+    localStorage.removeItem('nextDeliveryTime');
+    const nextTime = Date.now() + 4 * 60 * 60 * 1000;
+    localStorage.setItem('nextDeliveryTime', nextTime.toString());
+    setCountdownDisplay('4:00:00');
+  };
+
+  const handleDeliveryDeny = () => {
+    if (activeDelivery) {
+      RundotGameAPI.analytics.recordCustomEvent('special_delivery_denied', {
+        deliveryId: activeDelivery.id,
+      });
+    }
+    setShowDeliveryOverlay(false);
+    setActiveDelivery(null);
+    // Reset the 4-hour timer
+    localStorage.removeItem('nextDeliveryTime');
+    const nextTime = Date.now() + 4 * 60 * 60 * 1000;
+    localStorage.setItem('nextDeliveryTime', nextTime.toString());
+    setCountdownDisplay('4:00:00');
   };
 
   return (
@@ -1398,6 +1541,15 @@ export function WholesaleMarketScreen() {
             )}
           </div>
         </div>
+      )}
+
+      {/* Special Delivery Overlay - only shows when a delivery is waiting */}
+      {activeDelivery && showDeliveryOverlay && (
+        <SpecialDeliveryOverlay
+          delivery={activeDelivery}
+          onAccept={handleDeliveryAccept}
+          onDeny={handleDeliveryDeny}
+        />
       )}
 
       {/* Exclusive Box Reveal Overlay */}

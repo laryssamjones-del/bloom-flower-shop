@@ -15,7 +15,6 @@ import {
   type ShelfLayoutConfig,
 } from '../components/ShelfLayoutEditor';
 import {
-  SpecialDeliveryOverlay,
   generateSpecialDelivery,
   type SpecialDelivery,
 } from '../components/SpecialDeliveryOverlay';
@@ -249,8 +248,9 @@ export function ShopScreen() {
         notificationType: 'claim_rewards',
       });
     } else if (notificationType === 'special_delivery') {
-      // Show the delivery overlay when notification is clicked
-      setShowDeliveryOverlay(true);
+      // Navigate to the Market where the delivery overlay lives
+      useGameStore.setState({ currentScreen: 'wholesale' });
+      setIsNotificationCenterOpen(false);
       RundotGameAPI.analytics.recordCustomEvent('notification_action_taken', {
         notificationType: 'special_delivery',
       });
@@ -378,11 +378,6 @@ export function ShopScreen() {
     }
     return null;
   });
-  // Show delivery overlay automatically whenever an active delivery is present
-  const [showDeliveryOverlay, setShowDeliveryOverlay] = useState(() => {
-    // If there's a saved delivery on load, show the truck right away
-    return !!localStorage.getItem('activeDelivery');
-  });
   const deliveryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onlineOrderTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -399,7 +394,6 @@ export function ShopScreen() {
         // Only show delivery if it has items
         if (newDelivery.flowers.length > 0 && newDelivery.bouquets.length > 0) {
           setActiveDelivery(newDelivery);
-          setShowDeliveryOverlay(true);
 
           // Add notification to notification center
           addNotification('special_delivery', '🚚 Special Delivery!', 'Your delivery truck has arrived!', true);
@@ -429,7 +423,6 @@ export function ShopScreen() {
         priceMultiplier: 0, // Free gift
       };
       setActiveDelivery(markedGift);
-      setShowDeliveryOverlay(true);
 
       // Add notification
       addNotification('special_delivery', '🎁 Welcome Gift!', 'A special welcome gift delivery has arrived!', true);
@@ -646,7 +639,6 @@ export function ShopScreen() {
           // Only show delivery if it has items
           if (newDelivery.flowers.length > 0 && newDelivery.bouquets.length > 0) {
             setActiveDelivery(newDelivery);
-            setShowDeliveryOverlay(true);
             addNotification('special_delivery', '🚚 Special Delivery!', 'Your delivery truck has arrived!', true);
             RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
               deliveryId: newDelivery.id,
@@ -761,98 +753,6 @@ export function ShopScreen() {
       if (onlineOrderTimerRef.current) clearTimeout(onlineOrderTimerRef.current);
     };
   }, []);
-
-  const handleDeliveryAccept = (delivery: SpecialDelivery) => {
-    const state = useGameStore.getState();
-    const spendCoins = state.spendCoins;
-    const addStemsToInventory = state.addStemsToInventory;
-    const addBouquetToShelf = state.addBouquetToShelf;
-    const shelfBouquets = state.shelfBouquets;
-    const shelfCapacity = state.shelfCapacity;
-
-    const DELIVERY_COST = 65;
-    const isGift = delivery.isFirstTimeGift ?? false;
-
-    // Only charge coins if it's not a gift
-    if (!isGift && !spendCoins(DELIVERY_COST)) {
-      // Not enough coins
-      RundotGameAPI.analytics.recordCustomEvent('special_delivery_rejected', {
-        reason: 'insufficient_coins',
-        deliveryId: delivery.id,
-      });
-      setActiveDelivery(null);
-      return;
-    }
-
-    // Add flowers to inventory
-    for (const { flowerId, quantity } of delivery.flowers) {
-      addStemsToInventory(flowerId, quantity);
-    }
-
-    // Create bouquets and add to shelf or pending based on available space
-    let shelfSpaceLeft = shelfCapacity - shelfBouquets.length;
-    const isPremium = delivery.isPremiumDelivery ?? false;
-    const priceMultiplier = delivery.priceMultiplier ?? (isPremium ? 3 : 1);
-
-    for (const bouquetRecipe of delivery.bouquets) {
-      const bouquetToAdd: Bouquet = {
-        id: `delivery-bouquet-${Date.now()}-${Math.random()}`,
-        stems: bouquetRecipe.ingredients.flatMap((ing, idx) =>
-          Array.from({ length: ing.quantity }, (_, i) => ({
-            flowerId: ing.flowerId,
-            order: idx * 10 + i,
-          }))
-        ),
-        wrappingPaper: 'plain-white',
-        ribbonColor: 'blush',
-        sellPrice: Math.round(bouquetRecipe.sellPrice * priceMultiplier),
-        thumbnailUrl: bouquetRecipe.imageUrl,
-        createdAt: Date.now(),
-        recipeName: bouquetRecipe.name,
-        fromPremiumDelivery: isPremium,
-        source: 'delivery',
-      };
-
-      if (shelfSpaceLeft > 0) {
-        // Add to shelf
-        addBouquetToShelf(bouquetToAdd);
-        shelfSpaceLeft--;
-      } else {
-        // Add to pending bouquets (inventory)
-        useGameStore.setState((s) => ({
-          pendingBouquets: [...s.pendingBouquets, bouquetToAdd],
-          lastUpdated: Date.now(),
-        }));
-      }
-    }
-
-    RundotGameAPI.analytics.recordCustomEvent('special_delivery_accepted', {
-      deliveryId: delivery.id,
-      flowerCount: delivery.flowers.reduce((sum, f) => sum + f.quantity, 0),
-      bouquetCount: delivery.bouquets.length,
-      isPremiumDelivery: isPremium,
-      isFirstTimeGift: isGift,
-    });
-
-    setShowDeliveryOverlay(false);
-    setActiveDelivery(null);
-    // Clear old delivery timer and schedule a fresh 4-hour timer
-    localStorage.removeItem('nextDeliveryTime');
-    scheduleNextDelivery();
-  };
-
-  const handleDeliveryDeny = () => {
-    if (activeDelivery) {
-      RundotGameAPI.analytics.recordCustomEvent('special_delivery_denied', {
-        deliveryId: activeDelivery.id,
-      });
-    }
-    setShowDeliveryOverlay(false);
-    setActiveDelivery(null);
-    // Clear old delivery timer and schedule a fresh 4-hour timer
-    localStorage.removeItem('nextDeliveryTime');
-    scheduleNextDelivery();
-  };
 
   // Long-press handling for delete
   const handlePointerDown = (bouquetId: string) => {
@@ -1177,15 +1077,6 @@ export function ShopScreen() {
         <OrderThankYouOverlay
           customerImage={completedOrderCustomerImage}
           onComplete={() => useGameStore.setState({ orderJustCompleted: false, completedOrderCustomerImage: undefined })}
-        />
-      )}
-
-      {/* Special Delivery Truck - only show overlay if user clicked notification */}
-      {activeDelivery && showDeliveryOverlay && (
-        <SpecialDeliveryOverlay
-          delivery={activeDelivery}
-          onAccept={handleDeliveryAccept}
-          onDeny={handleDeliveryDeny}
         />
       )}
 
