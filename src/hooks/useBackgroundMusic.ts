@@ -13,6 +13,21 @@ let interactionListenerSetUp = false;
 // Callbacks registered by hook instances waiting for the first interaction
 const onInteractionCallbacks: Array<() => void> = [];
 
+// Module-level audio element reference so lifecycle handlers can control it
+let globalAudioElement: HTMLAudioElement | null = null;
+
+export function pauseBackgroundMusic() {
+  if (globalAudioElement) {
+    globalAudioElement.pause();
+  }
+}
+
+export function resumeBackgroundMusic() {
+  if (globalAudioElement) {
+    globalAudioElement.play().catch(() => {});
+  }
+}
+
 function armInteractionListeners() {
   if (interactionListenerSetUp || typeof window === 'undefined') return;
   interactionListenerSetUp = true;
@@ -48,6 +63,7 @@ export function useBackgroundMusic(_audioUrl?: string) {
     audio.volume = volume;
     audio.preload = 'auto';
     audioRef.current = audio;
+    globalAudioElement = audio;
 
     // Start playing as soon as the user first interacts
     const startMusic = () => {

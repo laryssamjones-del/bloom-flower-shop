@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
-import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
+import { useBackgroundMusic, pauseBackgroundMusic, resumeBackgroundMusic } from '../../hooks/useBackgroundMusic';
 import { setSFXVolume, setSFXMuted } from '../../services/audio';
 import { getServerNow } from '../../services/time';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
@@ -54,17 +54,27 @@ RundotGameAPI.lifecycles.onPause(() => {
   if (moduleShelfPurchaseTimerRef) clearTimeout(moduleShelfPurchaseTimerRef);
   if (moduleDeliveryTimerRef) clearTimeout(moduleDeliveryTimerRef);
   if (moduleOnlineOrderTimerRef) clearTimeout(moduleOnlineOrderTimerRef);
+  // Pause background music
+  pauseBackgroundMusic();
   RundotGameAPI.analytics.recordCustomEvent('game_paused');
 });
 
 RundotGameAPI.lifecycles.onResume(() => {
   // Timers will be rescheduled by the component on resume
+  // Resume background music
+  resumeBackgroundMusic();
   RundotGameAPI.analytics.recordCustomEvent('game_resumed');
 });
 
-RundotGameAPI.lifecycles.onSleep(() => RundotGameAPI.analytics.recordCustomEvent('game_sleep'));
+RundotGameAPI.lifecycles.onSleep(() => {
+  // Pause music when game sleeps
+  pauseBackgroundMusic();
+  RundotGameAPI.analytics.recordCustomEvent('game_sleep');
+});
 RundotGameAPI.lifecycles.onQuit(() => {
   // Save progress before exiting so no data is lost
+  // Also pause music
+  pauseBackgroundMusic();
   useGameStore.getState().saveGameState();
   RundotGameAPI.analytics.recordCustomEvent('game_quit');
 });
