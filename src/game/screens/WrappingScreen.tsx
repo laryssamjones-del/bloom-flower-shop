@@ -410,22 +410,6 @@ export function WrappingScreen() {
             ) : (
               <>
                 <button
-                  onClick={handleFinishBouquet}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: '#6A9A50',
-                    color: '#FFF',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  📊 Add to Shelf
-                </button>
-                <button
                   onClick={handleAddToInventory}
                   style={{
                     flex: 1,
@@ -437,10 +421,26 @@ export function WrappingScreen() {
                     cursor: 'pointer',
                     fontSize: '14px',
                     fontWeight: 'bold',
-                    marginLeft: '8px',
                   }}
                 >
                   💐 Add to Inventory
+                </button>
+                <button
+                  onClick={handleFinishBouquet}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: '#6A9A50',
+                    color: '#FFF',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    marginLeft: '8px',
+                  }}
+                >
+                  📊 Add to Shelf
                 </button>
               </>
             )}
