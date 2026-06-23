@@ -518,11 +518,31 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
     // Create the requested number of bouquets
     for (let i = 0; i < quantity; i++) {
       // Remove stems from inventory for this bouquet
+      let canCreateBouquet = true;
       for (const stem of stems) {
-        if (!state.removeStemsFromInventory(stem.flowerId, 1)) {
-          // If we can't remove a stem, stop creating bouquets
-          return bouquets;
+        const currentState = get();
+        const item = currentState.inventory.find((inv) => inv.flowerId === stem.flowerId);
+        if (!item || item.quantity < 1) {
+          canCreateBouquet = false;
+          break;
         }
+      }
+
+      if (!canCreateBouquet) {
+        // Not enough stems to create this bouquet, stop
+        break;
+      }
+
+      // Now remove the stems (we've verified they exist)
+      for (const stem of stems) {
+        set((s) => ({
+          inventory: s.inventory
+            .map((item) =>
+              item.flowerId === stem.flowerId ? { ...item, quantity: item.quantity - 1 } : item
+            )
+            .filter((item) => item.quantity > 0),
+          lastUpdated: Date.now(),
+        }));
       }
 
       // Use recipe data if a recipe is selected
