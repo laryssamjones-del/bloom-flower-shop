@@ -10,10 +10,17 @@ import { InventoryScreen } from './screens/InventoryScreen';
 import { OrdersScreen } from './screens/OrdersScreen';
 import { OnlineOrdersScreen } from './screens/OnlineOrdersScreen';
 import { TutorialModal } from './components/TutorialModal';
+import { pauseBackgroundMusic, resumeBackgroundMusic } from '../hooks/useBackgroundMusic';
 
 // Module-level telemetry registration (runs once on import)
-RundotGameAPI.lifecycles.onPause(() => RundotGameAPI.analytics.recordCustomEvent('game_paused'));
+RundotGameAPI.lifecycles.onPause(() => {
+  // Stop the background music when the player leaves the game
+  pauseBackgroundMusic();
+  RundotGameAPI.analytics.recordCustomEvent('game_paused');
+});
 RundotGameAPI.lifecycles.onResume(() => {
+  // Resume background music when the player returns
+  resumeBackgroundMusic();
   RundotGameAPI.analytics.recordCustomEvent('game_resumed');
   // Track tutorial start on resume if it hasn't been completed
   const { tutorialCompleted, tutorialCurrentStep } = useGameStore.getState();
@@ -23,8 +30,14 @@ RundotGameAPI.lifecycles.onResume(() => {
     });
   }
 });
-RundotGameAPI.lifecycles.onSleep(() => RundotGameAPI.analytics.recordCustomEvent('game_sleep'));
-RundotGameAPI.lifecycles.onQuit(() => RundotGameAPI.analytics.recordCustomEvent('game_quit'));
+RundotGameAPI.lifecycles.onSleep(() => {
+  pauseBackgroundMusic();
+  RundotGameAPI.analytics.recordCustomEvent('game_sleep');
+});
+RundotGameAPI.lifecycles.onQuit(() => {
+  pauseBackgroundMusic();
+  RundotGameAPI.analytics.recordCustomEvent('game_quit');
+});
 
 export function BloommyGame() {
   const safeArea = getSafeArea();

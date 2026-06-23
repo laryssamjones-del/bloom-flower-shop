@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
-import { useBackgroundMusic } from '../../hooks/useBackgroundMusic';
+import {
+  useBackgroundMusic,
+  setMusicVolume,
+  setMusicMuted,
+  pauseBackgroundMusic,
+  resumeBackgroundMusic,
+} from '../../hooks/useBackgroundMusic';
 import { setSFXVolume, setSFXMuted } from '../../services/audio';
 import { getServerNow } from '../../services/time';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
@@ -55,11 +61,14 @@ RundotGameAPI.lifecycles.onPause(() => {
   if (moduleShelfPurchaseTimerRef) clearTimeout(moduleShelfPurchaseTimerRef);
   if (moduleDeliveryTimerRef) clearTimeout(moduleDeliveryTimerRef);
   if (moduleOnlineOrderTimerRef) clearTimeout(moduleOnlineOrderTimerRef);
+  // Stop the background music when the player leaves the game
+  pauseBackgroundMusic();
   RundotGameAPI.analytics.recordCustomEvent('game_paused');
 });
 
 RundotGameAPI.lifecycles.onResume(() => {
   // Timers will be rescheduled by the component on resume
+  resumeBackgroundMusic();
   RundotGameAPI.analytics.recordCustomEvent('game_resumed');
 });
 
@@ -90,38 +99,38 @@ export function ShopScreen() {
   const shelfPurchaseNPC = useGameStore((s) => s.shelfPurchaseNPC);
   const setShelfPurchaseNPCInStore = useGameStore((s) => s.setShelfPurchaseNPC);
 
-  // Background music — load from localStorage on mount
-  const musicHook = useBackgroundMusic();
+  // Background music — initialize the shared audio engine
+  useBackgroundMusic();
   const [musicVolume, setMusicVolumeState] = useState<number>(() => {
     const saved = localStorage.getItem('bloommy_music_volume');
-    const vol = saved !== null ? parseFloat(saved) : 0.3;
-    musicHook.setVolume(vol);
-    return vol;
+    return saved !== null ? parseFloat(saved) : 0.3;
   });
   const [isMusicMuted, setIsMusicMutedState] = useState<boolean>(() => {
-    const saved = localStorage.getItem('bloommy_music_muted');
-    const muted = saved === 'true';
-    if (muted) {
-      musicHook.toggleMute();
-    }
-    return muted;
+    return localStorage.getItem('bloommy_music_muted') === 'true';
   });
 
+  // Apply the persisted music settings to the audio engine once on mount
+  useEffect(() => {
+    setMusicVolume(musicVolume);
+    setMusicMuted(isMusicMuted);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleMusicVolumeChange = (volume: number) => {
-    musicHook.setVolume(volume);
+    setMusicVolume(volume);
     setMusicVolumeState(volume);
     localStorage.setItem('bloommy_music_volume', String(volume));
     // Auto-unmute when user adjusts volume while muted
     if (isMusicMuted) {
-      musicHook.toggleMute();
+      setMusicMuted(false);
       setIsMusicMutedState(false);
       localStorage.setItem('bloommy_music_muted', 'false');
     }
   };
 
   const handleToggleMusicMute = () => {
-    musicHook.toggleMute();
     const next = !isMusicMuted;
+    setMusicMuted(next);
     setIsMusicMutedState(next);
     localStorage.setItem('bloommy_music_muted', String(next));
   };
