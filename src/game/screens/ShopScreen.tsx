@@ -47,19 +47,27 @@ let moduleNpcTimerRef: ReturnType<typeof setTimeout> | null = null;
 let moduleShelfPurchaseTimerRef: ReturnType<typeof setTimeout> | null = null;
 let moduleDeliveryTimerRef: ReturnType<typeof setTimeout> | null = null;
 let moduleOnlineOrderTimerRef: ReturnType<typeof setTimeout> | null = null;
+let modulePauseTimeMs: number = 0;
 
 RundotGameAPI.lifecycles.onPause(() => {
-  // Clear all timers when game pauses
+  // Clear all timers when game pauses and record pause time
   if (moduleNpcTimerRef) clearTimeout(moduleNpcTimerRef);
   if (moduleShelfPurchaseTimerRef) clearTimeout(moduleShelfPurchaseTimerRef);
   if (moduleDeliveryTimerRef) clearTimeout(moduleDeliveryTimerRef);
   if (moduleOnlineOrderTimerRef) clearTimeout(moduleOnlineOrderTimerRef);
+  modulePauseTimeMs = Date.now();
   // Pause background music
   pauseBackgroundMusic();
   RundotGameAPI.analytics.recordCustomEvent('game_paused');
 });
 
 RundotGameAPI.lifecycles.onResume(() => {
+  // Calculate time since pause and generate downtime orders
+  if (modulePauseTimeMs > 0) {
+    const timePausedMs = Date.now() - modulePauseTimeMs;
+    useGameStore.getState().generateDowntimeOrders(timePausedMs);
+    modulePauseTimeMs = 0;
+  }
   // Timers will be rescheduled by the component on resume
   // Resume background music
   resumeBackgroundMusic();
@@ -67,7 +75,8 @@ RundotGameAPI.lifecycles.onResume(() => {
 });
 
 RundotGameAPI.lifecycles.onSleep(() => {
-  // Pause music when game sleeps
+  // Pause music when game sleeps and record pause time
+  modulePauseTimeMs = Date.now();
   pauseBackgroundMusic();
   RundotGameAPI.analytics.recordCustomEvent('game_sleep');
 });
@@ -519,8 +528,6 @@ export function ShopScreen() {
     const order = createOrder(activeVisit.npcImage);
     setActiveVisit(null);
     if (order) {
-      // Trigger silent notification for order pending (link to order so it marks fulfilled when completed)
-      addNotification('order_pending', '📋 Order Pending', `${activeVisit.recipeName} needs to be fulfilled!`, false, order.id);
       RundotGameAPI.analytics.recordCustomEvent('npc_order_accepted', {
         recipeId: activeVisit.recipeId,
         recipeName: activeVisit.recipeName,

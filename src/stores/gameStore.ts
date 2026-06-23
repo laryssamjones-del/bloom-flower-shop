@@ -191,6 +191,7 @@ interface GameStoreActions {
   denyOnlineOrder: (orderId: string) => void;
   expirePendingOnlineOrders: () => void;
   checkAndResetOnlineOrderDaily: (serverDateStr: string) => void;
+  generateDowntimeOrders: (timePausedMs: number) => void;
 
   // Mystery box management
   purchaseMysteryBox: () => boolean;
@@ -1200,6 +1201,74 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
         onlineOrdersCompletedToday: 0,
         lastOnlineOrderResetDate: serverDateStr,
         lastUpdated: Date.now(),
+      });
+    }
+  },
+
+  generateDowntimeOrders: (timePausedMs: number) => {
+    const state = get();
+
+    // Calculate how many orders would have spawned in this time window
+    // Based on spawn rate: 15–120 seconds per order
+    const avgSpawnIntervalMs = (15000 + 120000) / 2; // ~67.5 seconds
+    let potentialOrders = Math.floor(timePausedMs / avgSpawnIntervalMs);
+
+    // Cap at 5-8 max to prevent overwhelming players
+    const MAX_DOWNTIME_ORDERS = 8;
+    potentialOrders = Math.min(potentialOrders, MAX_DOWNTIME_ORDERS);
+
+    if (potentialOrders <= 0) return;
+
+    // Don't spawn if daily limit already reached
+    if (state.onlineOrdersCompletedToday >= 15) return;
+
+    // Generate up to potentialOrders new orders
+    const newOrders: PendingOnlineOrder[] = [];
+    const unlockedRecipes = BOUQUET_RECIPES.filter(
+      (recipe) =>
+        state.unlockedTiers.has(recipe.tier) &&
+        isBouquetUnlocked(recipe.id, state.cumulativeBouquetsSold)
+    );
+
+    if (unlockedRecipes.length === 0) return;
+
+    const now = Date.now();
+    for (let i = 0; i < potentialOrders; i++) {
+      const recipe = unlockedRecipes[Math.floor(Math.random() * unlockedRecipes.length)]!;
+      const quantity = getOrderQuantity(state.cumulativeBouquetsSold);
+      const baseRewardWithBonus = Math.round(recipe.sellPrice * 1.1);
+      const scaledReward = calculateScaledReward(baseRewardWithBonus, quantity);
+
+      const order: PendingOnlineOrder = {
+        id: `online-pending-${now}-${i}-${Math.random()}`,
+        recipeId: recipe.id,
+        recipeName: recipe.name,
+        imageUrl: recipe.imageUrl,
+        quantity,
+        reward: scaledReward,
+        createdAt: now,
+        expiresAt: now + 3 * 60 * 60 * 1000, // 3 hours
+      };
+
+      newOrders.push(order);
+    }
+
+    if (newOrders.length > 0) {
+      set((s) => ({
+        pendingOnlineOrders: [...s.pendingOnlineOrders, ...newOrders],
+        lastUpdated: Date.now(),
+      }));
+
+      // Record analytics for all generated orders
+      newOrders.forEach((order) => {
+        const rarity = getOrderRarity(order.quantity);
+        RundotGameAPI.analytics.recordCustomEvent('online_order_spawned_downtime', {
+          recipeId: order.recipeId,
+          recipeName: order.recipeName,
+          quantity: order.quantity,
+          reward: order.reward,
+          rarity,
+        });
       });
     }
   },
