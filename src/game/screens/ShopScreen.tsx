@@ -75,6 +75,20 @@ RundotGameAPI.lifecycles.onResume(() => {
 RundotGameAPI.lifecycles.onSleep(() => RundotGameAPI.analytics.recordCustomEvent('game_sleep'));
 RundotGameAPI.lifecycles.onQuit(() => RundotGameAPI.analytics.recordCustomEvent('game_quit'));
 
+/**
+ * Recipes the player has unlocked through progression — both the tier and the
+ * per-recipe sales threshold. Special deliveries draw only from these so they
+ * never hand the player a bouquet they haven't unlocked yet.
+ */
+function getUnlockedDeliveryRecipes() {
+  const state = useGameStore.getState();
+  return BOUQUET_RECIPES.filter(
+    (recipe) =>
+      state.unlockedTiers.has(recipe.tier) &&
+      isBouquetUnlocked(recipe.id, state.cumulativeBouquetsSold)
+  );
+}
+
 export function ShopScreen() {
   const shelfBouquets = useGameStore((s) => s.shelfBouquets);
   const displayedBouquets = useGameStore((s) => s.displayedBouquets);
@@ -402,7 +416,7 @@ export function ShopScreen() {
       const now = Date.now();
       if (now >= deliveryTime && !activeDelivery) {
         // Delivery is ready!
-        const newDelivery = generateSpecialDelivery();
+        const newDelivery = generateSpecialDelivery(15, 2, undefined, false, 1, getUnlockedDeliveryRecipes());
 
         // Only show delivery if it has items
         if (newDelivery.flowers.length > 0 && newDelivery.bouquets.length > 0) {
@@ -427,14 +441,16 @@ export function ShopScreen() {
   // Check if player should receive first-time gift delivery
   useEffect(() => {
     if (!hasReceivedFirstTimeGift && !activeDelivery) {
-      // Generate a gift delivery (free, no cost)
-      const giftDelivery = generateSpecialDelivery();
+      // Generate a gift delivery (free to accept, but worth normal resale value)
+      const giftDelivery = generateSpecialDelivery(15, 2, undefined, false, 1, getUnlockedDeliveryRecipes());
       // Mark it as a gift
       const markedGift: SpecialDelivery = {
         ...giftDelivery,
         isFirstTimeGift: true,
         isPremiumDelivery: false,
-        priceMultiplier: 0, // Free gift
+        // Free to ACCEPT (no coin charge), but the bouquets still hold their
+        // normal resale value — a 0 multiplier would make them sell for nothing.
+        priceMultiplier: 1,
       };
       setActiveDelivery(markedGift);
       setShowDeliveryOverlay(true);
@@ -650,7 +666,7 @@ export function ShopScreen() {
       const triggerDelivery = () => {
         // Use localStorage to check active delivery to avoid stale closure
         if (!localStorage.getItem('activeDelivery') && !customizingTruck) {
-          const newDelivery = generateSpecialDelivery();
+          const newDelivery = generateSpecialDelivery(15, 2, undefined, false, 1, getUnlockedDeliveryRecipes());
           // Only show delivery if it has items
           if (newDelivery.flowers.length > 0 && newDelivery.bouquets.length > 0) {
             setActiveDelivery(newDelivery);
@@ -775,8 +791,7 @@ export function ShopScreen() {
     const spendCoins = state.spendCoins;
     const addStemsToInventory = state.addStemsToInventory;
     const addBouquetToShelf = state.addBouquetToShelf;
-    const shelfBouquets = state.shelfBouquets;
-    const shelfCapacity = state.shelfCapacity;
+    const addBouquetToPending = state.addBouquetToPending;
 
     const DELIVERY_COST = 65;
     const isGift = delivery.isFirstTimeGift ?? false;
@@ -797,10 +812,12 @@ export function ShopScreen() {
       addStemsToInventory(flowerId, quantity);
     }
 
-    // Create bouquets and add to shelf or pending based on available space
-    let shelfSpaceLeft = shelfCapacity - shelfBouquets.length;
+    // Create bouquets and add to shelf, overflowing into pending inventory.
     const isPremium = delivery.isPremiumDelivery ?? false;
-    const priceMultiplier = delivery.priceMultiplier ?? (isPremium ? 3 : 1);
+    // Guard against a missing or zero multiplier (e.g. older gift deliveries)
+    // that would otherwise make the bouquets worth 0 coins.
+    const rawMultiplier = delivery.priceMultiplier;
+    const priceMultiplier = rawMultiplier && rawMultiplier > 0 ? rawMultiplier : isPremium ? 3 : 1;
 
     for (const bouquetRecipe of delivery.bouquets) {
       const bouquetToAdd: Bouquet = {
@@ -821,16 +838,9 @@ export function ShopScreen() {
         source: 'delivery',
       };
 
-      if (shelfSpaceLeft > 0) {
-        // Add to shelf
-        addBouquetToShelf(bouquetToAdd);
-        shelfSpaceLeft--;
-      } else {
-        // Add to pending bouquets (inventory)
-        useGameStore.setState((s) => ({
-          pendingBouquets: [...s.pendingBouquets, bouquetToAdd],
-          lastUpdated: Date.now(),
-        }));
+      // Try the shelf first; if it's full, fall back to pending inventory.
+      if (!addBouquetToShelf(bouquetToAdd)) {
+        addBouquetToPending({ ...bouquetToAdd, source: 'overflow' });
       }
     }
 

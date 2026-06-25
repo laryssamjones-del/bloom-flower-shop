@@ -16,7 +16,14 @@ export interface SpecialDelivery {
   isFirstTimeGift?: boolean;
 }
 
-function generateSpecialDelivery(flowerCount: number = 15, bouquetCount: number = 2, bouquetTier?: BouquetTier, isPremiumDelivery: boolean = false, priceMultiplier: number = 1): SpecialDelivery {
+function generateSpecialDelivery(
+  flowerCount: number = 15,
+  bouquetCount: number = 2,
+  bouquetTier?: BouquetTier,
+  isPremiumDelivery: boolean = false,
+  priceMultiplier: number = 1,
+  allowedRecipes?: Array<(typeof BOUQUET_RECIPES)[0]>
+): SpecialDelivery {
   // Get all available flowers (both FLOWERS and GREENERY)
   const allFlowerIds = [
     ...Object.keys(FLOWERS),
@@ -40,10 +47,15 @@ function generateSpecialDelivery(flowerCount: number = 15, bouquetCount: number 
     flowers[flowers.length - 1]!.quantity += remainingCount;
   }
 
-  // Pick N random bouquet recipes (filtered by tier if specified)
-  const bouquetPool = bouquetTier
-    ? BOUQUET_RECIPES.filter((r) => r.tier === bouquetTier)
-    : BOUQUET_RECIPES;
+  // Pick N random bouquet recipes. Restrict to the player's unlocked recipes
+  // when a list is provided, then narrow to a tier if one was requested.
+  let bouquetPool = allowedRecipes && allowedRecipes.length > 0 ? allowedRecipes : BOUQUET_RECIPES;
+  if (bouquetTier) {
+    const tierFiltered = bouquetPool.filter((r) => r.tier === bouquetTier);
+    // Fall back to the unfiltered (unlocked) pool if the tier yields nothing,
+    // so a delivery never ends up empty.
+    bouquetPool = tierFiltered.length > 0 ? tierFiltered : bouquetPool;
+  }
   const shuffled = [...bouquetPool].sort(() => 0.5 - Math.random());
   const bouquets = shuffled.slice(0, bouquetCount).filter((b) => b !== undefined) as Array<(typeof BOUQUET_RECIPES)[0]>;
 

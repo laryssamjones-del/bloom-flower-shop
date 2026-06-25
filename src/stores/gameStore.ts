@@ -29,13 +29,59 @@ import { loadTruckCustomizationConfig } from '../game/components/TruckCustomizer
 const STARTING_COINS = 250;
 const STARTING_INVENTORY_CAPACITY = 125;
 const MAX_INVENTORY_CAPACITY = 450;
-const STARTING_SHELF_CAPACITY = 15;
+// The shop renders 3 shelves of BOUQUETS_PER_SHELF (4) each = 12 visible slots.
+// The data model must match exactly, otherwise bouquets placed in non-rendered
+// slots (e.g. the old 15-slot model's slots 12–14) vanish from view.
+const STARTING_SHELF_CAPACITY = 12;
 const DAILY_PURCHASE_LIMIT = 999999; // Unlimited stems per flower per day
 
 const getTodayDateString = () => {
   const now = new Date();
   return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}`;
 };
+
+/**
+ * Reconcile the shelf into exactly STARTING_SHELF_CAPACITY visible slots.
+ *
+ * The shelf has two representations that must stay in lockstep: the fixed-length
+ * `displayedBouquets` slot array (what the shop renders) and the flat
+ * `shelfBouquets` list. Older saves used 15 slots while only 12 are rendered,
+ * stranding bouquets in invisible slots. This collapses both representations
+ * into a single consistent 12-slot shelf and returns any bouquets that no longer
+ * fit so the caller can move them to pending inventory (recovering, not losing,
+ * stranded bouquets).
+ */
+function normalizeShelf(
+  displayed: (Bouquet | null)[],
+  shelf: Bouquet[]
+): { displayedBouquets: (Bouquet | null)[]; shelfBouquets: Bouquet[]; overflow: Bouquet[] } {
+  const seen = new Set<string>();
+  const onShelf: Bouquet[] = [];
+  // Prefer the rendered slots as the source of truth, then fold in any
+  // shelfBouquets that weren't represented there (defends against drift).
+  for (const b of displayed) {
+    if (b && !seen.has(b.id)) {
+      seen.add(b.id);
+      onShelf.push(b);
+    }
+  }
+  for (const b of shelf) {
+    if (b && !seen.has(b.id)) {
+      seen.add(b.id);
+      onShelf.push(b);
+    }
+  }
+
+  const kept = onShelf.slice(0, STARTING_SHELF_CAPACITY);
+  const overflow = onShelf.slice(STARTING_SHELF_CAPACITY);
+
+  const slots: (Bouquet | null)[] = Array(STARTING_SHELF_CAPACITY).fill(null);
+  kept.forEach((b, i) => {
+    slots[i] = b;
+  });
+
+  return { displayedBouquets: slots, shelfBouquets: kept, overflow };
+}
 
 const createInitialState = (): ShopState => ({
   // Economy
@@ -1441,17 +1487,23 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
         const unlockedTiers = new Set<BouquetTier>(
           Array.isArray(data['unlockedTiers']) ? (data['unlockedTiers'] as BouquetTier[]) : (['budget'] as BouquetTier[])
         );
+        // Normalize the shelf to the rendered 12-slot layout, recovering any
+        // bouquets that older saves stranded in invisible slots into pending.
+        const loadedDisplayed = Array.isArray(data['displayedBouquets']) ? (data['displayedBouquets'] as (Bouquet | null)[]) : Array(STARTING_SHELF_CAPACITY).fill(null);
+        const loadedShelf = Array.isArray(data['shelfBouquets']) ? (data['shelfBouquets'] as Bouquet[]) : [];
+        const loadedPending = Array.isArray(data['pendingBouquets']) ? (data['pendingBouquets'] as Bouquet[]) : [];
+        const shelf = normalizeShelf(loadedDisplayed, loadedShelf);
         set({
           coins: typeof data['coins'] === 'number' ? (data['coins'] as number) : 250,
           totalEarned: typeof data['totalEarned'] === 'number' ? (data['totalEarned'] as number) : 0,
           premiumCurrency: typeof data['premiumCurrency'] === 'number' ? (data['premiumCurrency'] as number) : 0,
           inventory: Array.isArray(data['inventory']) ? (data['inventory'] as StemInInventory[]) : [],
           inventoryCapacity: typeof data['inventoryCapacity'] === 'number' ? (data['inventoryCapacity'] as number) : STARTING_INVENTORY_CAPACITY,
-          shelfCapacity: typeof data['shelfCapacity'] === 'number' ? (data['shelfCapacity'] as number) : 20,
+          shelfCapacity: STARTING_SHELF_CAPACITY,
           bouquetStorageCapacity: typeof data['bouquetStorageCapacity'] === 'number' ? (data['bouquetStorageCapacity'] as number) : 50,
-          shelfBouquets: Array.isArray(data['shelfBouquets']) ? (data['shelfBouquets'] as Bouquet[]) : [],
-          pendingBouquets: Array.isArray(data['pendingBouquets']) ? (data['pendingBouquets'] as Bouquet[]) : [],
-          displayedBouquets: Array.isArray(data['displayedBouquets']) ? (data['displayedBouquets'] as (Bouquet | null)[]) : Array(STARTING_SHELF_CAPACITY).fill(null),
+          shelfBouquets: shelf.shelfBouquets,
+          pendingBouquets: [...loadedPending, ...shelf.overflow],
+          displayedBouquets: shelf.displayedBouquets,
           mysteryBouquets: Array.isArray(data['mysteryBouquets']) ? (data['mysteryBouquets'] as MysteryBouquetItem[]) : [],
           totalCustomersServed: typeof data['totalCustomersServed'] === 'number' ? (data['totalCustomersServed'] as number) : 0,
           unlockedFlowers,
@@ -1483,15 +1535,22 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
           const parsed = JSON.parse(saved);
           const unlockedFlowers = new Set(parsed.unlockedFlowers || []);
           const unlockedTiers = new Set(parsed.unlockedTiers || ['budget']);
+          // Normalize the shelf to the rendered 12-slot layout, recovering any
+          // bouquets that older saves stranded in invisible slots into pending.
+          const shelf = normalizeShelf(
+            parsed.displayedBouquets ?? Array(STARTING_SHELF_CAPACITY).fill(null),
+            parsed.shelfBouquets ?? []
+          );
           set({
             ...parsed,
             coins: parsed.coins ?? 250,
             premiumCurrency: parsed.premiumCurrency ?? 0,
             mysteryBouquets: parsed.mysteryBouquets ?? [],
-            pendingBouquets: parsed.pendingBouquets ?? [],
+            pendingBouquets: [...(parsed.pendingBouquets ?? []), ...shelf.overflow],
             bouquetStorageCapacity: parsed.bouquetStorageCapacity ?? 50,
-            shelfBouquets: parsed.shelfBouquets ?? [],
-            displayedBouquets: parsed.displayedBouquets ?? Array(STARTING_SHELF_CAPACITY).fill(null),
+            shelfCapacity: STARTING_SHELF_CAPACITY,
+            shelfBouquets: shelf.shelfBouquets,
+            displayedBouquets: shelf.displayedBouquets,
             unlockedFlowers,
             unlockedTiers,
             cumulativeBouquetsSold: parsed.cumulativeBouquetsSold ?? 0,
