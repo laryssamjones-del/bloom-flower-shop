@@ -69,7 +69,7 @@ export function playChaChingSound() {
 /** Play the shop door bell (customer arrives) */
 export function playDoorBellSound() {
   if (!userHasInteracted) return;
-  playSfxEl(sfxDoorBellEl, 0.5);
+  playSfxEl(sfxDoorBellEl, sfxVolume);
 }
 
 /** Play a success/positive sound effect */

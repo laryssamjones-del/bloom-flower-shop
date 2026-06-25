@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
-import { useBackgroundMusic, pauseBackgroundMusic, resumeBackgroundMusic } from '../../hooks/useBackgroundMusic';
+import {
+  useBackgroundMusic,
+  setMusicVolume,
+  setMusicMuted,
+  pauseBackgroundMusic,
+  resumeBackgroundMusic,
+} from '../../hooks/useBackgroundMusic';
 import { setSFXVolume, setSFXMuted } from '../../services/audio';
 import { getServerNow } from '../../services/time';
 import RundotGameAPI from '@series-inc/rundot-game-sdk/api';
@@ -15,6 +21,7 @@ import {
   type ShelfLayoutConfig,
 } from '../components/ShelfLayoutEditor';
 import {
+  SpecialDeliveryOverlay,
   generateSpecialDelivery,
   type SpecialDelivery,
 } from '../components/SpecialDeliveryOverlay';
@@ -47,46 +54,40 @@ let moduleNpcTimerRef: ReturnType<typeof setTimeout> | null = null;
 let moduleShelfPurchaseTimerRef: ReturnType<typeof setTimeout> | null = null;
 let moduleDeliveryTimerRef: ReturnType<typeof setTimeout> | null = null;
 let moduleOnlineOrderTimerRef: ReturnType<typeof setTimeout> | null = null;
-let modulePauseTimeMs: number = 0;
 
 RundotGameAPI.lifecycles.onPause(() => {
-  // Clear all timers when game pauses and record pause time
+  // Clear all timers when game pauses
   if (moduleNpcTimerRef) clearTimeout(moduleNpcTimerRef);
   if (moduleShelfPurchaseTimerRef) clearTimeout(moduleShelfPurchaseTimerRef);
   if (moduleDeliveryTimerRef) clearTimeout(moduleDeliveryTimerRef);
   if (moduleOnlineOrderTimerRef) clearTimeout(moduleOnlineOrderTimerRef);
-  modulePauseTimeMs = Date.now();
-  // Pause background music
+  // Stop the background music when the player leaves the game
   pauseBackgroundMusic();
   RundotGameAPI.analytics.recordCustomEvent('game_paused');
 });
 
 RundotGameAPI.lifecycles.onResume(() => {
-  // Calculate time since pause and generate downtime orders
-  if (modulePauseTimeMs > 0) {
-    const timePausedMs = Date.now() - modulePauseTimeMs;
-    useGameStore.getState().generateDowntimeOrders(timePausedMs);
-    modulePauseTimeMs = 0;
-  }
   // Timers will be rescheduled by the component on resume
-  // Resume background music
   resumeBackgroundMusic();
   RundotGameAPI.analytics.recordCustomEvent('game_resumed');
 });
 
-RundotGameAPI.lifecycles.onSleep(() => {
-  // Pause music when game sleeps and record pause time
-  modulePauseTimeMs = Date.now();
-  pauseBackgroundMusic();
-  RundotGameAPI.analytics.recordCustomEvent('game_sleep');
-});
-RundotGameAPI.lifecycles.onQuit(() => {
-  // Save progress before exiting so no data is lost
-  // Also pause music
-  pauseBackgroundMusic();
-  useGameStore.getState().saveGameState();
-  RundotGameAPI.analytics.recordCustomEvent('game_quit');
-});
+RundotGameAPI.lifecycles.onSleep(() => RundotGameAPI.analytics.recordCustomEvent('game_sleep'));
+RundotGameAPI.lifecycles.onQuit(() => RundotGameAPI.analytics.recordCustomEvent('game_quit'));
+
+/**
+ * Recipes the player has unlocked through progression — both the tier and the
+ * per-recipe sales threshold. Special deliveries draw only from these so they
+ * never hand the player a bouquet they haven't unlocked yet.
+ */
+function getUnlockedDeliveryRecipes() {
+  const state = useGameStore.getState();
+  return BOUQUET_RECIPES.filter(
+    (recipe) =>
+      state.unlockedTiers.has(recipe.tier) &&
+      isBouquetUnlocked(recipe.id, state.cumulativeBouquetsSold)
+  );
+}
 
 export function ShopScreen() {
   const shelfBouquets = useGameStore((s) => s.shelfBouquets);
@@ -101,7 +102,6 @@ export function ShopScreen() {
   const addUnclaimedReward = useGameStore((s) => s.addUnclaimedReward);
   const addNotification = useGameStore((s) => s.addNotification);
   const unclaimedRewards = useGameStore((s) => s.unclaimedRewards);
-  const claimedRewards = useGameStore((s) => s.claimedRewards);
   const addCoins = useGameStore((s) => s.addCoins);
   const expirePendingOnlineOrders = useGameStore((s) => s.expirePendingOnlineOrders);
   const checkAndResetOnlineOrderDaily = useGameStore((s) => s.checkAndResetOnlineOrderDaily);
@@ -113,38 +113,38 @@ export function ShopScreen() {
   const shelfPurchaseNPC = useGameStore((s) => s.shelfPurchaseNPC);
   const setShelfPurchaseNPCInStore = useGameStore((s) => s.setShelfPurchaseNPC);
 
-  // Background music — load from localStorage on mount
-  const musicHook = useBackgroundMusic();
+  // Background music — initialize the shared audio engine
+  useBackgroundMusic();
   const [musicVolume, setMusicVolumeState] = useState<number>(() => {
     const saved = localStorage.getItem('bloommy_music_volume');
-    const vol = saved !== null ? parseFloat(saved) : 0.3;
-    musicHook.setVolume(vol);
-    return vol;
+    return saved !== null ? parseFloat(saved) : 0.3;
   });
   const [isMusicMuted, setIsMusicMutedState] = useState<boolean>(() => {
-    const saved = localStorage.getItem('bloommy_music_muted');
-    const muted = saved === 'true';
-    if (muted) {
-      musicHook.toggleMute();
-    }
-    return muted;
+    return localStorage.getItem('bloommy_music_muted') === 'true';
   });
 
+  // Apply the persisted music settings to the audio engine once on mount
+  useEffect(() => {
+    setMusicVolume(musicVolume);
+    setMusicMuted(isMusicMuted);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleMusicVolumeChange = (volume: number) => {
-    musicHook.setVolume(volume);
+    setMusicVolume(volume);
     setMusicVolumeState(volume);
     localStorage.setItem('bloommy_music_volume', String(volume));
     // Auto-unmute when user adjusts volume while muted
     if (isMusicMuted) {
-      musicHook.toggleMute();
+      setMusicMuted(false);
       setIsMusicMutedState(false);
       localStorage.setItem('bloommy_music_muted', 'false');
     }
   };
 
   const handleToggleMusicMute = () => {
-    musicHook.toggleMute();
     const next = !isMusicMuted;
+    setMusicMuted(next);
     setIsMusicMutedState(next);
     localStorage.setItem('bloommy_music_muted', String(next));
   };
@@ -271,9 +271,8 @@ export function ShopScreen() {
         notificationType: 'claim_rewards',
       });
     } else if (notificationType === 'special_delivery') {
-      // Navigate to the Market where the delivery overlay lives
-      useGameStore.setState({ currentScreen: 'wholesale' });
-      setIsNotificationCenterOpen(false);
+      // Show the delivery overlay when notification is clicked
+      setShowDeliveryOverlay(true);
       RundotGameAPI.analytics.recordCustomEvent('notification_action_taken', {
         notificationType: 'special_delivery',
       });
@@ -306,7 +305,7 @@ export function ShopScreen() {
     if (!hasInitializedRewardsRef.current) {
       hasInitializedRewardsRef.current = true;
       for (let level = 2; level <= currentLevel; level++) {
-        if (!unclaimedRewards.includes(level) && !claimedRewards.includes(level)) {
+        if (!unclaimedRewards.includes(level)) {
           addUnclaimedReward(level);
         }
       }
@@ -314,7 +313,7 @@ export function ShopScreen() {
 
     // On level up, add the new level's reward and trigger notification
     if (currentLevel > previousLevelRef.current) {
-      if (!unclaimedRewards.includes(currentLevel) && !claimedRewards.includes(currentLevel)) {
+      if (!unclaimedRewards.includes(currentLevel)) {
         addUnclaimedReward(currentLevel);
       }
 
@@ -337,7 +336,7 @@ export function ShopScreen() {
       });
       previousLevelRef.current = currentLevel;
     }
-  }, [cumulativeBouquetsSold, unclaimedRewards, claimedRewards, addUnclaimedReward, addNotification]);
+  }, [cumulativeBouquetsSold, unclaimedRewards, addUnclaimedReward, addNotification]);
 
   // NPC timers
   const npcTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -401,6 +400,11 @@ export function ShopScreen() {
     }
     return null;
   });
+  // Show delivery overlay automatically whenever an active delivery is present
+  const [showDeliveryOverlay, setShowDeliveryOverlay] = useState(() => {
+    // If there's a saved delivery on load, show the truck right away
+    return !!localStorage.getItem('activeDelivery');
+  });
   const deliveryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onlineOrderTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -412,11 +416,12 @@ export function ShopScreen() {
       const now = Date.now();
       if (now >= deliveryTime && !activeDelivery) {
         // Delivery is ready!
-        const newDelivery = generateSpecialDelivery();
+        const newDelivery = generateSpecialDelivery(15, 2, undefined, false, 1, getUnlockedDeliveryRecipes());
 
         // Only show delivery if it has items
         if (newDelivery.flowers.length > 0 && newDelivery.bouquets.length > 0) {
           setActiveDelivery(newDelivery);
+          setShowDeliveryOverlay(true);
 
           // Add notification to notification center
           addNotification('special_delivery', '🚚 Special Delivery!', 'Your delivery truck has arrived!', true);
@@ -436,16 +441,19 @@ export function ShopScreen() {
   // Check if player should receive first-time gift delivery
   useEffect(() => {
     if (!hasReceivedFirstTimeGift && !activeDelivery) {
-      // Generate a gift delivery (free, no cost)
-      const giftDelivery = generateSpecialDelivery();
+      // Generate a gift delivery (free to accept, but worth normal resale value)
+      const giftDelivery = generateSpecialDelivery(15, 2, undefined, false, 1, getUnlockedDeliveryRecipes());
       // Mark it as a gift
       const markedGift: SpecialDelivery = {
         ...giftDelivery,
         isFirstTimeGift: true,
         isPremiumDelivery: false,
-        priceMultiplier: 0, // Free gift
+        // Free to ACCEPT (no coin charge), but the bouquets still hold their
+        // normal resale value — a 0 multiplier would make them sell for nothing.
+        priceMultiplier: 1,
       };
       setActiveDelivery(markedGift);
+      setShowDeliveryOverlay(true);
 
       // Add notification
       addNotification('special_delivery', '🎁 Welcome Gift!', 'A special welcome gift delivery has arrived!', true);
@@ -528,6 +536,8 @@ export function ShopScreen() {
     const order = createOrder(activeVisit.npcImage);
     setActiveVisit(null);
     if (order) {
+      // Trigger silent notification for order pending (link to order so it marks fulfilled when completed)
+      addNotification('order_pending', '📋 Order Pending', `${activeVisit.recipeName} needs to be fulfilled!`, false, order.id);
       RundotGameAPI.analytics.recordCustomEvent('npc_order_accepted', {
         recipeId: activeVisit.recipeId,
         recipeName: activeVisit.recipeName,
@@ -656,10 +666,11 @@ export function ShopScreen() {
       const triggerDelivery = () => {
         // Use localStorage to check active delivery to avoid stale closure
         if (!localStorage.getItem('activeDelivery') && !customizingTruck) {
-          const newDelivery = generateSpecialDelivery();
+          const newDelivery = generateSpecialDelivery(15, 2, undefined, false, 1, getUnlockedDeliveryRecipes());
           // Only show delivery if it has items
           if (newDelivery.flowers.length > 0 && newDelivery.bouquets.length > 0) {
             setActiveDelivery(newDelivery);
+            setShowDeliveryOverlay(true);
             addNotification('special_delivery', '🚚 Special Delivery!', 'Your delivery truck has arrived!', true);
             RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
               deliveryId: newDelivery.id,
@@ -774,6 +785,92 @@ export function ShopScreen() {
       if (onlineOrderTimerRef.current) clearTimeout(onlineOrderTimerRef.current);
     };
   }, []);
+
+  const handleDeliveryAccept = (delivery: SpecialDelivery) => {
+    const state = useGameStore.getState();
+    const spendCoins = state.spendCoins;
+    const addStemsToInventory = state.addStemsToInventory;
+    const addBouquetToShelf = state.addBouquetToShelf;
+    const addBouquetToPending = state.addBouquetToPending;
+
+    const DELIVERY_COST = 65;
+    const isGift = delivery.isFirstTimeGift ?? false;
+
+    // Only charge coins if it's not a gift
+    if (!isGift && !spendCoins(DELIVERY_COST)) {
+      // Not enough coins
+      RundotGameAPI.analytics.recordCustomEvent('special_delivery_rejected', {
+        reason: 'insufficient_coins',
+        deliveryId: delivery.id,
+      });
+      setActiveDelivery(null);
+      return;
+    }
+
+    // Add flowers to inventory
+    for (const { flowerId, quantity } of delivery.flowers) {
+      addStemsToInventory(flowerId, quantity);
+    }
+
+    // Create bouquets and add to shelf, overflowing into pending inventory.
+    const isPremium = delivery.isPremiumDelivery ?? false;
+    // Guard against a missing or zero multiplier (e.g. older gift deliveries)
+    // that would otherwise make the bouquets worth 0 coins.
+    const rawMultiplier = delivery.priceMultiplier;
+    const priceMultiplier = rawMultiplier && rawMultiplier > 0 ? rawMultiplier : isPremium ? 3 : 1;
+
+    for (const bouquetRecipe of delivery.bouquets) {
+      const bouquetToAdd: Bouquet = {
+        id: `delivery-bouquet-${Date.now()}-${Math.random()}`,
+        stems: bouquetRecipe.ingredients.flatMap((ing, idx) =>
+          Array.from({ length: ing.quantity }, (_, i) => ({
+            flowerId: ing.flowerId,
+            order: idx * 10 + i,
+          }))
+        ),
+        wrappingPaper: 'plain-white',
+        ribbonColor: 'blush',
+        sellPrice: Math.round(bouquetRecipe.sellPrice * priceMultiplier),
+        thumbnailUrl: bouquetRecipe.imageUrl,
+        createdAt: Date.now(),
+        recipeName: bouquetRecipe.name,
+        fromPremiumDelivery: isPremium,
+        source: 'delivery',
+      };
+
+      // Try the shelf first; if it's full, fall back to pending inventory.
+      if (!addBouquetToShelf(bouquetToAdd)) {
+        addBouquetToPending({ ...bouquetToAdd, source: 'overflow' });
+      }
+    }
+
+    RundotGameAPI.analytics.recordCustomEvent('special_delivery_accepted', {
+      deliveryId: delivery.id,
+      flowerCount: delivery.flowers.reduce((sum, f) => sum + f.quantity, 0),
+      bouquetCount: delivery.bouquets.length,
+      isPremiumDelivery: isPremium,
+      isFirstTimeGift: isGift,
+    });
+
+    setShowDeliveryOverlay(false);
+    setActiveDelivery(null);
+    // Clear old delivery timer and schedule a fresh 4-hour timer
+    localStorage.removeItem('nextDeliveryTime');
+    scheduleNextDelivery();
+  };
+
+  const handleDeliveryDeny = () => {
+    if (activeDelivery) {
+      RundotGameAPI.analytics.recordCustomEvent('special_delivery_denied', {
+        deliveryId: activeDelivery.id,
+      });
+    }
+    setShowDeliveryOverlay(false);
+    setActiveDelivery(null);
+    // Clear old delivery timer and schedule a fresh 4-hour timer
+    localStorage.removeItem('nextDeliveryTime');
+    scheduleNextDelivery();
+  };
 
   // Long-press handling for delete
   const handlePointerDown = (bouquetId: string) => {
@@ -1098,6 +1195,15 @@ export function ShopScreen() {
         <OrderThankYouOverlay
           customerImage={completedOrderCustomerImage}
           onComplete={() => useGameStore.setState({ orderJustCompleted: false, completedOrderCustomerImage: undefined })}
+        />
+      )}
+
+      {/* Special Delivery Truck - only show overlay if user clicked notification */}
+      {activeDelivery && showDeliveryOverlay && (
+        <SpecialDeliveryOverlay
+          delivery={activeDelivery}
+          onAccept={handleDeliveryAccept}
+          onDeny={handleDeliveryDeny}
         />
       )}
 
