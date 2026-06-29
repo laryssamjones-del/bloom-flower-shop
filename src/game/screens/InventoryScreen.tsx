@@ -7,6 +7,7 @@ import { ScreenNavigation } from '../components/ScreenNavigation';
 export function InventoryScreen() {
   const setCurrentScreen = useGameStore((s) => s.setCurrentScreen);
   const inventory = useGameStore((s) => s.inventory);
+  const inventoryCapacity = useGameStore((s) => s.inventoryCapacity);
   const pendingBouquets = useGameStore((s) => s.pendingBouquets);
   const mysteryBouquets = useGameStore((s) => s.mysteryBouquets);
   const exclusiveBouquets = useGameStore((s) => s.exclusiveBouquets);
@@ -19,6 +20,7 @@ export function InventoryScreen() {
   const getUnclaimedRewardCount = useGameStore((s) => s.getUnclaimedRewardCount);
   const claimLevelReward = useGameStore((s) => s.claimLevelReward);
   const removeBouquetFromPending = useGameStore((s) => s.removeBouquetFromPending);
+  const sellStems = useGameStore((s) => s.sellStems);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showRewardsModal, setShowRewardsModal] = useState(false);
   const [claimingRewards, setClaimingRewards] = useState<Set<number>>(new Set());
@@ -26,6 +28,20 @@ export function InventoryScreen() {
   const getItem = (id: string) => FLOWERS[id] || (GREENERY as Record<string, any>)[id];
 
   const totalStems = inventory.reduce((sum, item) => sum + item.quantity, 0);
+
+  const handleSellStems = (flowerId: string, flowerName: string, quantity: number) => {
+    const refund = sellStems(flowerId, quantity);
+    if (refund > 0) {
+      setSuccessMessage(`✅ Sold ${quantity} ${flowerName} for ${refund} 🌼`);
+      setTimeout(() => setSuccessMessage(null), 2000);
+
+      RundotGameAPI.analytics.recordCustomEvent('stems_sold', {
+        flowerId,
+        quantity,
+        refund,
+      });
+    }
+  };
 
   const handleSellMysteryBouquet = (bouquetId: string, bouquetName: string, price: number) => {
     if (sellMysteryBouquet(bouquetId)) {
@@ -251,7 +267,7 @@ export function InventoryScreen() {
                 fontWeight: 'bold',
               }}
             >
-              Total stems: {totalStems}
+              Total stems: {totalStems}/{inventoryCapacity}
             </div>
 
             <div
@@ -292,17 +308,59 @@ export function InventoryScreen() {
                         {item.quantity} stems @ {flower.pricePerStem} 🌼 each
                       </div>
                     </div>
-                    <div
-                      style={{
-                        fontSize: '14px',
-                        fontWeight: 'bold',
-                        color: '#6A9A50',
-                        minWidth: '60px',
-                        textAlign: 'right',
-                      }}
-                    >
-                      {item.quantity}x
-                    </div>
+                    {(() => {
+                      // 50% of the buy price (rounded), per stem — matches sellStems in the store.
+                      const refundPerStem = Math.round(flower.pricePerStem * 0.5);
+                      return (
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'flex-end',
+                            gap: '6px',
+                            minWidth: '78px',
+                          }}
+                        >
+                          <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#6A9A50' }}>
+                            {item.quantity}x
+                          </div>
+                          <div style={{ display: 'flex', gap: '4px' }}>
+                            <button
+                              onClick={() => handleSellStems(item.flowerId, flower.name, 1)}
+                              style={{
+                                padding: '5px 8px',
+                                background: '#E8A87C',
+                                color: '#FFF',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '11px',
+                                fontWeight: 'bold',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              Sell 1 (+{refundPerStem})
+                            </button>
+                            <button
+                              onClick={() => handleSellStems(item.flowerId, flower.name, item.quantity)}
+                              style={{
+                                padding: '5px 8px',
+                                background: '#C97B4A',
+                                color: '#FFF',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '11px',
+                                fontWeight: 'bold',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              All (+{refundPerStem * item.quantity})
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 );
               })}

@@ -21,7 +21,6 @@ import {
   type ShelfLayoutConfig,
 } from '../components/ShelfLayoutEditor';
 import {
-  SpecialDeliveryOverlay,
   generateSpecialDelivery,
   type SpecialDelivery,
 } from '../components/SpecialDeliveryOverlay';
@@ -41,8 +40,8 @@ import { FLOWERS } from '../../constants/flowers';
 import shopBackground from '/bloomy_shop_background.png';
 
 // NPC visits: a customer slides in every 15–45 seconds
-const NPC_VISIT_MIN = 15000;
-const NPC_VISIT_MAX = 45000;
+const NPC_VISIT_MIN = 25000;
+const NPC_VISIT_MAX = 50000;
 
 // Online orders: one spawns every 15–120 seconds (when slot is empty and daily limit not reached)
 const ONLINE_ORDER_SPAWN_MIN = 15000;
@@ -102,6 +101,7 @@ export function ShopScreen() {
   const addUnclaimedReward = useGameStore((s) => s.addUnclaimedReward);
   const addNotification = useGameStore((s) => s.addNotification);
   const unclaimedRewards = useGameStore((s) => s.unclaimedRewards);
+  const claimedRewards = useGameStore((s) => s.claimedRewards);
   const addCoins = useGameStore((s) => s.addCoins);
   const expirePendingOnlineOrders = useGameStore((s) => s.expirePendingOnlineOrders);
   const checkAndResetOnlineOrderDaily = useGameStore((s) => s.checkAndResetOnlineOrderDaily);
@@ -271,8 +271,9 @@ export function ShopScreen() {
         notificationType: 'claim_rewards',
       });
     } else if (notificationType === 'special_delivery') {
-      // Show the delivery overlay when notification is clicked
-      setShowDeliveryOverlay(true);
+      // The delivery truck lives in the Market now — take the player there to claim it.
+      useGameStore.setState({ currentScreen: 'wholesale' });
+      setIsNotificationCenterOpen(false);
       RundotGameAPI.analytics.recordCustomEvent('notification_action_taken', {
         notificationType: 'special_delivery',
       });
@@ -301,11 +302,13 @@ export function ShopScreen() {
   useEffect(() => {
     const currentLevel = getCurrentLevel(cumulativeBouquetsSold);
 
-    // On first load, ensure all rewards up to current level are available (starting from level 2+)
+    // On first load, ensure all rewards up to current level are available (starting from level 2+).
+    // Skip any level the player has ALREADY claimed — otherwise claimed rewards
+    // get re-added on every reload and become claimable again (infinite claim bug).
     if (!hasInitializedRewardsRef.current) {
       hasInitializedRewardsRef.current = true;
       for (let level = 2; level <= currentLevel; level++) {
-        if (!unclaimedRewards.includes(level)) {
+        if (!unclaimedRewards.includes(level) && !claimedRewards.includes(level)) {
           addUnclaimedReward(level);
         }
       }
@@ -313,7 +316,7 @@ export function ShopScreen() {
 
     // On level up, add the new level's reward and trigger notification
     if (currentLevel > previousLevelRef.current) {
-      if (!unclaimedRewards.includes(currentLevel)) {
+      if (!unclaimedRewards.includes(currentLevel) && !claimedRewards.includes(currentLevel)) {
         addUnclaimedReward(currentLevel);
       }
 
@@ -336,7 +339,7 @@ export function ShopScreen() {
       });
       previousLevelRef.current = currentLevel;
     }
-  }, [cumulativeBouquetsSold, unclaimedRewards, addUnclaimedReward, addNotification]);
+  }, [cumulativeBouquetsSold, unclaimedRewards, claimedRewards, addUnclaimedReward, addNotification]);
 
   // NPC timers
   const npcTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -400,11 +403,6 @@ export function ShopScreen() {
     }
     return null;
   });
-  // Show delivery overlay automatically whenever an active delivery is present
-  const [showDeliveryOverlay, setShowDeliveryOverlay] = useState(() => {
-    // If there's a saved delivery on load, show the truck right away
-    return !!localStorage.getItem('activeDelivery');
-  });
   const deliveryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onlineOrderTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -421,10 +419,9 @@ export function ShopScreen() {
         // Only show delivery if it has items
         if (newDelivery.flowers.length > 0 && newDelivery.bouquets.length > 0) {
           setActiveDelivery(newDelivery);
-          setShowDeliveryOverlay(true);
 
-          // Add notification to notification center
-          addNotification('special_delivery', '🚚 Special Delivery!', 'Your delivery truck has arrived!', true);
+          // Add notification to notification center — clicking it opens the Market to claim
+          addNotification('special_delivery', '🚚 Special Delivery!', 'Your delivery truck has arrived at the Market!', true);
 
           RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
             deliveryId: newDelivery.id,
@@ -453,10 +450,9 @@ export function ShopScreen() {
         priceMultiplier: 1,
       };
       setActiveDelivery(markedGift);
-      setShowDeliveryOverlay(true);
 
-      // Add notification
-      addNotification('special_delivery', '🎁 Welcome Gift!', 'A special welcome gift delivery has arrived!', true);
+      // Add notification — clicking it opens the Market to claim the gift
+      addNotification('special_delivery', '🎁 Welcome Gift!', 'A welcome gift delivery is waiting at the Market!', true);
 
       // Mark as received so it only appears once
       useGameStore.setState({ hasReceivedFirstTimeGift: true });
@@ -471,9 +467,15 @@ export function ShopScreen() {
   const scheduleNextVisit = () => {
     const delay = NPC_VISIT_MIN + Math.random() * (NPC_VISIT_MAX - NPC_VISIT_MIN);
     npcTimerRef.current = setTimeout(() => {
-      // Don't spawn a new NPC if one is already visible
       const state = useGameStore.getState();
-      if (state.pendingOrders.length < 10) {
+      // One customer at a time: if an order NPC or shelf buyer is already on
+      // screen (or a delivery is waiting), skip this turn and try again next
+      // cycle so they don't run into each other.
+      const someoneElseHere =
+        state.activeNPCVisit ||
+        state.shelfPurchaseNPC ||
+        localStorage.getItem('activeDelivery');
+      if (!someoneElseHere && state.pendingOrders.length < 10) {
         // Pick only from unlocked bouquets (same logic as createOrder)
         const unlockedRecipes = BOUQUET_RECIPES.filter(
           (recipe) =>
@@ -536,8 +538,8 @@ export function ShopScreen() {
     const order = createOrder(activeVisit.npcImage);
     setActiveVisit(null);
     if (order) {
-      // Trigger silent notification for order pending (link to order so it marks fulfilled when completed)
-      addNotification('order_pending', '📋 Order Pending', `${activeVisit.recipeName} needs to be fulfilled!`, false, order.id);
+      // No notification-center entry for accepted NPC orders — the red dot on the
+      // Orders tab already signals there's an order to fulfill.
       RundotGameAPI.analytics.recordCustomEvent('npc_order_accepted', {
         recipeId: activeVisit.recipeId,
         recipeName: activeVisit.recipeName,
@@ -557,7 +559,7 @@ export function ShopScreen() {
   // Shelf purchase NPC - shows a checkout dialog every 8-25 seconds
   // Only appears if no other NPCs are active (order requests, delivery trucks)
   const scheduleNextShelfPurchase = () => {
-    const delay = 8000 + Math.random() * 17000;
+    const delay = 40000 + Math.random() * 20000; // 40–60s between shelf buyers
     shelfPurchaseTimerRef.current = setTimeout(() => {
       const bouquets = useGameStore.getState().shelfBouquets;
       // Only spawn if:
@@ -618,6 +620,9 @@ export function ShopScreen() {
     scheduleNextShelfPurchase();
     return () => {
       if (shelfPurchaseTimerRef.current) clearTimeout(shelfPurchaseTimerRef.current);
+      // Leaving the shop: drop any shelf customer that wasn't acted on so they
+      // don't keep reappearing (and timing out) every time we come back.
+      setShelfPurchaseNPC(null);
     };
   }, []);
 
@@ -670,8 +675,7 @@ export function ShopScreen() {
           // Only show delivery if it has items
           if (newDelivery.flowers.length > 0 && newDelivery.bouquets.length > 0) {
             setActiveDelivery(newDelivery);
-            setShowDeliveryOverlay(true);
-            addNotification('special_delivery', '🚚 Special Delivery!', 'Your delivery truck has arrived!', true);
+            addNotification('special_delivery', '🚚 Special Delivery!', 'Your delivery truck has arrived at the Market!', true);
             RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
               deliveryId: newDelivery.id,
             });
@@ -785,92 +789,6 @@ export function ShopScreen() {
       if (onlineOrderTimerRef.current) clearTimeout(onlineOrderTimerRef.current);
     };
   }, []);
-
-  const handleDeliveryAccept = (delivery: SpecialDelivery) => {
-    const state = useGameStore.getState();
-    const spendCoins = state.spendCoins;
-    const addStemsToInventory = state.addStemsToInventory;
-    const addBouquetToShelf = state.addBouquetToShelf;
-    const addBouquetToPending = state.addBouquetToPending;
-
-    const DELIVERY_COST = 65;
-    const isGift = delivery.isFirstTimeGift ?? false;
-
-    // Only charge coins if it's not a gift
-    if (!isGift && !spendCoins(DELIVERY_COST)) {
-      // Not enough coins
-      RundotGameAPI.analytics.recordCustomEvent('special_delivery_rejected', {
-        reason: 'insufficient_coins',
-        deliveryId: delivery.id,
-      });
-      setActiveDelivery(null);
-      return;
-    }
-
-    // Add flowers to inventory
-    for (const { flowerId, quantity } of delivery.flowers) {
-      addStemsToInventory(flowerId, quantity);
-    }
-
-    // Create bouquets and add to shelf, overflowing into pending inventory.
-    const isPremium = delivery.isPremiumDelivery ?? false;
-    // Guard against a missing or zero multiplier (e.g. older gift deliveries)
-    // that would otherwise make the bouquets worth 0 coins.
-    const rawMultiplier = delivery.priceMultiplier;
-    const priceMultiplier = rawMultiplier && rawMultiplier > 0 ? rawMultiplier : isPremium ? 3 : 1;
-
-    for (const bouquetRecipe of delivery.bouquets) {
-      const bouquetToAdd: Bouquet = {
-        id: `delivery-bouquet-${Date.now()}-${Math.random()}`,
-        stems: bouquetRecipe.ingredients.flatMap((ing, idx) =>
-          Array.from({ length: ing.quantity }, (_, i) => ({
-            flowerId: ing.flowerId,
-            order: idx * 10 + i,
-          }))
-        ),
-        wrappingPaper: 'plain-white',
-        ribbonColor: 'blush',
-        sellPrice: Math.round(bouquetRecipe.sellPrice * priceMultiplier),
-        thumbnailUrl: bouquetRecipe.imageUrl,
-        createdAt: Date.now(),
-        recipeName: bouquetRecipe.name,
-        fromPremiumDelivery: isPremium,
-        source: 'delivery',
-      };
-
-      // Try the shelf first; if it's full, fall back to pending inventory.
-      if (!addBouquetToShelf(bouquetToAdd)) {
-        addBouquetToPending({ ...bouquetToAdd, source: 'overflow' });
-      }
-    }
-
-    RundotGameAPI.analytics.recordCustomEvent('special_delivery_accepted', {
-      deliveryId: delivery.id,
-      flowerCount: delivery.flowers.reduce((sum, f) => sum + f.quantity, 0),
-      bouquetCount: delivery.bouquets.length,
-      isPremiumDelivery: isPremium,
-      isFirstTimeGift: isGift,
-    });
-
-    setShowDeliveryOverlay(false);
-    setActiveDelivery(null);
-    // Clear old delivery timer and schedule a fresh 4-hour timer
-    localStorage.removeItem('nextDeliveryTime');
-    scheduleNextDelivery();
-  };
-
-  const handleDeliveryDeny = () => {
-    if (activeDelivery) {
-      RundotGameAPI.analytics.recordCustomEvent('special_delivery_denied', {
-        deliveryId: activeDelivery.id,
-      });
-    }
-    setShowDeliveryOverlay(false);
-    setActiveDelivery(null);
-    // Clear old delivery timer and schedule a fresh 4-hour timer
-    localStorage.removeItem('nextDeliveryTime');
-    scheduleNextDelivery();
-  };
 
   // Long-press handling for delete
   const handlePointerDown = (bouquetId: string) => {
@@ -1198,14 +1116,7 @@ export function ShopScreen() {
         />
       )}
 
-      {/* Special Delivery Truck - only show overlay if user clicked notification */}
-      {activeDelivery && showDeliveryOverlay && (
-        <SpecialDeliveryOverlay
-          delivery={activeDelivery}
-          onAccept={handleDeliveryAccept}
-          onDeny={handleDeliveryDeny}
-        />
-      )}
+      {/* Special delivery truck now appears in the Market, not on the home screen. */}
 
       {/* Settings Modal */}
       <SettingsModal

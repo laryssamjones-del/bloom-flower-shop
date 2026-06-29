@@ -63,8 +63,8 @@ describe('parseKitSaveState', () => {
 });
 
 describe('persistSave', () => {
-  it('throws QUOTA when the serialized blob exceeds the 8 KiB value cap', async () => {
-    const big = 'x'.repeat(9 * 1024);
+  it('throws QUOTA when the serialized blob exceeds the 256 KiB value cap', async () => {
+    const big = 'x'.repeat(257 * 1024);
     await expect(
       persistSave({ version: SAVE_SCHEMA_VERSION, savedAt: 0, data: { blob: big } }),
     ).rejects.toMatchObject({ code: 'QUOTA' });

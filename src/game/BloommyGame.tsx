@@ -16,6 +16,8 @@ import { pauseBackgroundMusic, resumeBackgroundMusic } from '../hooks/useBackgro
 RundotGameAPI.lifecycles.onPause(() => {
   // Stop the background music when the player leaves the game
   pauseBackgroundMusic();
+  // Flush progress immediately — pause fires when the player backgrounds/leaves the game.
+  useGameStore.getState().saveGameState();
   RundotGameAPI.analytics.recordCustomEvent('game_paused');
 });
 RundotGameAPI.lifecycles.onResume(() => {
@@ -32,10 +34,14 @@ RundotGameAPI.lifecycles.onResume(() => {
 });
 RundotGameAPI.lifecycles.onSleep(() => {
   pauseBackgroundMusic();
+  // Flush progress immediately on sleep so a forced quit can't lose it.
+  useGameStore.getState().saveGameState();
   RundotGameAPI.analytics.recordCustomEvent('game_sleep');
 });
 RundotGameAPI.lifecycles.onQuit(() => {
   pauseBackgroundMusic();
+  // Last-chance save when the player exits the game.
+  useGameStore.getState().saveGameState();
   RundotGameAPI.analytics.recordCustomEvent('game_quit');
 });
 
@@ -63,13 +69,46 @@ export function BloommyGame() {
     };
 
     initGame();
+  }, [loadGameState]);
 
-    // Auto-save on intervals
-    const saveInterval = setInterval(() => {
-      saveGameState();
-    }, 30000); // Save every 30 seconds
-    return () => clearInterval(saveInterval);
-  }, [loadGameState, saveGameState]);
+  // Save right after the player does something, instead of waiting on a timer.
+  // We watch the store and save as soon as game state changes. A short minimum
+  // gap between writes keeps us within the platform's storage rate limit: an
+  // isolated action saves instantly (leading edge), and rapid-fire actions
+  // collapse into one trailing save.
+  useEffect(() => {
+    if (isLoading) return; // don't save until the initial load has finished
+
+    const MIN_SAVE_INTERVAL_MS = 3000;
+    let lastSaveAt = 0;
+    let trailingTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const requestSave = () => {
+      const elapsed = Date.now() - lastSaveAt;
+      if (elapsed >= MIN_SAVE_INTERVAL_MS) {
+        lastSaveAt = Date.now();
+        saveGameState();
+      } else if (trailingTimer === null) {
+        trailingTimer = setTimeout(() => {
+          trailingTimer = null;
+          lastSaveAt = Date.now();
+          saveGameState();
+        }, MIN_SAVE_INTERVAL_MS - elapsed);
+      }
+    };
+
+    const unsubscribe = useGameStore.subscribe((state, prevState) => {
+      // lastUpdated is bumped by every meaningful state mutation.
+      if (state.lastUpdated !== prevState.lastUpdated) {
+        requestSave();
+      }
+    });
+
+    return () => {
+      if (trailingTimer !== null) clearTimeout(trailingTimer);
+      unsubscribe();
+    };
+  }, [isLoading, saveGameState]);
 
   // Save game when leaving
   useEffect(() => {

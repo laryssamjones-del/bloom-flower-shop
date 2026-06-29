@@ -26,8 +26,14 @@ export const SAVE_KEY = `kit_save_v${SAVE_SCHEMA_VERSION}`;
 /** Default save-throttle interval (ms) for the active-play autosave loop. */
 export const DEFAULT_SAVE_INTERVAL_MS = 30_000;
 
-/** Per-value byte ceiling enforced by the platform bucket (8 KiB). */
-const VALUE_BYTE_LIMIT = 8 * 1024;
+/**
+ * Per-value byte ceiling we enforce before writing. The platform accepts values
+ * up to ~977 KiB (hard) and treats 256 KiB as the comfortable working size, so
+ * we guard at 256 KiB. The old 8 KiB cap was far below the platform limit and
+ * silently rejected normal-sized saves (shelf + inventory + accepted orders),
+ * which made progress vanish on reload. See docs/api/STORAGE.md § Limits.
+ */
+const VALUE_BYTE_LIMIT = 256 * 1024;
 
 /** How many times to retry a rate-limited write before giving up. */
 const MAX_RETRIES = 3;

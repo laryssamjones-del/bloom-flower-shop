@@ -14,15 +14,6 @@ import ExclusiveBoxRevealOverlay from './ExclusiveBoxRevealOverlay';
 import deliveryTruckImage from '../../assets/delivery-truck.png';
 import { Bouquet } from '../../types';
 
-type BulkOption = 1 | 5 | 10 | 20;
-
-const BULK_DISCOUNTS: Record<BulkOption, number> = {
-  1: 0,
-  5: 0.1,
-  10: 0.2,
-  20: 0.3,
-};
-
 const STORAGE_UPGRADE_SMALL = { slots: 25, cost: 15 };
 const STORAGE_UPGRADE_LARGE = { slots: 50, cost: 25 };
 const MAX_INVENTORY_CAPACITY = 450;
@@ -38,7 +29,6 @@ export function WholesaleMarketScreen() {
   const purchaseExclusiveBox = useGameStore((s) => s.purchaseExclusiveBox);
   const setPendingBoxReveal = useGameStore((s) => s.setPendingBoxReveal);
   const pendingBoxReveal = useGameStore((s) => s.pendingBoxReveal);
-  const dailyPurchases = useGameStore((s) => s.dailyPurchases);
   const shoppingForOrderId = useGameStore((s) => s.shoppingForOrderId);
   const getOrderForShopping = useGameStore((s) => s.getOrderForShopping);
   const setShoppingForOrderId = useGameStore((s) => s.setShoppingForOrderId);
@@ -76,7 +66,17 @@ export function WholesaleMarketScreen() {
     }
     return null;
   });
-  const [showDeliveryModal, setShowDeliveryModal] = useState<boolean>(() => !!localStorage.getItem('activeDelivery'));
+  const [showDeliveryModal, setShowDeliveryModal] = useState<boolean>(() => {
+    const saved = localStorage.getItem('activeDelivery');
+    if (!saved) return false;
+    try {
+      const parsed = JSON.parse(saved);
+      // Don't auto-open if the player already tapped "Later" for this delivery.
+      return parsed?.id !== localStorage.getItem('deliveryLaterDismissedId');
+    } catch {
+      return false;
+    }
+  });
 
   // Countdown timer effect
   useEffect(() => {
@@ -89,6 +89,20 @@ export function WholesaleMarketScreen() {
         const minutes = Math.floor((remaining % 3600000) / 60000);
         const seconds = Math.floor((remaining % 60000) / 1000);
         setCountdownDisplay(`${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
+
+        // Timer just ran out while the player is in the Market — make the truck
+        // pop up right here so they can claim it. Use localStorage as the source
+        // of truth to avoid a stale closure on activeDelivery.
+        if (remaining <= 0 && !localStorage.getItem('activeDelivery')) {
+          const newDelivery = generateSpecialDelivery();
+          if (newDelivery.flowers.length > 0 && newDelivery.bouquets.length > 0) {
+            setActiveDelivery(newDelivery);
+            setShowDeliveryModal(true);
+            RundotGameAPI.analytics.recordCustomEvent('special_delivery_arrived', {
+              deliveryId: newDelivery.id,
+            });
+          }
+        }
       }
     }, 1000);
 
@@ -109,7 +123,10 @@ export function WholesaleMarketScreen() {
   // When Market opens, show overlay if delivery is waiting or timer has expired
   useEffect(() => {
     if (activeDelivery) {
-      setShowDeliveryModal(true);
+      // Only auto-open if the player hasn't already chosen "Later" for this one.
+      if (activeDelivery.id !== localStorage.getItem('deliveryLaterDismissedId')) {
+        setShowDeliveryModal(true);
+      }
       return;
     }
     const nextDeliveryTime = localStorage.getItem('nextDeliveryTime');
@@ -227,13 +244,12 @@ export function WholesaleMarketScreen() {
     return itemA.name.localeCompare(itemB.name);
   });
 
-  // Get discount for any quantity
-  const getDiscount = (qty: number): number => {
-    if (qty >= 20) return BULK_DISCOUNTS[20];
-    if (qty >= 10) return BULK_DISCOUNTS[10];
-    if (qty >= 5) return BULK_DISCOUNTS[5];
-    return 0;
-  };
+  // How many more stems fit before inventory is full. This is the only real
+  // purchase cap now — there's no per-flower daily limit.
+  const stemSpaceRemaining = Math.max(
+    0,
+    inventoryCapacity - inventory.reduce((sum, i) => sum + i.quantity, 0)
+  );
 
   const handleBuyFlowers = (customQuantity?: number) => {
     if (!selectedFlower) return;
@@ -268,9 +284,7 @@ export function WholesaleMarketScreen() {
       return;
     }
 
-    const discount = getDiscount(quantityToBuy);
-    const baseCost = item.pricePerStem * quantityToBuy;
-    const totalCost = Math.round(baseCost * (1 - discount));
+    const totalCost = item.pricePerStem * quantityToBuy;
 
     if (coins >= totalCost) {
       if (spendCoins(totalCost) && addStemsToInventory(selectedFlower, quantityToBuy)) {
@@ -285,7 +299,6 @@ export function WholesaleMarketScreen() {
           flowerId: selectedFlower,
           quantity: quantityToBuy,
           cost: totalCost,
-          discount: discount > 0 ? `${(discount * 100).toFixed(0)}%` : 'none',
         });
 
         // Check if all needed ingredients for bouquet arrangement are now satisfied
@@ -307,45 +320,6 @@ export function WholesaleMarketScreen() {
         // Clear success message after 2 seconds (only if not returning to arrangement)
         setTimeout(() => setSuccessMessage(null), 2000);
       }
-    }
-  };
-
-  const handleBuyAllItems = () => {
-    let totalCost = 0;
-    let itemsBought = 0;
-    const purchases: { itemId: string; cost: number }[] = [];
-
-    // Try to buy 1 of each item
-    for (const itemId of allAvailable) {
-      const item = getItem(itemId);
-      if (!item) continue;
-
-      const quantityToBuy = 1;
-      const { canBuy } = checkDailyLimit(itemId, quantityToBuy);
-
-      if (canBuy && coins >= totalCost + item.pricePerStem) {
-        totalCost += item.pricePerStem;
-        purchases.push({ itemId, cost: item.pricePerStem });
-      }
-    }
-
-    // Execute all purchases
-    if (purchases.length > 0 && spendCoins(totalCost)) {
-      for (const { itemId } of purchases) {
-        addStemsToInventory(itemId, 1);
-        recordDailyPurchase(itemId, 1);
-        itemsBought++;
-      }
-
-      // Show success message
-      const successMsg = `✅ Bought 1 of ${itemsBought} items for ${totalCost} 🌼`;
-      setSuccessMessage(successMsg);
-      setTimeout(() => setSuccessMessage(null), 2000);
-
-      RundotGameAPI.analytics.recordCustomEvent('buy_all_items', {
-        itemCount: itemsBought,
-        totalCost: totalCost,
-      });
     }
   };
 
@@ -611,11 +585,23 @@ export function WholesaleMarketScreen() {
 
     setShowDeliveryModal(false);
     setActiveDelivery(null);
+    // Claim/deny resolves the delivery — forget any "Later" dismissal.
+    localStorage.removeItem('deliveryLaterDismissedId');
     // Reset the 4-hour timer
     localStorage.removeItem('nextDeliveryTime');
     const nextTime = Date.now() + 4 * 60 * 60 * 1000;
     localStorage.setItem('nextDeliveryTime', nextTime.toString());
     setCountdownDisplay('4:00:00');
+  };
+
+  // Player chose to deal with the delivery later: remember this specific delivery
+  // so the popup won't auto-reopen on later Market visits. The banner stays, so
+  // they can tap it to claim whenever they want.
+  const dismissDeliveryForLater = () => {
+    if (activeDelivery) {
+      localStorage.setItem('deliveryLaterDismissedId', activeDelivery.id);
+    }
+    setShowDeliveryModal(false);
   };
 
   const handleDeliveryDeny = () => {
@@ -626,6 +612,8 @@ export function WholesaleMarketScreen() {
     }
     setShowDeliveryModal(false);
     setActiveDelivery(null);
+    // Claim/deny resolves the delivery — forget any "Later" dismissal.
+    localStorage.removeItem('deliveryLaterDismissedId');
     // Reset the 4-hour timer
     localStorage.removeItem('nextDeliveryTime');
     const nextTime = Date.now() + 4 * 60 * 60 * 1000;
@@ -863,7 +851,7 @@ export function WholesaleMarketScreen() {
             justifyContent: 'center',
             zIndex: 100,
           }}
-          onClick={() => setShowDeliveryModal(false)}
+          onClick={dismissDeliveryForLater}
         >
           <div
             style={{
@@ -920,7 +908,7 @@ export function WholesaleMarketScreen() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ display: 'flex', gap: '8px' }}>
               <button
                 onClick={() => {
                   handleDeliveryDeny();
@@ -939,6 +927,22 @@ export function WholesaleMarketScreen() {
                 }}
               >
                 Deny
+              </button>
+              <button
+                onClick={dismissDeliveryForLater}
+                style={{
+                  flex: 1,
+                  padding: '10px',
+                  background: '#E3EEFB',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  color: '#3A6EA5',
+                }}
+              >
+                Later
               </button>
               <button
                 onClick={() => {
@@ -971,7 +975,7 @@ export function WholesaleMarketScreen() {
           overflow: 'auto',
           WebkitOverflowScrolling: 'touch',
           padding: '12px',
-          paddingBottom: selectedFlower ? '155px' : '12px',
+          paddingBottom: selectedFlower ? '210px' : '12px',
         }}
       >
         <div
@@ -1073,39 +1077,6 @@ export function WholesaleMarketScreen() {
             );
           })}
         </div>
-
-        {/* Buy All Items Button */}
-        {(() => {
-          let totalCostForAll = 0;
-          let itemCount = 0;
-          for (const itemId of allAvailable) {
-            const item = getItem(itemId);
-            if (item) {
-              totalCostForAll += item.pricePerStem;
-              itemCount++;
-            }
-          }
-
-          return (
-            <button
-              onClick={handleBuyAllItems}
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: '#E8A87C',
-                color: '#FFF',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                marginTop: '12px',
-              }}
-            >
-              🌸 Buy 1 of Each ({itemCount} items, {totalCostForAll} 🌼)
-            </button>
-          );
-        })()}
 
       </div>
 
@@ -1544,7 +1515,7 @@ export function WholesaleMarketScreen() {
             padding: '6px',
             background: 'rgba(255,255,255,0.95)',
             borderTop: '2px solid rgba(0,0,0,0.1)',
-            maxHeight: '145px',
+            maxHeight: '200px',
             overflow: 'auto',
             zIndex: 10,
           }}
@@ -1620,17 +1591,16 @@ export function WholesaleMarketScreen() {
               </div>
               <button
                 onClick={() => {
-                  const maxRemaining = Math.max(0, 50 - (dailyPurchases[selectedFlower!] || 0));
-                  setSelectedBulk(Math.min(maxRemaining, selectedBulk + 1));
+                  setSelectedBulk(Math.min(stemSpaceRemaining, selectedBulk + 1));
                 }}
                 style={{
                   width: '32px',
                   height: '32px',
                   padding: 0,
-                  background: (selectedBulk + 1) > Math.max(0, 50 - (dailyPurchases[selectedFlower!] || 0)) ? '#CCC' : '#DDD',
+                  background: (selectedBulk + 1) > stemSpaceRemaining ? '#CCC' : '#DDD',
                   border: 'none',
                   borderRadius: '4px',
-                  cursor: (selectedBulk + 1) > Math.max(0, 50 - (dailyPurchases[selectedFlower!] || 0)) ? 'not-allowed' : 'pointer',
+                  cursor: (selectedBulk + 1) > stemSpaceRemaining ? 'not-allowed' : 'pointer',
                   fontSize: '14px',
                   fontWeight: 'bold',
                 }}
@@ -1639,14 +1609,47 @@ export function WholesaleMarketScreen() {
               </button>
             </div>
 
+            {/* Quick-pick quantities */}
+            <div
+              style={{
+                display: 'flex',
+                gap: '6px',
+                marginBottom: '6px',
+              }}
+            >
+              {[1, 5, 10].map((qty) => {
+                const disabled = qty > stemSpaceRemaining;
+                const isActive = selectedBulk === qty;
+                return (
+                  <button
+                    key={qty}
+                    onClick={() => setSelectedBulk(qty)}
+                    disabled={disabled}
+                    style={{
+                      flex: 1,
+                      padding: '8px',
+                      background: disabled ? '#EEE' : isActive ? '#6A9A50' : '#DDEAD0',
+                      color: disabled ? '#AAA' : isActive ? '#FFF' : '#3A5A2A',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: disabled ? 'not-allowed' : 'pointer',
+                      fontSize: '13px',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {qty}
+                  </button>
+                );
+              })}
+            </div>
+
             {/* Buy buttons */}
             {selectedFlower && getItem(selectedFlower) && (
             (() => {
               const item = getItem(selectedFlower)!;
 
               // Current selected amount
-              const discount = getDiscount(selectedBulk);
-              const totalCost = Math.round(item.pricePerStem * selectedBulk * (1 - discount));
+              const totalCost = item.pricePerStem * selectedBulk;
               const { canBuy } = checkDailyLimit(selectedFlower, selectedBulk);
               const insufficientCoins = coins < totalCost;
               const isDisabled = insufficientCoins || !canBuy;

@@ -12,7 +12,7 @@ import {
   BouquetTier,
   Notification,
 } from '../types';
-import { FLOWERS, INITIAL_UNLOCKED_FLOWERS, CUSTOMER_MOODS } from '../constants/flowers';
+import { FLOWERS, GREENERY, INITIAL_UNLOCKED_FLOWERS, CUSTOMER_MOODS } from '../constants/flowers';
 import { BOUQUET_RECIPES, getRecipeById, isBouquetUnlocked } from '../data/bouquets';
 import { MYSTERY_BOX_COST_RUN_BUCKS, getRandomMysteryBouquet } from '../data/mysteryBox';
 import { EXCLUSIVE_BOX_COSTS } from '../data/exclusiveBouquets';
@@ -174,6 +174,7 @@ interface GameStoreActions {
   // Inventory
   addStemsToInventory: (flowerId: string, quantity: number) => boolean;
   removeStemsFromInventory: (flowerId: string, quantity: number) => boolean;
+  sellStems: (flowerId: string, quantity: number) => number;
   getTotalStemsInInventory: () => number;
 
   // Daily limits
@@ -388,6 +389,25 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
       lastUpdated: Date.now(),
     }));
     return true;
+  },
+
+  // Sell stems back for 50% of their buy price (rounded), per stem. The 50% rate
+  // keeps players from farming coins via the bulk-buy discount (up to 30% off).
+  sellStems: (flowerId: string, quantity: number) => {
+    const state = get();
+    const item = state.inventory.find((i) => i.flowerId === flowerId);
+    if (!item || quantity <= 0 || item.quantity < quantity) return 0;
+
+    const flowerInfo = FLOWERS[flowerId] || (GREENERY as Record<string, { pricePerStem?: number }>)[flowerId];
+    const pricePerStem = flowerInfo?.pricePerStem ?? 0;
+    const refund = Math.round(pricePerStem * 0.5) * quantity;
+
+    if (!state.removeStemsFromInventory(flowerId, quantity)) return 0;
+    if (refund > 0) {
+      state.addCoins(refund);
+      playChaChingSound();
+    }
+    return refund;
   },
 
   getTotalStemsInInventory: () => {
@@ -1584,6 +1604,16 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
         const loadedShelf = Array.isArray(data['shelfBouquets']) ? (data['shelfBouquets'] as Bouquet[]) : [];
         const loadedPending = Array.isArray(data['pendingBouquets']) ? (data['pendingBouquets'] as Bouquet[]) : [];
         const shelf = normalizeShelf(loadedDisplayed, loadedShelf);
+        // Reward bookkeeping: a buggy older build let claimed levels linger in
+        // unclaimedRewards, so they reappeared as claimable on every load. Drop
+        // any level that's already in claimedRewards to repair such saves.
+        const loadedClaimedRewards = Array.isArray(data['claimedRewards']) ? (data['claimedRewards'] as number[]) : [];
+        const loadedUnclaimedRewards = Array.from(
+          new Set(
+            (Array.isArray(data['unclaimedRewards']) ? (data['unclaimedRewards'] as number[]) : [])
+              .filter((level) => level >= 2 && !loadedClaimedRewards.includes(level))
+          )
+        );
         set({
           coins: typeof data['coins'] === 'number' ? (data['coins'] as number) : 250,
           totalEarned: typeof data['totalEarned'] === 'number' ? (data['totalEarned'] as number) : 0,
@@ -1602,8 +1632,8 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
           unlockedWrappings: Array.isArray(data['unlockedWrappings']) ? (data['unlockedWrappings'] as WrappingPaperType[]) : ['plain-white', 'kraft'],
           cumulativeBouquetsSold: typeof data['cumulativeBouquetsSold'] === 'number' ? (data['cumulativeBouquetsSold'] as number) : 0,
           unlockedTiers,
-          unclaimedRewards: Array.isArray(data['unclaimedRewards']) ? ((data['unclaimedRewards'] as number[]).filter((level) => level >= 2)) : [],
-          claimedRewards: Array.isArray(data['claimedRewards']) ? (data['claimedRewards'] as number[]) : [],
+          unclaimedRewards: loadedUnclaimedRewards,
+          claimedRewards: loadedClaimedRewards,
           hasReceivedFirstTimeGift: typeof data['hasReceivedFirstTimeGift'] === 'boolean' ? (data['hasReceivedFirstTimeGift'] as boolean) : false,
           tutorialCompleted: typeof data['tutorialCompleted'] === 'boolean' ? (data['tutorialCompleted'] as boolean) : false,
           tutorialCurrentStep: typeof data['tutorialCurrentStep'] === 'number' ? (data['tutorialCurrentStep'] as number) : 0,
@@ -1646,7 +1676,14 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
             unlockedFlowers,
             unlockedTiers,
             cumulativeBouquetsSold: parsed.cumulativeBouquetsSold ?? 0,
-            unclaimedRewards: (parsed.unclaimedRewards ?? []).filter((level: number) => level >= 2),
+            // Drop any reward level already claimed (and dedupe) so claimed rewards can't reappear.
+            unclaimedRewards: Array.from(
+              new Set(
+                (parsed.unclaimedRewards ?? []).filter(
+                  (level: number) => level >= 2 && !(parsed.claimedRewards ?? []).includes(level)
+                )
+              )
+            ),
             claimedRewards: parsed.claimedRewards ?? [],
             hasReceivedFirstTimeGift: parsed.hasReceivedFirstTimeGift ?? false,
             tutorialCompleted: parsed.tutorialCompleted ?? false,
@@ -1692,10 +1729,17 @@ export const useGameStore = create<ShopState & GameStoreActions>((set, get) => (
   },
 
   addUnclaimedReward: (level: number) => {
-    set((s) => ({
-      unclaimedRewards: [...s.unclaimedRewards, level],
-      lastUpdated: Date.now(),
-    }));
+    set((s) => {
+      // Never re-add a reward that's already pending or already claimed —
+      // this is the central guard against claimed rewards reappearing.
+      if (s.unclaimedRewards.includes(level) || s.claimedRewards.includes(level)) {
+        return s;
+      }
+      return {
+        unclaimedRewards: [...s.unclaimedRewards, level],
+        lastUpdated: Date.now(),
+      };
+    });
   },
 
   claimLevelReward: (level: number) => {

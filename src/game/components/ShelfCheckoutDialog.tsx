@@ -158,7 +158,9 @@ export function ShelfCheckoutDialog({
         >
           {phase === 'asking' && "This bouquet is beautiful! I'd like to buy this from your shelf, please."}
           {phase === 'confirming' && `Sell for ${bouquet.sellPrice} 🌼?`}
-          {phase === 'closing' && 'Thanks!'}
+          {/* Only thank the customer when they actually bought. A timeout/no-sale
+              should not say "Thanks!" — show a neutral goodbye instead. */}
+          {phase === 'closing' && (isExplicitConfirm ? 'Thanks!' : 'Maybe next time!')}
         </div>
 
         {/* Timer display in asking phase */}

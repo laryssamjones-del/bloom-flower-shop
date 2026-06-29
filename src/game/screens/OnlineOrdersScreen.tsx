@@ -24,7 +24,6 @@ export function OnlineOrdersScreen() {
   const acceptOnlineOrder = useGameStore((s) => s.acceptOnlineOrder);
   const denyOnlineOrder = useGameStore((s) => s.denyOnlineOrder);
   const expirePendingOnlineOrders = useGameStore((s) => s.expirePendingOnlineOrders);
-  const addNotification = useGameStore((s) => s.addNotification);
 
   // Live countdown — tick every second
   const [now, setNow] = useState(Date.now());
@@ -40,7 +39,8 @@ export function OnlineOrdersScreen() {
 
   const handleAccept = (orderId: string) => {
     acceptOnlineOrder(orderId);
-    addNotification('online_order', '🌐 Online Order Accepted', 'Check the Orders tab to start fulfilling it!', false);
+    // No notification-center entry on accept — the red dot on the Orders tab
+    // already signals the new order, so this would just be clutter.
     RundotGameAPI.analytics.recordCustomEvent('online_order_screen_accepted', { orderId });
     setCurrentScreen('orders');
   };
